@@ -1,9 +1,8 @@
 package=boost
-$(package)_version=1_62_0
-$(package)_download_path=http://sourceforge.net/projects/boost/files/boost/1.62.0
+$(package)_version=1_65_1
+$(package)_download_path=https://dl.bintray.com/boostorg/release/1.65.1/source/
 $(package)_file_name=$(package)_$($(package)_version).tar.bz2
-$(package)_sha256_hash=36c96b0f6155c98404091d8ceb48319a28279ca0333fba1ad8611eb90afb2ca0
-$(package)_patches=deprecated_auto_ptr.patch include_poll.patch
+$(package)_sha256_hash=9807a5d16566c57fd74fb522764e0b134a8bbe6b6e8967b83afefd30dcd3be81
 
 define $(package)_set_vars
 $(package)_config_opts_release=variant=release
@@ -26,9 +25,7 @@ $(package)_cxxflags_linux=-fPIC
 endef
 
 define $(package)_preprocess_cmds
-  echo "using $(boost_toolset_$(host_os)) : : $($(package)_cxx) : <cxxflags>\"$($(package)_cxxflags) $($(package)_cppflags)\" <linkflags>\"$($(package)_ldflags)\" <archiver>\"$(boost_archiver_$(host_os))\" <striper>\"$(host_STRIP)\"  <ranlib>\"$(host_RANLIB)\" <rc>\"$(host_WINDRES)\" : ;" > user-config.jam && \
-   patch -p1 < $($(package)_patch_dir)/deprecated_auto_ptr.patch && \
-   patch -p1 < $($(package)_patch_dir)/include_poll.patch
+  echo "using $(boost_toolset_$(host_os)) : : $($(package)_cxx) : <cxxflags>\"$($(package)_cxxflags) $($(package)_cppflags)\" <linkflags>\"$($(package)_ldflags)\" <archiver>\"$(boost_archiver_$(host_os))\" <striper>\"$(host_STRIP)\"  <ranlib>\"$(host_RANLIB)\" <rc>\"$(host_WINDRES)\" : ;" > user-config.jam
 endef
 
 define $(package)_config_cmds
