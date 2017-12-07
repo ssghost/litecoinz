@@ -44,11 +44,11 @@ reachable from the Tor network. Add these lines to your /etc/tor/torrc (or equiv
 config file):
 
 	HiddenServiceDir /var/lib/tor/zcash-service/
-	HiddenServicePort 8233 127.0.0.1:8233
-	HiddenServicePort 18233 127.0.0.1:18233
+	HiddenServicePort 29333 127.0.0.1:29333
+	HiddenServicePort 39333 127.0.0.1:39333
 
 The directory can be different of course, but (both) port numbers should be equal to
-your zcashd's P2P listen port (8233 by default).
+your zcashd's P2P listen port (29333 by default).
 
 	-externalip=X   You can tell Zcash about its publicly reachable address using
 	                this option, and this can be a .onion address. Given the above
@@ -83,7 +83,7 @@ as well, use `discover` instead:
 
 	./zcashd ... -discover
 
-and open port 8233 on your firewall (or use -upnp).
+and open port 29333 on your firewall (or use -upnp).
 
 If you only want to use Tor to reach onion addresses, but not use it as a proxy
 for normal IPv4/IPv6 communication, use:
@@ -136,7 +136,7 @@ Now use zcash-cli to verify there is only a single peer connection.
 	[
 	    {
 	        "id" : 1,
-	        "addr" : "zctestseie6wxgio.onion:18233",
+	        "addr" : "zctestseie6wxgio.onion:39333",
 	        ...
 	        "version" : 170002,
 	        "subver" : "/MagicBean:1.0.0/",

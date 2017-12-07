@@ -57,7 +57,7 @@ public:
         pchMessageStart[2] = 0xcd;
         pchMessageStart[3] = 0x93;
         vAlertPubKey = ParseHex("0445bd31cd04bf575c9b588bf9bc6f164e50737c489388ecc6dd417829fc5620ee1ec6b137279c93dee907a3ad348a79a4196c957ef8542c2ca4dc0a1da99933d8");
-        nDefaultPort = 8233;
+        nDefaultPort = 29333;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
         const size_t N = 200, K = 9;
@@ -215,7 +215,7 @@ public:
         pchMessageStart[2] = 0x86;
         pchMessageStart[3] = 0x5d;
         vAlertPubKey = ParseHex("04bccfb90b0364ac381985755cb15f2e14214dd9239de85d9ff58bf2eed145dc776daa3469b29b50e459939df5346da0d6d40dbc698830f2022fe64ed6aa701f74");
-        nDefaultPort = 18233;
+        nDefaultPort = 39333;
         nPruneAfterHeight = 1000;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
@@ -314,7 +314,7 @@ public:
         genesis.nNonce = uint256S("0x0000000000000000000000000000000000000000000000000000000000000009");
         genesis.nSolution = ParseHex("01936b7db1eb4ac39f151b8704642d0a8bda13ec547d54cd5e43ba142fc6d8877cab07b3");
         consensus.hashGenesisBlock = genesis.GetHash();
-        nDefaultPort = 18344;
+        nDefaultPort = 49444;
         assert(consensus.hashGenesisBlock == uint256S("0x029f11d80ef9765602235e1bc9727e3eb6ba20839319f761fee920d63401e327"));
         nPruneAfterHeight = 1000;
 
