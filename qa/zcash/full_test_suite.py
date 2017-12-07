@@ -85,6 +85,7 @@ def ensure_no_dot_so_in_depends():
         REPOROOT,
         'depends',
         'x86_64-unknown-linux-gnu',
+        'x86_64-pc-mingw64',
     )
 
     exit_code = 0

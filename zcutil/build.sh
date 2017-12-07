@@ -111,6 +111,13 @@ then
     shift
 fi
 
+BUILD_OPT=''
+if [ "$BUILD" = "x86_64-pc-mingw64" ]
+then
+    BUILD_OPT='--enable-shared=no --enable-static=yes'
+    TEST_ARG='--enable-tests=no'
+fi
+
 PREFIX="$(pwd)/depends/$BUILD/"
 
 eval "$MAKE" --version
@@ -121,5 +128,5 @@ ld -v
 
 HOST="$HOST" BUILD="$BUILD" NO_PROTON="$PROTON_ARG" "$MAKE" "$@" -C ./depends/ V=1
 ./autogen.sh
-CC="$CC" CXX="$CXX" ./configure --prefix="${PREFIX}" --host="$HOST" --build="$BUILD" "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" "$LIBS_ARG" CXXFLAGS='-fwrapv -fno-strict-aliasing -Wno-builtin-declaration-mismatch -Werror -g'
-"$MAKE" "$@" V=1
+CC="$CC" CXX="$CXX" CONFIG_SITE="$PWD/depends/$BUILD/share/config.site" ./configure --prefix="${PREFIX}" --host="$HOST" --build="$BUILD" "$BUILD_OPT" "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" "$LIBS_ARG" CXXFLAGS='-fwrapv -fno-strict-aliasing -Wno-builtin-declaration-mismatch -g'
+HOST="$HOST" BUILD="$BUILD" "$MAKE" "$@" V=1

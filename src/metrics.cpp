@@ -16,7 +16,17 @@
 #include <boost/thread.hpp>
 #include <boost/thread/synchronized_value.hpp>
 #include <string>
+
+#ifdef WIN32
+#include <io.h>
+#include <windows.h>
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
+#else
 #include <sys/ioctl.h>
+#endif
+
 #include <unistd.h>
 
 void AtomicTimer::start()
@@ -420,9 +430,18 @@ void ThreadShowMetricsScreen()
     bool isScreen = GetBoolArg("-metricsui", isTTY);
     int64_t nRefresh = GetArg("-metricsrefreshtime", isTTY ? 1 : 600);
 
+#ifdef WIN32
+    // Set output mode to handle virtual terminal sequences
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+#endif
+
     if (isScreen) {
         // Clear screen
-        std::cout << "\e[2J";
+        std::cout << "\e[1;1H\e[2J";
 
         // Thank you text
         std::cout << _("Thank you for running a LitecoinZ node!") << std::endl;
@@ -440,11 +459,15 @@ void ThreadShowMetricsScreen()
 
         // Get current window size
         if (isTTY) {
+#ifdef WIN32
+            cols = 80;
+#else 
             struct winsize w;
             w.ws_col = 0;
             if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1 && w.ws_col != 0) {
                 cols = w.ws_col;
             }
+#endif
         }
 
         if (isScreen) {
