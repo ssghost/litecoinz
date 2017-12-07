@@ -424,10 +424,6 @@ void ThreadShowMetricsScreen()
         // Clear screen
         std::cout << "\e[2J";
 
-        // Print art
-        std::cout << METRICS_ART << std::endl;
-        std::cout << std::endl;
-
         // Thank you text
         std::cout << _("Thank you for running a Zcash node!") << std::endl;
         std::cout << _("You're helping to strengthen the network and contributing to a social good :)") << std::endl;
