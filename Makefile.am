@@ -5,7 +5,7 @@ SUBDIRS += doc/man
 endif
 .PHONY: deploy FORCE
 
-GZIP_ENV="-9n"
+override GZIP_ENV="-9n"
 
 if BUILD_BITCOIN_LIBS
 pkgconfigdir = $(libdir)/pkgconfig
