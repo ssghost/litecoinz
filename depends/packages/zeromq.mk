@@ -10,6 +10,10 @@ define $(package)_set_vars
   $(package)_cxxflags=-std=c++11
 endef
 
+define $(package)_preprocess_cmds
+  ./autogen.sh
+endef
+
 define $(package)_config_cmds
   $($(package)_autoconf)
 endef
