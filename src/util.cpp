@@ -447,7 +447,7 @@ boost::filesystem::path GetDefaultDataDir()
     // Windows < Vista: C:\Documents and Settings\Username\Application Data\Zcash
     // Windows >= Vista: C:\Users\Username\AppData\Roaming\Zcash
     // Mac: ~/Library/Application Support/Zcash
-    // Unix: ~/.zcash
+    // Unix: ~/.litecoinz
 #ifdef WIN32
     // Windows
     return GetSpecialFolderPath(CSIDL_APPDATA) / "Zcash";
@@ -465,7 +465,7 @@ boost::filesystem::path GetDefaultDataDir()
     return pathRet / "Zcash";
 #else
     // Unix
-    return pathRet / ".zcash";
+    return pathRet / ".litecoinz";
 #endif
 #endif
 }
@@ -483,7 +483,7 @@ static boost::filesystem::path ZC_GetBaseParamsDir()
     // Windows < Vista: C:\Documents and Settings\Username\Application Data\ZcashParams
     // Windows >= Vista: C:\Users\Username\AppData\Roaming\ZcashParams
     // Mac: ~/Library/Application Support/ZcashParams
-    // Unix: ~/.zcash-params
+    // Unix: ~/.litecoinz-params
 #ifdef WIN32
     // Windows
     return GetSpecialFolderPath(CSIDL_APPDATA) / "ZcashParams";
@@ -501,7 +501,7 @@ static boost::filesystem::path ZC_GetBaseParamsDir()
     return pathRet / "ZcashParams";
 #else
     // Unix
-    return pathRet / ".zcash-params";
+    return pathRet / ".litecoinz-params";
 #endif
 #endif
 }

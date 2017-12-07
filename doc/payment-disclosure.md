@@ -88,7 +88,7 @@ For nodes that only validate payment disclosures, no data is stored locally.
 
 For nodes that generate payment disclosures, a LevelDB database is created in the node's datadir.  For most users, this would be in the folder:
 
-    $HOME/.zcash/paymentdisclosure
+    $HOME/.litecoinz/paymentdisclosure
     
 If you decide you don't want to use payment disclosure, it is safe to shut down your node and delete the database folder.
 
