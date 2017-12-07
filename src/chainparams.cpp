@@ -52,10 +52,10 @@ public:
         /**
          * The message start string should be awesome! ⓩ❤
          */
-        pchMessageStart[0] = 0x24;
-        pchMessageStart[1] = 0xe9;
-        pchMessageStart[2] = 0x27;
-        pchMessageStart[3] = 0x64;
+        pchMessageStart[0] = 0xd8;
+        pchMessageStart[1] = 0xcf;
+        pchMessageStart[2] = 0xcd;
+        pchMessageStart[3] = 0x93;
         vAlertPubKey = ParseHex("0445bd31cd04bf575c9b588bf9bc6f164e50737c489388ecc6dd417829fc5620ee1ec6b137279c93dee907a3ad348a79a4196c957ef8542c2ca4dc0a1da99933d8");
         nDefaultPort = 8233;
         nMaxTipAge = 24 * 60 * 60;
@@ -210,10 +210,10 @@ public:
         consensus.nMajorityWindow = 400;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
-        pchMessageStart[0] = 0xfa;
-        pchMessageStart[1] = 0x1a;
-        pchMessageStart[2] = 0xf9;
-        pchMessageStart[3] = 0xbf;
+        pchMessageStart[0] = 0xfe;
+        pchMessageStart[1] = 0x90;
+        pchMessageStart[2] = 0x86;
+        pchMessageStart[3] = 0x5d;
         vAlertPubKey = ParseHex("04bccfb90b0364ac381985755cb15f2e14214dd9239de85d9ff58bf2eed145dc776daa3469b29b50e459939df5346da0d6d40dbc698830f2022fe64ed6aa701f74");
         nDefaultPort = 18233;
         nPruneAfterHeight = 1000;
@@ -300,10 +300,10 @@ public:
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
         consensus.nPowMaxAdjustUp = 0; // Turn off adjustment up
-        pchMessageStart[0] = 0xaa;
-        pchMessageStart[1] = 0xe8;
-        pchMessageStart[2] = 0x3f;
-        pchMessageStart[3] = 0x5f;
+        pchMessageStart[0] = 0xea;
+        pchMessageStart[1] = 0x8c;
+        pchMessageStart[2] = 0x71;
+        pchMessageStart[3] = 0x19;
         nMaxTipAge = 24 * 60 * 60;
         const size_t N = 48, K = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
