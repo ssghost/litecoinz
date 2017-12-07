@@ -251,13 +251,13 @@ litecoinz-gtest.coverage/.dirstamp:  litecoinz-gtest_coverage.info
 	$(GENHTML) -s $< -o $(@D)
 	@touch $@
 
-cov-zcash: litecoinz-gtest.coverage/.dirstamp
+cov-litecoinz: litecoinz-gtest.coverage/.dirstamp
 
 total.coverage/.dirstamp: total_coverage.info
 	$(GENHTML) -s $< -o $(@D)
 	@touch $@
 
-cov: test_bitcoin.coverage/.dirstamp cov-zcash total.coverage/.dirstamp
+cov: test_bitcoin.coverage/.dirstamp cov-litecoinz total.coverage/.dirstamp
 
 endif
 
@@ -273,7 +273,7 @@ dist_noinst_SCRIPTS = autogen.sh zcutil/build-debian-package.sh zcutil/build.sh
 EXTRA_DIST = $(top_srcdir)/share/genbuild.sh qa/pull-tester/rpc-tests.sh qa/pull-tester/run-litecoinz-cli qa/rpc-tests qa/zcash $(DIST_DOCS) $(BIN_CHECKS)
 
 install-exec-hook:
-	mv $(DESTDIR)$(bindir)/fetch-params.sh $(DESTDIR)$(bindir)/zcash-fetch-params
+	mv $(DESTDIR)$(bindir)/fetch-params.sh $(DESTDIR)$(bindir)/litecoinz-fetch-params
 
 CLEANFILES = $(OSX_DMG) $(BITCOIN_WIN_INSTALLER)
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for zcash
+# postinst script for litecoinz
 #
 # see: dh_installdeb(1)
 

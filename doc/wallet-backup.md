@@ -2,7 +2,7 @@
 
 ## Overview
 
-Backing up your Zcash private keys is the best way to be proactive about preventing loss of access to your LTZ.
+Backing up your LitecoinZ private keys is the best way to be proactive about preventing loss of access to your LTZ.
 
 Problems resulting from bugs in the code, user error, device failure, etc. may lead to losing access to your wallet (and as a result, the private keys of addresses which are required to spend from them).
 
@@ -12,7 +12,7 @@ Note that a backup is a duplicate of data needed to spend LTZ so where you keep 
 
 ## Instructions for backing up your wallet and/or private keys
 
-These instructions are specific for the officially supported Zcash Linux client. For backing up with third-party wallets, please consult with user guides or support channels provided for those services.
+These instructions are specific for the officially supported LitecoinZ Linux client. For backing up with third-party wallets, please consult with user guides or support channels provided for those services.
 
 There are multiple ways to make sure you have at least one other copy of the private keys needed to spend your LTZ and view your shielded LTZ.
 
@@ -32,7 +32,7 @@ To create a backup of your wallet, use:
 
 The backup will be an exact copy of the current state of your wallet.dat file stored in the export directory you specified in the config file. The file path will also be returned.
 
-If you generate a new Zcash address, it will not be reflected in the backup file.
+If you generate a new LitecoinZ address, it will not be reflected in the backup file.
 
 If your original `wallet.dat` file becomes inaccessible for whatever reason, you can use your backup by copying it into your data directory and renaming the copy to `wallet.dat`.
 

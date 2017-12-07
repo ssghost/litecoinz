@@ -16,8 +16,8 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "Zcash"
-            VALUE "FileDescription",    "litecoinz-tx (CLI Zcash transaction editor utility)"
+            VALUE "CompanyName",        "LitecoinZ"
+            VALUE "FileDescription",    "litecoinz-tx (CLI LitecoinZ transaction editor utility)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "litecoinz-tx"
             VALUE "LegalCopyright",     COPYRIGHT_STR

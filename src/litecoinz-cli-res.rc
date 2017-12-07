@@ -16,8 +16,8 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "Zcash"
-            VALUE "FileDescription",    "litecoinz-cli (JSON-RPC client for Zcash)"
+            VALUE "CompanyName",        "LitecoinZ"
+            VALUE "FileDescription",    "litecoinz-cli (JSON-RPC client for LitecoinZ)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "litecoinz-cli"
             VALUE "LegalCopyright",     COPYRIGHT_STR

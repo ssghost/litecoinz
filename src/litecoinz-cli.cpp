@@ -69,10 +69,10 @@ static bool AppInitRPC(int argc, char* argv[])
     //
     ParseParameters(argc, argv);
     if (argc<2 || mapArgs.count("-?") || mapArgs.count("-h") || mapArgs.count("-help") || mapArgs.count("-version")) {
-        std::string strUsage = _("Zcash RPC client version") + " " + FormatFullVersion() + "\n" + PrivacyInfo();
+        std::string strUsage = _("LitecoinZ RPC client version") + " " + FormatFullVersion() + "\n" + PrivacyInfo();
         if (!mapArgs.count("-version")) {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  litecoinz-cli [options] <command> [params]  " + _("Send command to Zcash") + "\n" +
+                  "  litecoinz-cli [options] <command> [params]  " + _("Send command to LitecoinZ") + "\n" +
                   "  litecoinz-cli [options] help                " + _("List commands") + "\n" +
                   "  litecoinz-cli [options] help <command>      " + _("Get help for a command") + "\n";
 

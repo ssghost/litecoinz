@@ -73,7 +73,7 @@ bool AppInit(int argc, char* argv[])
     // Process help and version before taking care about datadir
     if (mapArgs.count("-?") || mapArgs.count("-h") ||  mapArgs.count("-help") || mapArgs.count("-version"))
     {
-        std::string strUsage = _("Zcash Daemon") + " " + _("version") + " " + FormatFullVersion() + "\n" + PrivacyInfo();
+        std::string strUsage = _("LitecoinZ Daemon") + " " + _("version") + " " + FormatFullVersion() + "\n" + PrivacyInfo();
 
         if (mapArgs.count("-version"))
         {
@@ -82,7 +82,7 @@ bool AppInit(int argc, char* argv[])
         else
         {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  litecoinzd [options]                     " + _("Start Zcash Daemon") + "\n";
+                  "  litecoinzd [options]                     " + _("Start LitecoinZ Daemon") + "\n";
 
             strUsage += "\n" + HelpMessage(HMM_LITECOINZD);
         }
@@ -112,12 +112,12 @@ bool AppInit(int argc, char* argv[])
                    "\n"
                    "You can look at the example configuration file for suggestions of default\n"
                    "options that you may want to change. It should be in one of these locations,\n"
-                   "depending on how you installed Zcash:\n") +
+                   "depending on how you installed LitecoinZ:\n") +
                  _("- Source code:  %s\n"
                    "- .deb package: %s\n")).c_str(),
                 GetConfigFile().string().c_str(),
                 "contrib/debian/examples/litecoinz.conf",
-                "/usr/share/doc/zcash/examples/litecoinz.conf");
+                "/usr/share/doc/litecoinz/examples/litecoinz.conf");
             return false;
         } catch (const std::exception& e) {
             fprintf(stderr,"Error reading configuration file: %s\n", e.what());
@@ -132,7 +132,7 @@ bool AppInit(int argc, char* argv[])
         // Command-line RPC
         bool fCommandLine = false;
         for (int i = 1; i < argc; i++)
-            if (!IsSwitchChar(argv[i][0]) && !boost::algorithm::istarts_with(argv[i], "zcash:"))
+            if (!IsSwitchChar(argv[i][0]) && !boost::algorithm::istarts_with(argv[i], "litecoinz:"))
                 fCommandLine = true;
 
         if (fCommandLine)
@@ -144,7 +144,7 @@ bool AppInit(int argc, char* argv[])
         fDaemon = GetBoolArg("-daemon", false);
         if (fDaemon)
         {
-            fprintf(stdout, "Zcash server starting\n");
+            fprintf(stdout, "LitecoinZ server starting\n");
 
             // Daemonize
             pid_t pid = fork();

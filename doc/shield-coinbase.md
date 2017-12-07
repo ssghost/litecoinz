@@ -10,7 +10,7 @@ Miners, Mining pools, Online wallets
 
 ## Background
 
-The current Zcash protocol includes a consensus rule that coinbase rewards must be sent to a shielded address.
+The current LitecoinZ protocol includes a consensus rule that coinbase rewards must be sent to a shielded address.
 
 ## User Experience Challenges
 
