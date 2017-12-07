@@ -5,7 +5,7 @@ SRCDIR=${SRCDIR:-$TOPDIR/src}
 MANDIR=${MANDIR:-$TOPDIR/doc/man}
 
 ZCASHD=${ZCASHD:-$SRCDIR/zcashd}
-ZCASHCLI=${ZCASHCLI:-$SRCDIR/zcash-cli}
+ZCASHCLI=${ZCASHCLI:-$SRCDIR/litecoinz-cli}
 ZCASHTX=${ZCASHTX:-$SRCDIR/litecoinz-tx}
 
 [ ! -x $ZCASHD ] && echo "$ZCASHD not found or not executable." && exit 1
@@ -17,7 +17,7 @@ ZECCOMMIT=$(echo $ZECVERSTR | awk -F- '{ print $NF }')
 
 # Create a footer file with copyright content.
 # This gets autodetected fine for zcashd if --version-string is not set,
-# but has different outcomes for zcash-cli.
+# but has different outcomes for litecoinz-cli.
 echo "[COPYRIGHT]" > footer.h2m
 $ZCASHD --version | sed -n '1!p' >> footer.h2m
 

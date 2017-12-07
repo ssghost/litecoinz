@@ -7,7 +7,7 @@ SHA256CMD="$(command -v sha256sum || echo shasum)"
 SHA256ARGS="$(command -v sha256sum >/dev/null || echo '-a 256')"
 
 function zcash_rpc {
-    ./src/zcash-cli -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 "$@"
+    ./src/litecoinz-cli -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 "$@"
 }
 
 function zcash_rpc_slow {

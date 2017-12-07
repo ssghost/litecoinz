@@ -18,4 +18,4 @@ Description: HTTPS for money.
  of privacy and anonymity through a sophisticiated zero-knowledge
  proving scheme which preserves confidentiality of transaction metadata.
  This package provides the daemon, zcashd, and the CLI tool,
- zcash-cli, to interact with the daemon.
+ litecoinz-cli, to interact with the daemon.

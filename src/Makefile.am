@@ -28,7 +28,7 @@ BITCOIN_INCLUDES += -I$(srcdir)/univalue/include
 LIBBITCOIN_SERVER=libbitcoin_server.a
 LIBBITCOIN_WALLET=libbitcoin_wallet.a
 LIBBITCOIN_COMMON=libbitcoin_common.a
-LIBBITCOIN_CLI=libbitcoin_cli.a
+LIBLITECOINZ_CLI=liblitecoinz_cli.a
 LIBBITCOIN_UTIL=libbitcoin_util.a
 LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
@@ -67,7 +67,7 @@ EXTRA_LIBRARIES = \
   libbitcoin_util.a \
   libbitcoin_common.a \
   libbitcoin_server.a \
-  libbitcoin_cli.a \
+  liblitecoinz_cli.a \
   libzcash.a
 if ENABLE_WALLET
 BITCOIN_INCLUDES += $(BDB_CPPFLAGS)
@@ -96,7 +96,7 @@ if BUILD_BITCOIND
 endif
 
 if BUILD_BITCOIN_UTILS
-  bin_PROGRAMS += zcash-cli litecoinz-tx
+  bin_PROGRAMS += litecoinz-cli litecoinz-tx
 endif
 
 LIBZCASH_H = \
@@ -398,9 +398,9 @@ if GLIBC_BACK_COMPAT
 libbitcoin_util_a_SOURCES += compat/glibc_compat.cpp
 endif
 
-# cli: zcash-cli
-libbitcoin_cli_a_CPPFLAGS = $(BITCOIN_INCLUDES)
-libbitcoin_cli_a_SOURCES = \
+# cli: litecoinz-cli
+liblitecoinz_cli_a_CPPFLAGS = $(BITCOIN_INCLUDES)
+liblitecoinz_cli_a_SOURCES = \
   rpcclient.cpp \
   $(BITCOIN_CORE_H) \
   $(LIBZCASH_H)
@@ -451,17 +451,17 @@ if ENABLE_PROTON
 zcashd_LDADD += $(LIBBITCOIN_PROTON) $(PROTON_LIBS)
 endif
 
-# bitcoin-cli binary #
-zcash_cli_SOURCES = bitcoin-cli.cpp
-zcash_cli_CPPFLAGS = $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
-zcash_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# litecoinz-cli binary #
+litecoinz_cli_SOURCES = litecoinz-cli.cpp
+litecoinz_cli_CPPFLAGS = $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
+litecoinz_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-zcash_cli_SOURCES += bitcoin-cli-res.rc
+litecoinz_cli_SOURCES += litecoinz-cli-res.rc
 endif
 
-zcash_cli_LDADD = \
-  $(LIBBITCOIN_CLI) \
+litecoinz_cli_LDADD = \
+  $(LIBLITECOINZ_CLI) \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_UTIL) \
   $(BOOST_LIBS) \

@@ -63,7 +63,7 @@ def check_security_hardening():
     ret &= subprocess.call(['make', '-C', repofile('src'), 'check-security']) == 0
 
     ret &= test_rpath_runpath('src/zcashd')
-    ret &= test_rpath_runpath('src/zcash-cli')
+    ret &= test_rpath_runpath('src/litecoinz-cli')
     ret &= test_rpath_runpath('src/zcash-gtest')
     ret &= test_rpath_runpath('src/litecoinz-tx')
     ret &= test_rpath_runpath('src/test/test_bitcoin')
@@ -72,7 +72,7 @@ def check_security_hardening():
     # NOTE: checksec.sh does not reliably determine whether FORTIFY_SOURCE
     # is enabled for the entire binary. See issue #915.
     ret &= test_fortify_source('src/zcashd')
-    ret &= test_fortify_source('src/zcash-cli')
+    ret &= test_fortify_source('src/litecoinz-cli')
     ret &= test_fortify_source('src/zcash-gtest')
     ret &= test_fortify_source('src/litecoinz-tx')
     ret &= test_fortify_source('src/test/test_bitcoin')

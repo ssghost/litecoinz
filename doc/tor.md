@@ -129,9 +129,9 @@ a single Zcash hidden server. Launch zcashd as follows:
 
 	./zcashd -onion=127.0.0.1:9050 -connect=zctestseie6wxgio.onion
 
-Now use zcash-cli to verify there is only a single peer connection.
+Now use litecoinz-cli to verify there is only a single peer connection.
 
-	zcash-cli getpeerinfo
+	litecoinz-cli getpeerinfo
 
 	[
 	    {

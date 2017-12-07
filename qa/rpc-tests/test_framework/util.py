@@ -89,7 +89,7 @@ def initialize_chain(test_dir):
     """
     Create (or copy from cache) a 200-block-long chain and
     4 wallets.
-    bitcoind and bitcoin-cli must be in search path.
+    bitcoind and litecoinz-cli must be in search path.
     """
 
     if not os.path.isdir(os.path.join("cache", "node0")):
@@ -102,11 +102,11 @@ def initialize_chain(test_dir):
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
             bitcoind_processes[i] = subprocess.Popen(args)
             if os.getenv("PYTHON_DEBUG", ""):
-                print "initialize_chain: bitcoind started, calling bitcoin-cli -rpcwait getblockcount"
-            subprocess.check_call([ os.getenv("BITCOINCLI", "bitcoin-cli"), "-datadir="+datadir,
+                print "initialize_chain: bitcoind started, calling litecoinz-cli -rpcwait getblockcount"
+            subprocess.check_call([ os.getenv("LITECOINZCLI", "litecoinz-cli"), "-datadir="+datadir,
                                     "-rpcwait", "getblockcount"], stdout=devnull)
             if os.getenv("PYTHON_DEBUG", ""):
-                print "initialize_chain: bitcoin-cli -rpcwait getblockcount completed"
+                print "initialize_chain: litecoinz-cli -rpcwait getblockcount completed"
         devnull.close()
         rpcs = []
         for i in range(4):
@@ -187,12 +187,12 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
     bitcoind_processes[i] = subprocess.Popen(args)
     devnull = open("/dev/null", "w+")
     if os.getenv("PYTHON_DEBUG", ""):
-        print "start_node: bitcoind started, calling bitcoin-cli -rpcwait getblockcount"
-    subprocess.check_call([ os.getenv("BITCOINCLI", "bitcoin-cli"), "-datadir="+datadir] +
+        print "start_node: bitcoind started, calling litecoinz-cli -rpcwait getblockcount"
+    subprocess.check_call([ os.getenv("LITECOINZCLI", "litecoinz-cli"), "-datadir="+datadir] +
                           _rpchost_to_args(rpchost)  +
                           ["-rpcwait", "getblockcount"], stdout=devnull)
     if os.getenv("PYTHON_DEBUG", ""):
-        print "start_node: calling bitcoin-cli -rpcwait getblockcount returned"
+        print "start_node: calling litecoinz-cli -rpcwait getblockcount returned"
     devnull.close()
     url = "http://rt:rt@%s:%d" % (rpchost or '127.0.0.1', rpc_port(i))
     if timewait is not None:

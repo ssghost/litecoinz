@@ -39,7 +39,7 @@ chmod 0755 -R $BUILD_DIR/*
 #cp $SRC_DEB/prerm $BUILD_DIR/DEBIAN
 # Copy binaries
 cp $SRC_PATH/src/zcashd $DEB_BIN
-cp $SRC_PATH/src/zcash-cli $DEB_BIN
+cp $SRC_PATH/src/litecoinz-cli $DEB_BIN
 cp $SRC_PATH/zcutil/fetch-params.sh $DEB_BIN/zcash-fetch-params
 # Copy docs
 cp $SRC_PATH/doc/release-notes/release-notes-1.0.0.md $DEB_DOC/changelog
@@ -48,22 +48,22 @@ cp $SRC_DEB/copyright $DEB_DOC
 cp -r $SRC_DEB/examples $DEB_DOC
 # Copy manpages
 cp $SRC_DOC/man/zcashd.1 $DEB_MAN
-cp $SRC_DOC/man/zcash-cli.1 $DEB_MAN
+cp $SRC_DOC/man/litecoinz-cli.1 $DEB_MAN
 cp $SRC_DOC/man/zcash-fetch-params.1 $DEB_MAN
 # Copy bash completion files
 cp $SRC_PATH/contrib/bitcoind.bash-completion $DEB_CMP/zcashd
-cp $SRC_PATH/contrib/bitcoin-cli.bash-completion $DEB_CMP/zcash-cli
+cp $SRC_PATH/contrib/litecoinz-cli.bash-completion $DEB_CMP/litecoinz-cli
 # Gzip files
 gzip --best -n $DEB_DOC/changelog
 gzip --best -n $DEB_DOC/changelog.Debian
 gzip --best -n $DEB_MAN/zcashd.1
-gzip --best -n $DEB_MAN/zcash-cli.1
+gzip --best -n $DEB_MAN/litecoinz-cli.1
 gzip --best -n $DEB_MAN/zcash-fetch-params.1
 
 cd $SRC_PATH/contrib
 
 # Create the control file
-dpkg-shlibdeps $DEB_BIN/zcashd $DEB_BIN/zcash-cli
+dpkg-shlibdeps $DEB_BIN/zcashd $DEB_BIN/litecoinz-cli
 dpkg-gencontrol -P$BUILD_DIR -v$DEBVERSION
 
 # Create the Debian package

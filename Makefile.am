@@ -13,7 +13,7 @@ pkgconfig_DATA = libzcashconsensus.pc
 endif
 
 BITCOIND_BIN=$(top_builddir)/src/zcashd$(EXEEXT)
-BITCOIN_CLI_BIN=$(top_builddir)/src/zcash-cli$(EXEEXT)
+LITECOINZ_CLI_BIN=$(top_builddir)/src/litecoinz-cli$(EXEEXT)
 BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 
 ##OSX_APP=Bitcoin-Qt.app
@@ -63,7 +63,7 @@ distcleancheck:
 $(BITCOIN_WIN_INSTALLER): all-recursive
 	$(MKDIR_P) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIND_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_CLI_BIN) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(LITECOINZ_CLI_BIN) $(top_builddir)/release
 	@test -f $(MAKENSIS) && $(MAKENSIS) -V2 $(top_builddir)/share/setup.nsi || \
 	  echo error: could not build $@
 	@echo built $@
@@ -141,7 +141,7 @@ endif
 $(BITCOIND_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
-$(BITCOIN_CLI_BIN): FORCE
+$(LITECOINZ_CLI_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 if USE_LCOV
@@ -270,7 +270,7 @@ endif
 dist_bin_SCRIPTS = zcutil/fetch-params.sh
 dist_noinst_SCRIPTS = autogen.sh zcutil/build-debian-package.sh zcutil/build.sh
 
-EXTRA_DIST = $(top_srcdir)/share/genbuild.sh qa/pull-tester/rpc-tests.sh qa/pull-tester/run-bitcoin-cli qa/rpc-tests qa/zcash $(DIST_DOCS) $(BIN_CHECKS)
+EXTRA_DIST = $(top_srcdir)/share/genbuild.sh qa/pull-tester/rpc-tests.sh qa/pull-tester/run-litecoinz-cli qa/rpc-tests qa/zcash $(DIST_DOCS) $(BIN_CHECKS)
 
 install-exec-hook:
 	mv $(DESTDIR)$(bindir)/fetch-params.sh $(DESTDIR)$(bindir)/zcash-fetch-params

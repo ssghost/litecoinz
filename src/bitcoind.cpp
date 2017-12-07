@@ -137,7 +137,7 @@ bool AppInit(int argc, char* argv[])
 
         if (fCommandLine)
         {
-            fprintf(stderr, "Error: There is no RPC client functionality in zcashd. Use the zcash-cli utility instead.\n");
+            fprintf(stderr, "Error: There is no RPC client functionality in zcashd. Use the litecoinz-cli utility instead.\n");
             exit(1);
         }
 #ifndef WIN32

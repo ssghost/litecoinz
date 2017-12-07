@@ -50,7 +50,7 @@ To validate a payment disclosure, the following RPC call can be used:
 
 Generate a payment disclosure for the first joinsplit, second output (index starts from zero):
 
-    zcash-cli z_getpaymentdisclosure 79189528d611e811a1c7bb0358dd31343033d14b4c1e998d7c4799c40f8b652b 0 1 "Hello"
+    litecoinz-cli z_getpaymentdisclosure 79189528d611e811a1c7bb0358dd31343033d14b4c1e998d7c4799c40f8b652b 0 1 "Hello"
     
 This returns a payment disclosure in the form of a hex string:
 
@@ -58,7 +58,7 @@ This returns a payment disclosure in the form of a hex string:
 
 To validate the payment disclosure:
 
-    zcash-cli z_validatepaymentdisclosure HEXDATA
+    litecoinz-cli z_validatepaymentdisclosure HEXDATA
     
 This returns data related to the payment and the payment disclosure:
 

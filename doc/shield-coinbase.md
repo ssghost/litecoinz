@@ -30,19 +30,19 @@ The default fee is 0.0010000 LTZ and the default limit on the maximum number of 
 
 Sweep up coinbase UTXOs from a transparent address you use for mining:
 
-    zcash-cli z_shieldcoinbase tMyMiningAddress zMyPrivateAddress
+    litecoinz-cli z_shieldcoinbase tMyMiningAddress zMyPrivateAddress
 
 Sweep up coinbase UTXOs from multiple transparent addresses to a shielded address:
 
-    zcash-cli z_shieldcoinbase "*" zMyPrivateAddress
+    litecoinz-cli z_shieldcoinbase "*" zMyPrivateAddress
 
 Sweep up with a fee of 1.23 LTZ:
 
-    zcash-cli z_shieldcoinbase tMyMiningAddress zMyPrivateAddress 1.23
+    litecoinz-cli z_shieldcoinbase tMyMiningAddress zMyPrivateAddress 1.23
 
 Sweep up with a fee of 0.1 LTZ and set limit on the maximum number of UTXOs to shield at 25:
 
-    zcash-cli z_shieldcoinbase "*" zMyPrivateAddress 0.1 25
+    litecoinz-cli z_shieldcoinbase "*" zMyPrivateAddress 0.1 25
 
 ### Asynchronous Call
 
@@ -50,7 +50,7 @@ The `z_shieldcoinbase` RPC call is an asynchronous call, so you can queue up mul
 
 When you invoke
 
-    zcash-cli z_shieldcoinbase tMyMiningAddress zMyPrivateAddress
+    litecoinz-cli z_shieldcoinbase tMyMiningAddress zMyPrivateAddress
 
 JSON will be returned immediately, with the following data fields populated:
 
