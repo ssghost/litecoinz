@@ -368,3 +368,19 @@ def assert_raises(exc, fun, *args, **kwds):
         raise AssertionError("Unexpected exception raised: "+type(e).__name__)
     else:
         raise AssertionError("No exception raised")
+
+def assert_raises_message(ExceptionType, errstr, func, *args, **kwargs):
+    """
+    Asserts that func throws and that the exception contains 'errstr'
+    in its message.
+    """
+    try:
+        func(*args, **kwargs)
+    except ExceptionType as e:
+        if errstr not in str(e):
+            raise AssertionError("Invalid exception string: Couldn't find %r in %r" % (
+                errstr, str(e)))
+    except Exception as e:
+        raise AssertionError("Unexpected exception raised: " + type(e).__name__)
+    else:
+        raise AssertionError("No exception raised")
