@@ -75,6 +75,7 @@ public:
          */
         const char* pszTimestamp = "LitecoinZ6f099db24212fc48cc80bcf8d46874cd44a7a196625cc1e08a567bff77da2e79";
         CMutableTransaction txNew;
+        txNew.nVersion = 1;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
         txNew.vin[0].scriptSig = CScript() << 486604799 << CScriptNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
