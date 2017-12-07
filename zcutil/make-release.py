@@ -15,7 +15,7 @@ from functools import wraps
 
 def main(args=sys.argv[1:]):
     """
-    Perform the final Zcash release process up to the git tag.
+    Perform the final LitecoinZ release process up to the git tag.
     """
     opts = parse_args(args)
     chdir_to_repo(opts.REPO)
@@ -278,10 +278,10 @@ def chdir_to_repo(repo):
 def patch_README(release, releaseprev):
     with PathPatcher('README.md') as (inf, outf):
         firstline = inf.readline()
-        assert firstline == 'Zcash {}\n'.format(releaseprev.novtext), \
+        assert firstline == 'LitecoinZ {}\n'.format(releaseprev.novtext), \
             repr(firstline)
 
-        outf.write('Zcash {}\n'.format(release.novtext))
+        outf.write('LitecoinZ {}\n'.format(release.novtext))
         outf.write(inf.read())
 
 
@@ -309,11 +309,11 @@ def patch_gitian_linux_yml(release, releaseprev):
         outf.write(inf.readline())
 
         secondline = inf.readline()
-        assert secondline == 'name: "zcash-{}"\n'.format(
+        assert secondline == 'name: "litecoinz-{}"\n'.format(
             releaseprev.novtext
         ), repr(secondline)
 
-        outf.write('name: "zcash-{}"\n'.format(release.novtext))
+        outf.write('name: "litecoinz-{}"\n'.format(release.novtext))
         outf.write(inf.read())
 
 
@@ -339,7 +339,7 @@ def _patch_build_defs(release, path, pattern):
 
 
 def initialize_logging():
-    logname = './zcash-make-release.log'
+    logname = './litecoinz-make-release.log'
     fmtr = logging.Formatter(
         '%(asctime)s L%(lineno)-4d %(levelname)-5s | %(message)s',
         '%Y-%m-%d %H:%M:%S'
@@ -357,7 +357,7 @@ def initialize_logging():
     root.setLevel(logging.DEBUG)
     root.addHandler(hout)
     root.addHandler(hpath)
-    logging.info('zcash make-release.py debug log: %r', logname)
+    logging.info('litecoinz make-release.py debug log: %r', logname)
 
 
 def sh_out(*args):
