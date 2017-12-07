@@ -6,7 +6,7 @@ MANDIR=${MANDIR:-$TOPDIR/doc/man}
 
 ZCASHD=${ZCASHD:-$SRCDIR/zcashd}
 ZCASHCLI=${ZCASHCLI:-$SRCDIR/zcash-cli}
-ZCASHTX=${ZCASHTX:-$SRCDIR/zcash-tx}
+ZCASHTX=${ZCASHTX:-$SRCDIR/litecoinz-tx}
 
 [ ! -x $ZCASHD ] && echo "$ZCASHD not found or not executable." && exit 1
 

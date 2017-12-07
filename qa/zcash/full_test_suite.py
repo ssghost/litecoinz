@@ -65,7 +65,7 @@ def check_security_hardening():
     ret &= test_rpath_runpath('src/zcashd')
     ret &= test_rpath_runpath('src/zcash-cli')
     ret &= test_rpath_runpath('src/zcash-gtest')
-    ret &= test_rpath_runpath('src/zcash-tx')
+    ret &= test_rpath_runpath('src/litecoinz-tx')
     ret &= test_rpath_runpath('src/test/test_bitcoin')
     ret &= test_rpath_runpath('src/zcash/GenerateParams')
 
@@ -74,7 +74,7 @@ def check_security_hardening():
     ret &= test_fortify_source('src/zcashd')
     ret &= test_fortify_source('src/zcash-cli')
     ret &= test_fortify_source('src/zcash-gtest')
-    ret &= test_fortify_source('src/zcash-tx')
+    ret &= test_fortify_source('src/litecoinz-tx')
     ret &= test_fortify_source('src/test/test_bitcoin')
     ret &= test_fortify_source('src/zcash/GenerateParams')
 
