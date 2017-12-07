@@ -77,7 +77,7 @@ public:
         CMutableTransaction txNew;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
-        txNew.vin[0].scriptSig = CScript() << 520617983 << CScriptNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
+        txNew.vin[0].scriptSig = CScript() << 486604799 << CScriptNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         txNew.vout[0].nValue = 0;
         txNew.vout[0].scriptPubKey = CScript() << ParseHex("04bccfb90b0364ac381985755cb15f2e14214dd9239de85d9ff58bf2eed145dc776daa3469b29b50e459939df5346da0d6d40dbc698830f2022fe64ed6aa701f74") << OP_CHECKSIG;
         genesis.vtx.push_back(txNew);
