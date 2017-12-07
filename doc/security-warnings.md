@@ -6,7 +6,7 @@ Security Audit
 
 LitecoinZ has been subjected to a formal third-party security review. For security
 announcements, audit results and other general security information, see
-https://litecoinz.info/support/security.html
+http://www.litecoinz.info/support/security.html
 
 x86-64 Linux Only
 -----------------------
