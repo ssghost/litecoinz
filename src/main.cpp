@@ -2855,6 +2855,7 @@ bool ReceivedBlockTransactions(const CBlock &block, CValidationState& state, CBl
             {
                 LOCK(cs_nBlockSequenceId);
                 pindex->nSequenceId = nBlockSequenceId++;
+                pindex->nArrivalTime = GetAdjustedTime();
             }
             if (chainActive.Tip() == NULL || !setBlockIndexCandidates.value_comp()(pindex, chainActive.Tip())) {
                 setBlockIndexCandidates.insert(pindex);
