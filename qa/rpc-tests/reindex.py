@@ -9,7 +9,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, initialize_chain_clean, \
-    start_node, stop_node, wait_bitcoinds
+    start_node, stop_node, wait_litecoinzds
 
 
 class ReindexTest(BitcoinTestFramework):
@@ -26,7 +26,7 @@ class ReindexTest(BitcoinTestFramework):
     def run_test(self):
         self.nodes[0].generate(3)
         stop_node(self.nodes[0], 0)
-        wait_bitcoinds()
+        wait_litecoinzds()
         self.nodes[0]=start_node(0, self.options.tmpdir, ["-debug", "-reindex", "-checkblockindex=1"])
         assert_equal(self.nodes[0].getblockcount(), 3)
         print "Success"

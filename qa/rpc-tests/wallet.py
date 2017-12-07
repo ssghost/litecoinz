@@ -8,7 +8,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.authproxy import JSONRPCException
 from test_framework.util import assert_equal, assert_greater_than, \
     initialize_chain_clean, start_nodes, start_node, connect_nodes_bi, \
-    stop_nodes, sync_blocks, sync_mempools, wait_bitcoinds
+    stop_nodes, sync_blocks, sync_mempools, wait_litecoinzds
 
 import time
 from decimal import Decimal
@@ -204,7 +204,7 @@ class WalletTest (BitcoinTestFramework):
 
         #do some -walletbroadcast tests
         stop_nodes(self.nodes)
-        wait_bitcoinds()
+        wait_litecoinzds()
         self.nodes = start_nodes(3, self.options.tmpdir, [["-walletbroadcast=0"],["-walletbroadcast=0"],["-walletbroadcast=0"]])
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
@@ -233,7 +233,7 @@ class WalletTest (BitcoinTestFramework):
 
         #restart the nodes with -walletbroadcast=1
         stop_nodes(self.nodes)
-        wait_bitcoinds()
+        wait_litecoinzds()
         self.nodes = start_nodes(3, self.options.tmpdir)
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)

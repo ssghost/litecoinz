@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/bitcoin/.bitcoin" ]; then
+	LITECOINZD_DEFAULT_DATADIR="/var/lib/bitcoin/.bitcoin"
+else
+	LITECOINZD_DEFAULT_DATADIR="/var/lib/litecoinzd"
+fi
+
+LITECOINZD_CONFIGFILE=${LITECOINZD_CONFIGFILE:-/etc/bitcoin/bitcoin.conf}
+LITECOINZD_PIDDIR=${LITECOINZD_PIDDIR:-/var/run/litecoinzd}
+LITECOINZD_PIDFILE=${LITECOINZD_PIDFILE:-${LITECOINZD_PIDDIR}/litecoinzd.pid}
+LITECOINZD_DATADIR=${LITECOINZD_DATADIR:-${LITECOINZD_DEFAULT_DATADIR}}
+LITECOINZD_USER=${LITECOINZD_USER:-${BITCOIN_USER:-bitcoin}}
+LITECOINZD_GROUP=${LITECOINZD_GROUP:-bitcoin}
+LITECOINZD_BIN=${LITECOINZD_BIN:-/usr/bin/litecoinzd}
+LITECOINZD_NICE=${LITECOINZD_NICE:-${NICELEVEL:-0}}
+LITECOINZD_OPTS="${LITECOINZD_OPTS:-${BITCOIN_OPTS}}"
+
+name="Bitcoin Core Daemon"
+description="Bitcoin cryptocurrency P2P network daemon"
+
+command="/usr/bin/litecoinzd"
+command_args="-pid=\"${LITECOINZD_PIDFILE}\" \
+		-conf=\"${LITECOINZD_CONFIGFILE}\" \
+		-datadir=\"${LITECOINZD_DATADIR}\" \
+		-daemon \
+		${LITECOINZD_OPTS}"
+
+required_files="${LITECOINZD_CONFIGFILE}"
+start_stop_daemon_args="-u ${LITECOINZD_USER} \
+			-N ${LITECOINZD_NICE} -w 2000"
+pidfile="${LITECOINZD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${LITECOINZD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${LITECOINZD_USER}:${LITECOINZD_GROUP}" \
+	"${LITECOINZD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${LITECOINZD_USER}:${LITECOINZD_GROUP}" \
+	"${LITECOINZD_PIDDIR}"
+
+	checkpath -f \
+	-o ${LITECOINZD_USER}:${LITECOINZD_GROUP} \
+	-m 0660 \
+	${LITECOINZD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${LITECOINZD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run litecoinzd."
+		eerror "The setting must appear in ${LITECOINZD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Bitcoin Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

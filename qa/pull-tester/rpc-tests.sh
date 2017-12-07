@@ -2,11 +2,11 @@
 set -e -o pipefail
 
 CURDIR=$(cd $(dirname "$0"); pwd)
-# Get BUILDDIR and REAL_BITCOIND
+# Get BUILDDIR and REAL_LITECOINZD
 . "${CURDIR}/tests-config.sh"
 
 export LITECOINZCLI=${BUILDDIR}/qa/pull-tester/run-litecoinz-cli
-export BITCOIND=${REAL_BITCOIND}
+export LITECOINZD=${REAL_LITECOINZD}
 
 #Run the tests
 
@@ -98,7 +98,7 @@ function runTestScript
     echo
 }
 
-if [ "x${ENABLE_BITCOIND}${ENABLE_UTILS}${ENABLE_WALLET}" = "x111" ]; then
+if [ "x${ENABLE_LITECOINZD}${ENABLE_UTILS}${ENABLE_WALLET}" = "x111" ]; then
     for (( i = 0; i < ${#testScripts[@]}; i++ ))
     do
         if [ -z "$1" ] || [ "${1:0:1}" == "-" ] || [ "$1" == "${testScripts[$i]}" ] || [ "$1.py" == "${testScripts[$i]}" ]
@@ -131,5 +131,5 @@ if [ "x${ENABLE_BITCOIND}${ENABLE_UTILS}${ENABLE_WALLET}" = "x111" ]; then
         exit 0
     fi
 else
-  echo "No rpc tests to run. Wallet, utils, and bitcoind must all be enabled"
+  echo "No rpc tests to run. Wallet, utils, and litecoinzd must all be enabled"
 fi

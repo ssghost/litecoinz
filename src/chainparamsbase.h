@@ -9,7 +9,7 @@
 #include <vector>
 
 /**
- * CBaseChainParams defines the base parameters (shared between litecoinz-cli and bitcoind)
+ * CBaseChainParams defines the base parameters (shared between litecoinz-cli and litecoinzd)
  * of a given instance of the Bitcoin system.
  */
 class CBaseChainParams

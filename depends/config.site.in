@@ -9,7 +9,7 @@ if test -z $with_boost; then
 fi
 # Disable comparison utility (#592)
 #if test -z $with_comparison_tool; then
-#  with_comparison_tool=$depends_prefix/native/share/BitcoindComparisonTool_jar/BitcoindComparisonTool.jar
+#  with_comparison_tool=$depends_prefix/native/share/LitecoinzdComparisonTool_jar/LitecoinzdComparisonTool.jar
 #fi
 
 

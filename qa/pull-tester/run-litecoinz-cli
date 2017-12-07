@@ -5,7 +5,7 @@
 # Linux since shells will interpret the line-endings as part of the result.
 
 CURDIR=$(cd $(dirname "$0"); pwd)
-# Get BUILDDIR and REAL_BITCOIND
+# Get BUILDDIR and REAL_LITECOINZD
 
 # Grab the value of $REAL_LITECOINZCLI which may be litecoinz-cli.exe.
 . "${CURDIR}/tests-config.sh"

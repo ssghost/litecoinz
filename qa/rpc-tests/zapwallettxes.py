@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.authproxy import JSONRPCException
 from test_framework.util import assert_equal, initialize_chain_clean, \
-    start_nodes, start_node, connect_nodes_bi, bitcoind_processes
+    start_nodes, start_node, connect_nodes_bi, litecoinzd_processes
 
 
 class ZapWalletTXesTest (BitcoinTestFramework):
@@ -53,18 +53,18 @@ class ZapWalletTXesTest (BitcoinTestFramework):
         tx3 = self.nodes[0].gettransaction(txid3)
         assert_equal(tx3['txid'], txid3) # tx3 must be available (unconfirmed)
 
-        # restart zcashd
+        # restart litecoinzd
         self.nodes[0].stop()
-        bitcoind_processes[0].wait()
+        litecoinzd_processes[0].wait()
         self.nodes[0] = start_node(0,self.options.tmpdir)
 
         tx3 = self.nodes[0].gettransaction(txid3)
         assert_equal(tx3['txid'], txid3) # tx must be available (unconfirmed)
 
         self.nodes[0].stop()
-        bitcoind_processes[0].wait()
+        litecoinzd_processes[0].wait()
 
-        # restart zcashd with zapwallettxes
+        # restart litecoinzd with zapwallettxes
         self.nodes[0] = start_node(0,self.options.tmpdir, ["-zapwallettxes=1"])
 
         aException = False

@@ -12,7 +12,7 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libzcashconsensus.pc
 endif
 
-BITCOIND_BIN=$(top_builddir)/src/zcashd$(EXEEXT)
+LITECOINZD_BIN=$(top_builddir)/src/litecoinzd$(EXEEXT)
 LITECOINZ_CLI_BIN=$(top_builddir)/src/litecoinz-cli$(EXEEXT)
 BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
 
@@ -62,7 +62,7 @@ distcleancheck:
 
 $(BITCOIN_WIN_INSTALLER): all-recursive
 	$(MKDIR_P) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIND_BIN) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(LITECOINZD_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(LITECOINZ_CLI_BIN) $(top_builddir)/release
 	@test -f $(MAKENSIS) && $(MAKENSIS) -V2 $(top_builddir)/share/setup.nsi || \
 	  echo error: could not build $@
@@ -138,7 +138,7 @@ if TARGET_WINDOWS
 deploy: $(BITCOIN_WIN_INSTALLER)
 endif
 
-$(BITCOIND_BIN): FORCE
+$(LITECOINZD_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 $(LITECOINZ_CLI_BIN): FORCE
@@ -217,7 +217,7 @@ litecoinz-gtest_filtered.info: litecoinz-gtest.info
 
 block_test.info: test_bitcoin_filtered.info
 	$(MKDIR_P) qa/tmp
-	-@TIMEOUT=15 qa/pull-tester/run-bitcoind-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool 0
+	-@TIMEOUT=15 qa/pull-tester/run-litecoinzd-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool 0
 	$(LCOV) -c -d $(abs_builddir)/src --t BitcoinJBlockTest -o $@
 	$(LCOV) -z -d $(abs_builddir)/src
 	$(LCOV) -z -d $(abs_builddir)/src/leveldb
@@ -264,7 +264,7 @@ endif
 if USE_COMPARISON_TOOL
 check-local:
 	$(MKDIR_P) qa/tmp
-	@qa/pull-tester/run-bitcoind-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool $(COMPARISON_TOOL_REORG_TESTS) 2>&1
+	@qa/pull-tester/run-litecoinzd-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool $(COMPARISON_TOOL_REORG_TESTS) 2>&1
 endif
 
 dist_bin_SCRIPTS = zcutil/fetch-params.sh

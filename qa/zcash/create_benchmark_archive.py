@@ -17,7 +17,7 @@ Requirements:
 - find
 - xz
 - %s (edit LITECOINZ_CLI in this script to alter the path)
-- A running mainnet zcashd using the default datadir with -txindex=1
+- A running mainnet litecoinzd using the default datadir with -txindex=1
 
 Example usage:
 

@@ -24,7 +24,7 @@ function zcash_rpc_wait_for_start {
     zcash_rpc -rpcwait getinfo > /dev/null
 }
 
-function zcashd_generate {
+function litecoinzd_generate {
     zcash_rpc generate 101 > /dev/null
 }
 
@@ -40,7 +40,7 @@ EOF
         ARCHIVE_RESULT=1
     fi
     if [ $ARCHIVE_RESULT -ne 0 ]; then
-        zcashd_stop
+        litecoinzd_stop
         echo
         echo "Please download it and place it in the base directory of the repository."
         exit 1
@@ -54,7 +54,7 @@ function use_200k_benchmark {
     DATADIR="./benchmark-200k-UTXOs/node$1"
 }
 
-function zcashd_start {
+function litecoinzd_start {
     case "$1" in
         sendtoaddress|loadwallet|listunspent)
             case "$2" in
@@ -65,7 +65,7 @@ function zcashd_start {
                     use_200k_benchmark 1
                     ;;
                 *)
-                    echo "Bad arguments to zcashd_start."
+                    echo "Bad arguments to litecoinzd_start."
                     exit 1
             esac
             ;;
@@ -74,17 +74,17 @@ function zcashd_start {
             mkdir -p "$DATADIR/regtest"
             touch "$DATADIR/litecoinz.conf"
     esac
-    ./src/zcashd -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
-    ZCASHD_PID=$!
+    ./src/litecoinzd -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
+    LITECOINZD_PID=$!
     zcash_rpc_wait_for_start
 }
 
-function zcashd_stop {
+function litecoinzd_stop {
     zcash_rpc stop > /dev/null
-    wait $ZCASHD_PID
+    wait $LITECOINZD_PID
 }
 
-function zcashd_massif_start {
+function litecoinzd_massif_start {
     case "$1" in
         sendtoaddress|loadwallet|listunspent)
             case "$2" in
@@ -95,7 +95,7 @@ function zcashd_massif_start {
                     use_200k_benchmark 1
                     ;;
                 *)
-                    echo "Bad arguments to zcashd_massif_start."
+                    echo "Bad arguments to litecoinzd_massif_start."
                     exit 1
             esac
             ;;
@@ -105,30 +105,30 @@ function zcashd_massif_start {
             touch "$DATADIR/litecoinz.conf"
     esac
     rm -f massif.out
-    valgrind --tool=massif --time-unit=ms --massif-out-file=massif.out ./src/zcashd -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
-    ZCASHD_PID=$!
+    valgrind --tool=massif --time-unit=ms --massif-out-file=massif.out ./src/litecoinzd -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
+    LITECOINZD_PID=$!
     zcash_rpc_wait_for_start
 }
 
-function zcashd_massif_stop {
+function litecoinzd_massif_stop {
     zcash_rpc stop > /dev/null
-    wait $ZCASHD_PID
+    wait $LITECOINZD_PID
     ms_print massif.out
 }
 
-function zcashd_valgrind_start {
+function litecoinzd_valgrind_start {
     rm -rf "$DATADIR"
     mkdir -p "$DATADIR/regtest"
     touch "$DATADIR/litecoinz.conf"
     rm -f valgrind.out
-    valgrind --leak-check=yes -v --error-limit=no --log-file="valgrind.out" ./src/zcashd -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
-    ZCASHD_PID=$!
+    valgrind --leak-check=yes -v --error-limit=no --log-file="valgrind.out" ./src/litecoinzd -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
+    LITECOINZD_PID=$!
     zcash_rpc_wait_for_start
 }
 
-function zcashd_valgrind_stop {
+function litecoinzd_valgrind_stop {
     zcash_rpc stop > /dev/null
-    wait $ZCASHD_PID
+    wait $LITECOINZD_PID
     cat valgrind.out
 }
 
@@ -144,7 +144,7 @@ EOF
         ARCHIVE_RESULT=1
     fi
     if [ $ARCHIVE_RESULT -ne 0 ]; then
-        zcashd_stop
+        litecoinzd_stop
         echo
         echo "Please generate it using qa/zcash/create_benchmark_archive.py"
         echo "and place it in the base directory of the repository."
@@ -166,15 +166,15 @@ case "$1" in
     *)
         case "$2" in
             verifyjoinsplit)
-                zcashd_start "${@:2}"
+                litecoinzd_start "${@:2}"
                 RAWJOINSPLIT=$(zcash_rpc zcsamplejoinsplit)
-                zcashd_stop
+                litecoinzd_stop
         esac
 esac
 
 case "$1" in
     time)
-        zcashd_start "${@:2}"
+        litecoinzd_start "${@:2}"
         case "$2" in
             sleep)
                 zcash_rpc zcbenchmark sleep 10
@@ -217,14 +217,14 @@ case "$1" in
                 zcash_rpc zcbenchmark listunspent 10
                 ;;
             *)
-                zcashd_stop
+                litecoinzd_stop
                 echo "Bad arguments to time."
                 exit 1
         esac
-        zcashd_stop
+        litecoinzd_stop
         ;;
     memory)
-        zcashd_massif_start "${@:2}"
+        litecoinzd_massif_start "${@:2}"
         case "$2" in
             sleep)
                 zcash_rpc zcbenchmark sleep 1
@@ -267,15 +267,15 @@ case "$1" in
                 zcash_rpc zcbenchmark listunspent 1
                 ;;
             *)
-                zcashd_massif_stop
+                litecoinzd_massif_stop
                 echo "Bad arguments to memory."
                 exit 1
         esac
-        zcashd_massif_stop
+        litecoinzd_massif_stop
         rm -f massif.out
         ;;
     valgrind)
-        zcashd_valgrind_start
+        litecoinzd_valgrind_start
         case "$2" in
             sleep)
                 zcash_rpc zcbenchmark sleep 1
@@ -306,11 +306,11 @@ case "$1" in
                 zcash_rpc zcbenchmark connectblockslow 1
                 ;;
             *)
-                zcashd_valgrind_stop
+                litecoinzd_valgrind_stop
                 echo "Bad arguments to valgrind."
                 exit 1
         esac
-        zcashd_valgrind_stop
+        litecoinzd_valgrind_stop
         rm -f valgrind.out
         ;;
     valgrind-tests)

@@ -91,8 +91,8 @@ bin_PROGRAMS =
 noinst_PROGRAMS =
 TESTS =
 
-if BUILD_BITCOIND
-  bin_PROGRAMS += zcashd
+if BUILD_LITECOINZD
+  bin_PROGRAMS += litecoinzd
 endif
 
 if BUILD_BITCOIN_UTILS
@@ -226,7 +226,7 @@ obj/build.h: FORCE
 	  $(abs_top_srcdir)
 libbitcoin_util_a-clientversion.$(OBJEXT): obj/build.h
 
-# server: zcashd
+# server: litecoinzd
 libbitcoin_server_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libbitcoin_server_a_SOURCES = \
   sendalert.cpp \
@@ -289,7 +289,7 @@ libbitcoin_proton_a_SOURCES = \
   amqp/amqppublishnotifier.cpp
 endif
 
-# wallet: zcashd, but only linked when wallet enabled
+# wallet: litecoinzd, but only linked when wallet enabled
 libbitcoin_wallet_a_CPPFLAGS = $(BITCOIN_INCLUDES)
 libbitcoin_wallet_a_SOURCES = \
   utiltest.cpp \
@@ -343,7 +343,7 @@ crypto_libbitcoin_crypto_a_SOURCES += \
   ${EQUIHASH_TROMP_SOURCES}
 endif
 
-# common: shared between zcashd and non-server tools
+# common: shared between litecoinzd and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(BITCOIN_INCLUDES)
 libbitcoin_common_a_SOURCES = \
   amount.cpp \
@@ -408,16 +408,16 @@ liblitecoinz_cli_a_SOURCES = \
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
-# bitcoind binary #
-zcashd_SOURCES = bitcoind.cpp
-zcashd_CPPFLAGS = $(BITCOIN_INCLUDES)
-zcashd_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# litecoinzd binary #
+litecoinzd_SOURCES = litecoinzd.cpp
+litecoinzd_CPPFLAGS = $(BITCOIN_INCLUDES)
+litecoinzd_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-zcashd_SOURCES += bitcoind-res.rc
+litecoinzd_SOURCES += litecoinzd-res.rc
 endif
 
-zcashd_LDADD = \
+litecoinzd_LDADD = \
   $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_COMMON) \
   $(LIBUNIVALUE) \
@@ -430,14 +430,14 @@ zcashd_LDADD = \
   $(LIBSECP256K1)
 
 if ENABLE_ZMQ
-zcashd_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
+litecoinzd_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 
 if ENABLE_WALLET
-zcashd_LDADD += libbitcoin_wallet.a
+litecoinzd_LDADD += libbitcoin_wallet.a
 endif
 
-zcashd_LDADD += \
+litecoinzd_LDADD += \
   $(BOOST_LIBS) \
   $(BDB_LIBS) \
   $(SSL_LIBS) \
@@ -448,7 +448,7 @@ zcashd_LDADD += \
   $(LIBZCASH_LIBS)
 
 if ENABLE_PROTON
-zcashd_LDADD += $(LIBBITCOIN_PROTON) $(PROTON_LIBS)
+litecoinzd_LDADD += $(LIBBITCOIN_PROTON) $(PROTON_LIBS)
 endif
 
 # litecoinz-cli binary #

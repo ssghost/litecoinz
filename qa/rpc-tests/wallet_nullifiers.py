@@ -6,7 +6,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, start_node, \
-    start_nodes, connect_nodes_bi, bitcoind_processes
+    start_nodes, connect_nodes_bi, litecoinzd_processes
 
 import time
 from decimal import Decimal
@@ -55,7 +55,7 @@ class WalletNullifiersTest (BitcoinTestFramework):
 
         # encrypt node 1 wallet and wait to terminate
         self.nodes[1].encryptwallet("test")
-        bitcoind_processes[1].wait()
+        litecoinzd_processes[1].wait()
 
         # restart node 1
         self.nodes[1] = start_node(1, self.options.tmpdir)

@@ -62,7 +62,7 @@ def check_security_hardening():
     # PIE, RELRO, Canary, and NX are tested by make check-security.
     ret &= subprocess.call(['make', '-C', repofile('src'), 'check-security']) == 0
 
-    ret &= test_rpath_runpath('src/zcashd')
+    ret &= test_rpath_runpath('src/litecoinzd')
     ret &= test_rpath_runpath('src/litecoinz-cli')
     ret &= test_rpath_runpath('src/litecoinz-gtest')
     ret &= test_rpath_runpath('src/litecoinz-tx')
@@ -71,7 +71,7 @@ def check_security_hardening():
 
     # NOTE: checksec.sh does not reliably determine whether FORTIFY_SOURCE
     # is enabled for the entire binary. See issue #915.
-    ret &= test_fortify_source('src/zcashd')
+    ret &= test_fortify_source('src/litecoinzd')
     ret &= test_fortify_source('src/litecoinz-cli')
     ret &= test_fortify_source('src/litecoinz-gtest')
     ret &= test_fortify_source('src/litecoinz-tx')

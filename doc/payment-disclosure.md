@@ -10,9 +10,9 @@ Frequent users of shielded transactions, payment processors, exchanges, block ex
 
 ### Experimental Feature
 
-This is an experimental feature.  Enable it by launching `zcashd` with flags:
+This is an experimental feature.  Enable it by launching `litecoinzd` with flags:
 
-    zcashd -experimentalfeatures -paymentdisclosure -debug=paymentdisclosure -txindex=1
+    litecoinzd -experimentalfeatures -paymentdisclosure -debug=paymentdisclosure -txindex=1
 
 These flags can also be set as options in `litecoinz.conf`.
 

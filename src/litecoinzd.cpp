@@ -82,9 +82,9 @@ bool AppInit(int argc, char* argv[])
         else
         {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  zcashd [options]                     " + _("Start Zcash Daemon") + "\n";
+                  "  litecoinzd [options]                     " + _("Start Zcash Daemon") + "\n";
 
-            strUsage += "\n" + HelpMessage(HMM_BITCOIND);
+            strUsage += "\n" + HelpMessage(HMM_LITECOINZD);
         }
 
         fprintf(stdout, "%s", strUsage.c_str());
@@ -103,11 +103,11 @@ bool AppInit(int argc, char* argv[])
             ReadConfigFile(mapArgs, mapMultiArgs);
         } catch (const missing_litecoinz_conf& e) {
             fprintf(stderr,
-                (_("Before starting zcashd, you need to create a configuration file:\n"
+                (_("Before starting litecoinzd, you need to create a configuration file:\n"
                    "%s\n"
                    "It can be completely empty! That indicates you are happy with the default\n"
-                   "configuration of zcashd. But requiring a configuration file to start ensures\n"
-                   "that zcashd won't accidentally compromise your privacy if there was a default\n"
+                   "configuration of litecoinzd. But requiring a configuration file to start ensures\n"
+                   "that litecoinzd won't accidentally compromise your privacy if there was a default\n"
                    "option you needed to change.\n"
                    "\n"
                    "You can look at the example configuration file for suggestions of default\n"
@@ -137,7 +137,7 @@ bool AppInit(int argc, char* argv[])
 
         if (fCommandLine)
         {
-            fprintf(stderr, "Error: There is no RPC client functionality in zcashd. Use the litecoinz-cli utility instead.\n");
+            fprintf(stderr, "Error: There is no RPC client functionality in litecoinzd. Use the litecoinz-cli utility instead.\n");
             exit(1);
         }
 #ifndef WIN32
@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
 {
     SetupEnvironment();
 
-    // Connect bitcoind signal handlers
+    // Connect litecoinzd signal handlers
     noui_connect();
 
     return (AppInit(argc, argv) ? 0 : 1);

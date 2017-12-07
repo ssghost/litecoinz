@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+#  litecoinzd The bitcoin core server.
+#
+#
+# chkconfig: 345 80 20
+# description: litecoinzd
+# processname: litecoinzd
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+# you can override defaults in /etc/sysconfig/litecoinzd, see below
+if [ -f /etc/sysconfig/litecoinzd ]; then
+        . /etc/sysconfig/litecoinzd
+fi
+
+RETVAL=0
+
+prog=litecoinzd
+# you can override the lockfile via LITECOINZD_LOCKFILE in /etc/sysconfig/litecoinzd
+lockfile=${LITECOINZD_LOCKFILE-/var/lock/subsys/litecoinzd}
+
+# litecoinzd defaults to /usr/bin/litecoinzd, override with LITECOINZD_BIN
+litecoinzd=${LITECOINZD_BIN-/usr/bin/litecoinzd}
+
+# litecoinzd opts default to -disablewallet, override with LITECOINZD_OPTS
+litecoinzd_opts=${LITECOINZD_OPTS--disablewallet}
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon $DAEMONOPTS $litecoinzd $litecoinzd_opts
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $prog
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: service $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
