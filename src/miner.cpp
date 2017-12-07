@@ -498,7 +498,7 @@ void static BitcoinMiner()
 {
     LogPrintf("ZcashMiner started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
-    RenameThread("zcash-miner");
+    RenameThread("litecoinz-miner");
     const CChainParams& chainparams = Params();
 
 #ifdef ENABLE_WALLET
