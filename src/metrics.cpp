@@ -267,8 +267,8 @@ int printMiningStatus(bool mining)
         }
         lines++;
     } else {
-        std::cout << _("You are currently not mining.") << std::endl;
-        std::cout << _("To enable mining, add 'gen=1' to your litecoinz.conf and restart.") << std::endl;
+        std::cout << "\e[31m" << _("You are currently not mining.") << "\e[0m" << std::endl;
+        std::cout << "\e[33m" << _("To enable mining, add 'gen=1' to your litecoinz.conf and restart.") << "\e[0m" << std::endl;
         lines += 2;
     }
     std::cout << std::endl;
@@ -444,8 +444,8 @@ void ThreadShowMetricsScreen()
         std::cout << "\e[1;1H\e[2J";
 
         // Thank you text
-        std::cout << _("Thank you for running a LitecoinZ node!") << std::endl;
-        std::cout << _("You're helping to strengthen the network and contributing to a social good :)") << std::endl;
+        std::cout << "\e[32m" << _("Thank you for running a LitecoinZ node!") << "\e[0m" << std::endl;
+        std::cout << "\e[34m" << _("You're helping to strengthen the network and contributing to a social good :)") << "\e[0m" << std::endl;
 
         // Privacy notice text
         std::cout << PrivacyInfo();
