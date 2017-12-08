@@ -99,10 +99,10 @@ public:
         vSeeds.clear();
         vSeeds.push_back(CDNSSeedData("litecoinz.info", "dnsseed.litecoinz.info")); // LitecoinZ
 
-        // guarantees the first 2 characters, when base58 encoded, are "t1"
-        base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xB8};
-        // guarantees the first 2 characters, when base58 encoded, are "t3"
-        base58Prefixes[SCRIPT_ADDRESS]     = {0x1C,0xBD};
+        // guarantees the first 2 characters, when base58 encoded, are "L1"
+        base58Prefixes[PUBKEY_ADDRESS]     = {0x0A,0xB3};
+        // guarantees the first 2 characters, when base58 encoded, are "L3"
+        base58Prefixes[SCRIPT_ADDRESS]     = {0x0A,0xB8};
         // the first character, when base58 encoded, is "5" or "K" or "L" (as in Bitcoin)
         base58Prefixes[SECRET_KEY]         = {0x80};
         // do not rely on these BIP32 prefixes; they are not specified and may change
@@ -173,10 +173,10 @@ public:
         vSeeds.clear();
         vSeeds.push_back(CDNSSeedData("litecoinz.info", "dnsseed.litecoinz.info")); // LitecoinZ
 
-        // guarantees the first 2 characters, when base58 encoded, are "tm"
-        base58Prefixes[PUBKEY_ADDRESS]     = {0x1D,0x25};
-        // guarantees the first 2 characters, when base58 encoded, are "t2"
-        base58Prefixes[SCRIPT_ADDRESS]     = {0x1C,0xBA};
+        // guarantees the first 2 characters, when base58 encoded, are "T1"
+        base58Prefixes[PUBKEY_ADDRESS]     = {0x0E,0xA4};
+        // guarantees the first 2 characters, when base58 encoded, are "T3"
+        base58Prefixes[SCRIPT_ADDRESS]     = {0x0E,0xA9};
         // the first character, when base58 encoded, is "9" or "c" (as in Bitcoin)
         base58Prefixes[SECRET_KEY]         = {0xEF};
         // do not rely on these BIP32 prefixes; they are not specified and may change
