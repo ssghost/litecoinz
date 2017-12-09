@@ -56,7 +56,7 @@ public:
         pchMessageStart[1] = 0xcf;
         pchMessageStart[2] = 0xcd;
         pchMessageStart[3] = 0x93;
-        vAlertPubKey = ParseHex("0445bd31cd04bf575c9b588bf9bc6f164e50737c489388ecc6dd417829fc5620ee1ec6b137279c93dee907a3ad348a79a4196c957ef8542c2ca4dc0a1da99933d8");
+        vAlertPubKey = ParseHex("048c64efd9e320f8dc6ab14f3e2c674877fe1b027f62afaffdd46ee4a191b3be90dd5a3bf8c7f6b2205dbde788793e97a645a16c2d8bede3dca0182dfc3cc15137");
         nDefaultPort = 29333;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
@@ -80,7 +80,7 @@ public:
         txNew.vout.resize(1);
         txNew.vin[0].scriptSig = CScript() << 486604799 << CScriptNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         txNew.vout[0].nValue = 0;
-        txNew.vout[0].scriptPubKey = CScript() << ParseHex("04bccfb90b0364ac381985755cb15f2e14214dd9239de85d9ff58bf2eed145dc776daa3469b29b50e459939df5346da0d6d40dbc698830f2022fe64ed6aa701f74") << OP_CHECKSIG;
+        txNew.vout[0].scriptPubKey = CScript() << ParseHex("04aaa049f7609d4b17ac733a67dd8abd10c0b5b410f0b3681b36dfb85fdc157fa22257895785bfc0c8741a9ff87d98d8a9a5330a8790aadd2f709576f65b37db89") << OP_CHECKSIG;
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock.SetNull();
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
@@ -155,7 +155,7 @@ public:
         pchMessageStart[1] = 0x90;
         pchMessageStart[2] = 0x86;
         pchMessageStart[3] = 0x5d;
-        vAlertPubKey = ParseHex("04bccfb90b0364ac381985755cb15f2e14214dd9239de85d9ff58bf2eed145dc776daa3469b29b50e459939df5346da0d6d40dbc698830f2022fe64ed6aa701f74");
+        vAlertPubKey = ParseHex("04a229174e5e5d0680151333b36a2ebebfb5fc01460724fa14050d0263678ee51996f7611774bc93377289dde6b05036c3db28ef312341309bf9737e6b80aaf66c");
         nDefaultPort = 39333;
         nPruneAfterHeight = 1000;
 

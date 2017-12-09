@@ -138,7 +138,7 @@ struct {
 // NOTE: These tests rely on CreateNewBlock doing its own self-validation!
 BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
 {
-    CScript scriptPubKey = CScript() << ParseHex("04bccfb90b0364ac381985755cb15f2e14214dd9239de85d9ff58bf2eed145dc776daa3469b29b50e459939df5346da0d6d40dbc698830f2022fe64ed6aa701f74") << OP_CHECKSIG;
+    CScript scriptPubKey = CScript() << ParseHex("04aaa049f7609d4b17ac733a67dd8abd10c0b5b410f0b3681b36dfb85fdc157fa22257895785bfc0c8741a9ff87d98d8a9a5330a8790aadd2f709576f65b37db89") << OP_CHECKSIG;
     CBlockTemplate *pblocktemplate;
     CMutableTransaction tx,tx2;
     CScript script;
