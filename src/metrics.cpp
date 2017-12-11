@@ -162,13 +162,13 @@ static bool metrics_ThreadSafeMessageBox(const std::string& message,
     // Check for usage of predefined caption
     switch (style) {
     case CClientUIInterface::MSG_ERROR:
-        strCaption += _("Error");
+        strCaption += _("\e[31mError\e[0m");
         break;
     case CClientUIInterface::MSG_WARNING:
-        strCaption += _("Warning");
+        strCaption += _("\e[33mWarning\e[0m");
         break;
     case CClientUIInterface::MSG_INFORMATION:
-        strCaption += _("Information");
+        strCaption += _("\e[34mInformation\e[0m");
         break;
     default:
         strCaption += caption; // Use supplied caption (can be empty)
@@ -225,14 +225,21 @@ int printStats(bool mining)
     if (IsInitialBlockDownload()) {
         int netheight = EstimateNetHeight(height, tipmediantime, Params());
         int downloadPercent = height * 100 / netheight;
-        std::cout << "     " << _("Downloading blocks") << " | " << height << " / ~" << netheight << " (" << downloadPercent << "%)" << std::endl;
+        std::cout << "     " << _("Downloading blocks") << " | " << height << " / ~" << netheight << " (";
+
+        if (downloadPercent == 100)
+            std::cout << "\e[34m";
+        else
+            std::cout << "\e[33m";
+
+        std::cout << downloadPercent << "%)" << "\e[0m" << std::endl;
     } else {
-        std::cout << "           " << _("Block height") << " | " << height << std::endl;
+        std::cout << "           " << _("Block height") << " | " << "\e[34m" << height << "\e[0m" << std::endl;
     }
-    std::cout << "            " << _("Connections") << " | " << connections << std::endl;
-    std::cout << "  " << _("Network solution rate") << " | " << netsolps << " Sol/s" << std::endl;
+    std::cout << "            " << _("Connections") << " | " << "\e[34m" << connections << "\e[0m" << std::endl;
+    std::cout << "  " << _("Network solution rate") << " | " << "\e[34m" << netsolps << "\e[0m" << " Sol/s" << std::endl;
     if (mining && miningTimer.running()) {
-        std::cout << "    " << _("Local solution rate") << " | " << strprintf("%.4f Sol/s", localsolps) << std::endl;
+        std::cout << "    " << _("Local solution rate") << " | " << strprintf("\e[34m%.4f\e[0m Sol/s", localsolps) << std::endl;
         lines++;
     }
     std::cout << std::endl;
@@ -249,7 +256,7 @@ int printMiningStatus(bool mining)
     if (mining) {
         auto nThreads = miningTimer.threadCount();
         if (nThreads > 0) {
-            std::cout << strprintf(_("You are mining with the %s solver on %d threads."),
+            std::cout << strprintf(_("You are mining with the \e[34m%s\e[0m solver on \e[34m%d\e[0m threads."),
                                    GetArg("-equihashsolver", "default"), nThreads) << std::endl;
         } else {
             bool fvNodesEmpty;
@@ -258,11 +265,11 @@ int printMiningStatus(bool mining)
                 fvNodesEmpty = vNodes.empty();
             }
             if (fvNodesEmpty) {
-                std::cout << _("Mining is paused while waiting for connections.") << std::endl;
+                std::cout << _("\e[33mMining is paused while waiting for connections.\e[0m") << std::endl;
             } else if (IsInitialBlockDownload()) {
-                std::cout << _("Mining is paused while downloading blocks.") << std::endl;
+                std::cout << _("\e[33mMining is paused while downloading blocks.\e[0m") << std::endl;
             } else {
-                std::cout << _("Mining is paused (a JoinSplit may be in progress).") << std::endl;
+                std::cout << _("\e[33mMining is paused (a JoinSplit may be in progress).\e[0m") << std::endl;
             }
         }
         lines++;
@@ -294,13 +301,13 @@ int printMetrics(size_t cols, bool mining)
     // Display uptime
     std::string duration;
     if (days > 0) {
-        duration = strprintf(_("%d days, %d hours, %d minutes, %d seconds"), days, hours, minutes, seconds);
+        duration = strprintf(_("\e[34m%d\e[0m days, \e[34m%d\e[0m hours, \e[34m%d\e[0m minutes, \e[34m%d\e[0m seconds"), days, hours, minutes, seconds);
     } else if (hours > 0) {
-        duration = strprintf(_("%d hours, %d minutes, %d seconds"), hours, minutes, seconds);
+        duration = strprintf(_("\e[34m%d\e[0m hours, \e[34m%d\e[0m minutes, \e[34m%d\e[0m seconds"), hours, minutes, seconds);
     } else if (minutes > 0) {
-        duration = strprintf(_("%d minutes, %d seconds"), minutes, seconds);
+        duration = strprintf(_("\e[34m%d\e[0m minutes, \e[34m%d\e[0m seconds"), minutes, seconds);
     } else {
-        duration = strprintf(_("%d seconds"), seconds);
+        duration = strprintf(_("\e[34m%d\e[0m seconds"), seconds);
     }
     std::string strDuration = strprintf(_("Since starting this node %s ago:"), duration);
     std::cout << strDuration << std::endl;
@@ -308,15 +315,15 @@ int printMetrics(size_t cols, bool mining)
 
     int validatedCount = transactionsValidated.get();
     if (validatedCount > 1) {
-      std::cout << "- " << strprintf(_("You have validated %d transactions!"), validatedCount) << std::endl;
+      std::cout << "- " << strprintf(_("You have validated \e[34m%d\e[0m transactions!"), validatedCount) << std::endl;
     } else if (validatedCount == 1) {
       std::cout << "- " << _("You have validated a transaction!") << std::endl;
     } else {
-      std::cout << "- " << _("You have validated no transactions.") << std::endl;
+      std::cout << "- " << _("\e[33mYou have validated no transactions.\e[0m") << std::endl;
     }
 
     if (mining && loaded) {
-        std::cout << "- " << strprintf(_("You have completed %d Equihash solver runs."), ehSolverRuns.get()) << std::endl;
+        std::cout << "- " << strprintf(_("You have completed \e[34m%d\e[0m Equihash solver runs."), ehSolverRuns.get()) << std::endl;
         lines++;
 
         int mined = 0;
@@ -337,9 +344,6 @@ int printMetrics(size_t cols, bool mining)
                         chainActive.Contains(mapBlockIndex[hash])) {
                     int height = mapBlockIndex[hash]->nHeight;
                     CAmount subsidy = GetBlockSubsidy(height, consensusParams);
-                    if ((height > 0) && (height <= consensusParams.GetLastFoundersRewardBlockHeight())) {
-                        subsidy -= subsidy/5;
-                    }
                     if (std::max(0, COINBASE_MATURITY - (tipHeight - height)) > 0) {
                         immature += subsidy;
                     } else {
@@ -357,9 +361,9 @@ int printMetrics(size_t cols, bool mining)
 
         if (mined > 0) {
             std::string units = Params().CurrencyUnits();
-            std::cout << "- " << strprintf(_("You have mined %d blocks!"), mined) << std::endl;
+            std::cout << "- " << strprintf(_("\e[32mYou have mined %d blocks!\e[0m"), mined) << std::endl;
             std::cout << "  "
-                      << strprintf(_("Orphaned: %d blocks, Immature: %u %s, Mature: %u %s"),
+                      << strprintf(_("Orphaned: \e[34m%d blocks, Immature: \e[34m%u\e[0m %s, Mature: \e[34m%u\e[0m %s"),
                                      orphaned,
                                      FormatMoney(immature), units,
                                      FormatMoney(mature), units)
@@ -410,11 +414,17 @@ int printInitMessage()
     }
 
     std::string msg = *initMessage;
-    std::cout << _("Init message:") << " " << msg << std::endl;
+    std::cout << _("Init message:") << " ";
+    if (msg == _("Done loading")) {
+        std::cout << "\e[32m" << msg << "\e[0m";
+        loaded = true;
+    } else {
+        std::cout << "\e[33m" << msg << "\e[0m";
+    }
+    std::cout << std::endl;
     std::cout << std::endl;
 
     if (msg == _("Done loading")) {
-        loaded = true;
     }
 
     return 2;
@@ -445,7 +455,6 @@ void ThreadShowMetricsScreen()
 
         // Thank you text
         std::cout << "\e[32m" << _("Thank you for running a LitecoinZ node!") << "\e[0m" << std::endl;
-        std::cout << "\e[34m" << _("You're helping to strengthen the network and contributing to a social good :)") << "\e[0m" << std::endl;
 
         // Privacy notice text
         std::cout << PrivacyInfo();
