@@ -3,10 +3,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "sync.h"
-#include "clientversion.h"
-#include "util.h"
-#include "warnings.h"
+#include <sync.h>
+#include <clientversion.h>
+#include <util.h>
+#include <warnings.h>
 
 CCriticalSection cs_warnings;
 std::string strMiscWarning;
@@ -35,12 +35,6 @@ void SetfLargeWorkInvalidChainFound(bool flag)
 {
     LOCK(cs_warnings);
     fLargeWorkInvalidChainFound = flag;
-}
-
-bool GetfLargeWorkInvalidChainFound()
-{
-    LOCK(cs_warnings);
-    return fLargeWorkInvalidChainFound;
 }
 
 std::string GetWarnings(const std::string& strFor)
