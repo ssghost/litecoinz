@@ -144,6 +144,15 @@ public:
     //! (memory only) The anchor for the tree state up to the end of this block
     uint256 hashAnchorEnd;
 
+    //! Change in value held by the Sprout circuit over this block.
+    //! Will be boost::none for older blocks on old nodes until a reindex has taken place.
+    boost::optional<CAmount> nSproutValue;
+
+    //! (memory only) Total value held by the Sprout circuit up to and including this block.
+    //! Will be boost::none for on old nodes until a reindex has taken place.
+    //! Will be boost::none if nChainTx is zero.
+    boost::optional<CAmount> nChainSproutValue;
+
     //! block header
     int nVersion;
     uint256 hashMerkleRoot;
@@ -175,6 +184,8 @@ public:
         hashAnchor = uint256();
         hashAnchorEnd = uint256();
         nSequenceId = 0;
+        nSproutValue = boost::none;
+        nChainSproutValue = boost::none;
 
         nVersion       = 0;
         hashMerkleRoot = uint256();
@@ -349,6 +360,7 @@ public:
         READWRITE(nNonce);
         READWRITE(nArrivalTime);
         READWRITE(nSolution);
+        READWRITE(nSproutValue);
     }
 
     uint256 GetBlockHash() const
