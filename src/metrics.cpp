@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "metrics.h"
+#include "ansicolor.h"
 
 #include "chainparams.h"
 #include "checkpoints.h"
@@ -162,13 +163,13 @@ static bool metrics_ThreadSafeMessageBox(const std::string& message,
     // Check for usage of predefined caption
     switch (style) {
     case CClientUIInterface::MSG_ERROR:
-        strCaption += _("\e[31mError\e[0m");
+        strCaption += _(ANSI_COLOR_LRED "Error" ANSI_COLOR_RESET);
         break;
     case CClientUIInterface::MSG_WARNING:
-        strCaption += _("\e[33mWarning\e[0m");
+        strCaption += _(ANSI_COLOR_LYELLOW "Warning" ANSI_COLOR_RESET);
         break;
     case CClientUIInterface::MSG_INFORMATION:
-        strCaption += _("\e[34mInformation\e[0m");
+        strCaption += _(ANSI_COLOR_LCYAN "Information" ANSI_COLOR_RESET);
         break;
     default:
         strCaption += caption; // Use supplied caption (can be empty)
@@ -228,18 +229,18 @@ int printStats(bool mining)
         std::cout << "     " << _("Downloading blocks") << " | " << height << " / ~" << netheight << " (";
 
         if (downloadPercent == 100)
-            std::cout << "\e[34m";
+            std::cout << ANSI_COLOR_LCYAN;
         else
-            std::cout << "\e[33m";
+            std::cout << ANSI_COLOR_LYELLOW;
 
-        std::cout << downloadPercent << "%)" << "\e[0m" << std::endl;
+        std::cout << downloadPercent << "%" << ANSI_COLOR_RESET << ")" << std::endl;
     } else {
-        std::cout << "           " << _("Block height") << " | " << "\e[34m" << height << "\e[0m" << std::endl;
+        std::cout << "           " << _("Block height") << " | " << ANSI_COLOR_LCYAN << height << ANSI_COLOR_RESET << std::endl;
     }
-    std::cout << "            " << _("Connections") << " | " << "\e[34m" << connections << "\e[0m" << std::endl;
-    std::cout << "  " << _("Network solution rate") << " | " << "\e[34m" << netsolps << "\e[0m" << " Sol/s" << std::endl;
+    std::cout << "            " << _("Connections") << " | " << ANSI_COLOR_LCYAN << connections << ANSI_COLOR_RESET << std::endl;
+    std::cout << "  " << _("Network solution rate") << " | " << ANSI_COLOR_LCYAN << netsolps << ANSI_COLOR_RESET << " Sol/s" << std::endl;
     if (mining && miningTimer.running()) {
-        std::cout << "    " << _("Local solution rate") << " | " << strprintf("\e[34m%.4f\e[0m Sol/s", localsolps) << std::endl;
+        std::cout << "    " << _("Local solution rate") << " | " << strprintf(ANSI_COLOR_LCYAN "%.4f " ANSI_COLOR_RESET " Sol/s", localsolps) << std::endl;
         lines++;
     }
     std::cout << std::endl;
@@ -256,7 +257,7 @@ int printMiningStatus(bool mining)
     if (mining) {
         auto nThreads = miningTimer.threadCount();
         if (nThreads > 0) {
-            std::cout << strprintf(_("You are mining with the \e[34m%s\e[0m solver on \e[34m%d\e[0m threads."),
+            std::cout << strprintf(_("You are mining with the " ANSI_COLOR_LCYAN "%s " ANSI_COLOR_RESET " solver on " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " threads."),
                                    GetArg("-equihashsolver", "default"), nThreads) << std::endl;
         } else {
             bool fvNodesEmpty;
@@ -265,17 +266,17 @@ int printMiningStatus(bool mining)
                 fvNodesEmpty = vNodes.empty();
             }
             if (fvNodesEmpty) {
-                std::cout << _("\e[33mMining is paused while waiting for connections.\e[0m") << std::endl;
+                std::cout << _(ANSI_COLOR_LYELLOW "Mining is paused while waiting for connections." ANSI_COLOR_RESET) << std::endl;
             } else if (IsInitialBlockDownload()) {
-                std::cout << _("\e[33mMining is paused while downloading blocks.\e[0m") << std::endl;
+                std::cout << _(ANSI_COLOR_LYELLOW "Mining is paused while downloading blocks." ANSI_COLOR_RESET) << std::endl;
             } else {
-                std::cout << _("\e[33mMining is paused (a JoinSplit may be in progress).\e[0m") << std::endl;
+                std::cout << _(ANSI_COLOR_LYELLOW "Mining is paused (a JoinSplit may be in progress)." ANSI_COLOR_RESET) << std::endl;
             }
         }
         lines++;
     } else {
-        std::cout << "\e[31m" << _("You are currently not mining.") << "\e[0m" << std::endl;
-        std::cout << "\e[33m" << _("To enable mining, add 'gen=1' to your litecoinz.conf and restart.") << "\e[0m" << std::endl;
+        std::cout << ANSI_COLOR_LRED << _("You are currently not mining.") << ANSI_COLOR_RESET << std::endl;
+        std::cout << ANSI_COLOR_LYELLOW << _("To enable mining, add 'gen=1' to your litecoinz.conf and restart.") << ANSI_COLOR_RESET << std::endl;
         lines += 2;
     }
     std::cout << std::endl;
@@ -301,13 +302,13 @@ int printMetrics(size_t cols, bool mining)
     // Display uptime
     std::string duration;
     if (days > 0) {
-        duration = strprintf(_("\e[34m%d\e[0m days, \e[34m%d\e[0m hours, \e[34m%d\e[0m minutes, \e[34m%d\e[0m seconds"), days, hours, minutes, seconds);
+        duration = strprintf(_(ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " days, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " hours, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " minutes, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " seconds"), days, hours, minutes, seconds);
     } else if (hours > 0) {
-        duration = strprintf(_("\e[34m%d\e[0m hours, \e[34m%d\e[0m minutes, \e[34m%d\e[0m seconds"), hours, minutes, seconds);
+        duration = strprintf(_(ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " hours, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " minutes, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " seconds"), hours, minutes, seconds);
     } else if (minutes > 0) {
-        duration = strprintf(_("\e[34m%d\e[0m minutes, \e[34m%d\e[0m seconds"), minutes, seconds);
+        duration = strprintf(_(ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " minutes, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " seconds"), minutes, seconds);
     } else {
-        duration = strprintf(_("\e[34m%d\e[0m seconds"), seconds);
+        duration = strprintf(_(ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " seconds"), seconds);
     }
     std::string strDuration = strprintf(_("Since starting this node %s ago:"), duration);
     std::cout << strDuration << std::endl;
@@ -315,15 +316,15 @@ int printMetrics(size_t cols, bool mining)
 
     int validatedCount = transactionsValidated.get();
     if (validatedCount > 1) {
-      std::cout << "- " << strprintf(_("You have validated \e[34m%d\e[0m transactions!"), validatedCount) << std::endl;
+      std::cout << "- " << strprintf(_("You have validated " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " transactions!"), validatedCount) << std::endl;
     } else if (validatedCount == 1) {
       std::cout << "- " << _("You have validated a transaction!") << std::endl;
     } else {
-      std::cout << "- " << _("\e[33mYou have validated no transactions.\e[0m") << std::endl;
+      std::cout << "- " << _(ANSI_COLOR_LYELLOW "You have validated no transactions." ANSI_COLOR_RESET) << std::endl;
     }
 
     if (mining && loaded) {
-        std::cout << "- " << strprintf(_("You have completed \e[34m%d\e[0m Equihash solver runs."), ehSolverRuns.get()) << std::endl;
+        std::cout << "- " << strprintf(_("You have completed " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " Equihash solver runs."), ehSolverRuns.get()) << std::endl;
         lines++;
 
         int mined = 0;
@@ -361,9 +362,9 @@ int printMetrics(size_t cols, bool mining)
 
         if (mined > 0) {
             std::string units = Params().CurrencyUnits();
-            std::cout << "- " << strprintf(_("\e[32mYou have mined %d blocks!\e[0m"), mined) << std::endl;
+            std::cout << "- " << strprintf(_(ANSI_COLOR_LGREEN "You have mined %d blocks!" ANSI_COLOR_RESET), mined) << std::endl;
             std::cout << "  "
-                      << strprintf(_("Orphaned: \e[34m%d blocks, Immature: \e[34m%u\e[0m %s, Mature: \e[34m%u\e[0m %s"),
+                      << strprintf(_("Orphaned: " ANSI_COLOR_LRED "%d" ANSI_COLOR_RESET " blocks, Immature: " ANSI_COLOR_LYELLOW "%u" ANSI_COLOR_RESET " %s, Mature: " ANSI_COLOR_LGREEN "%u" ANSI_COLOR_RESET " %s"),
                                      orphaned,
                                      FormatMoney(immature), units,
                                      FormatMoney(mature), units)
@@ -416,10 +417,10 @@ int printInitMessage()
     std::string msg = *initMessage;
     std::cout << _("Init message:") << " ";
     if (msg == _("Done loading")) {
-        std::cout << "\e[32m" << msg << "\e[0m";
+        std::cout << ANSI_COLOR_LGREEN << msg << ANSI_COLOR_RESET;
         loaded = true;
     } else {
-        std::cout << "\e[33m" << msg << "\e[0m";
+        std::cout << ANSI_COLOR_LYELLOW << msg << ANSI_COLOR_RESET;
     }
     std::cout << std::endl;
     std::cout << std::endl;
@@ -454,7 +455,7 @@ void ThreadShowMetricsScreen()
         std::cout << "\e[1;1H\e[2J";
 
         // Thank you text
-        std::cout << "\e[32m" << _("Thank you for running a LitecoinZ node!") << "\e[0m" << std::endl;
+        std::cout << ANSI_COLOR_LGREEN << _("Thank you for running a LitecoinZ node!") << ANSI_COLOR_RESET << std::endl;
 
         // Privacy notice text
         std::cout << PrivacyInfo();
