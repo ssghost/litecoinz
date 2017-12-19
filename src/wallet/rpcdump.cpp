@@ -388,11 +388,11 @@ UniValue dumpprivkey(const UniValue& params, bool fHelp)
     
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "dumpprivkey \"zcashaddress\"\n"
-            "\nReveals the private key corresponding to 'zcashaddress'.\n"
+            "dumpprivkey \"litecoinzaddress\"\n"
+            "\nReveals the private key corresponding to 'litecoinzaddress'.\n"
             "Then the importprivkey can be used with this output\n"
             "\nArguments:\n"
-            "1. \"zcashaddress\"   (string, required) The litecoinz address for the private key\n"
+            "1. \"litecoinzaddress\"   (string, required) The litecoinz address for the private key\n"
             "\nResult:\n"
             "\"key\"                (string) The private key\n"
             "\nExamples:\n"

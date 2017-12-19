@@ -212,7 +212,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
             "         \"reqSigs\" : n,            (numeric) The required sigs\n"
             "         \"type\" : \"pubkeyhash\",  (string) The type, eg 'pubkeyhash'\n"
             "         \"addresses\" : [           (json array of string)\n"
-            "           \"zcashaddress\"          (string) LitecoinZ address\n"
+            "           \"litecoinzaddress\"          (string) LitecoinZ address\n"
             "           ,...\n"
             "         ]\n"
             "       }\n"

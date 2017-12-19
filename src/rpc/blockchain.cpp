@@ -544,7 +544,7 @@ UniValue gettxout(const UniValue& params, bool fHelp)
             "     \"reqSigs\" : n,          (numeric) Number of required signatures\n"
             "     \"type\" : \"pubkeyhash\", (string) The type, eg pubkeyhash\n"
             "     \"addresses\" : [          (array of string) array of LitecoinZ addresses\n"
-            "        \"zcashaddress\"        (string) LitecoinZ address\n"
+            "        \"litecoinzaddress\"        (string) LitecoinZ address\n"
             "        ,...\n"
             "     ]\n"
             "  },\n"
