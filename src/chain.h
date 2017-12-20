@@ -360,7 +360,8 @@ public:
         READWRITE(nNonce);
         READWRITE(nArrivalTime);
         READWRITE(nSolution);
-        READWRITE(nSproutValue);
+        if (nType & SER_DISK)
+            READWRITE(nSproutValue);
     }
 
     uint256 GetBlockHash() const
