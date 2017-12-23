@@ -23,30 +23,30 @@ namespace libsnark {
 
 template<typename T1, typename T2, mp_size_t n>
 knowledge_commitment<T1,T2> opt_window_wnaf_exp(const knowledge_commitment<T1,T2> &base,
-                                                const bigint<n> &scalar, const size_t scalar_bits);
+                                                const bigint<n> &scalar, const uint64_t scalar_bits);
 
 template<typename T1, typename T2, typename FieldT>
 knowledge_commitment<T1, T2> kc_multi_exp_with_mixed_addition(const knowledge_commitment_vector<T1, T2> &vec,
-                                                                const size_t min_idx,
-                                                                const size_t max_idx,
+                                                                const uint64_t min_idx,
+                                                                const uint64_t max_idx,
                                                                 typename std::vector<FieldT>::const_iterator scalar_start,
                                                                 typename std::vector<FieldT>::const_iterator scalar_end,
-                                                                const size_t chunks,
+                                                                const uint64_t chunks,
                                                                 const bool use_multiexp=false);
 
 template<typename T1, typename T2>
 void kc_batch_to_special(std::vector<knowledge_commitment<T1, T2> > &vec);
 
 template<typename T1, typename T2, typename FieldT>
-knowledge_commitment_vector<T1, T2> kc_batch_exp(const size_t scalar_size,
-                                                 const size_t T1_window,
-                                                 const size_t T2_window,
+knowledge_commitment_vector<T1, T2> kc_batch_exp(const uint64_t scalar_size,
+                                                 const uint64_t T1_window,
+                                                 const uint64_t T2_window,
                                                  const window_table<T1> &T1_table,
                                                  const window_table<T2> &T2_table,
                                                  const FieldT &T1_coeff,
                                                  const FieldT &T2_coeff,
                                                  const std::vector<FieldT> &v,
-                                                 const size_t suggested_num_chunks);
+                                                 const uint64_t suggested_num_chunks);
 
 } // libsnark
 

@@ -16,12 +16,12 @@
 
 namespace libsnark {
 
-size_t constraint_profiling_indent = 0;
+uint64_t constraint_profiling_indent = 0;
 std::vector<constraint_profiling_entry> constraint_profiling_table;
 
-size_t PRINT_CONSTRAINT_PROFILING()
+uint64_t PRINT_CONSTRAINT_PROFILING()
 {
-    size_t accounted = 0;
+    uint64_t accounted = 0;
     print_indent();
     printf("Constraint profiling:\n");
     for (constraint_profiling_entry &ent : constraint_profiling_table)
@@ -32,7 +32,7 @@ size_t PRINT_CONSTRAINT_PROFILING()
         }
 
         print_indent();
-        for (size_t i = 0; i < ent.indent; ++i)
+        for (uint64_t i = 0; i < ent.indent; ++i)
         {
             printf("  ");
         }

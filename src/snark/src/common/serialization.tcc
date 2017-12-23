@@ -90,12 +90,12 @@ template<typename T>
 std::istream& operator>>(std::istream& in, std::vector<T> &v)
 {
     static_assert(!std::is_same<T, bool>::value, "this does not work for std::vector<bool>");
-    size_t size;
+    uint64_t size;
     in >> size;
     consume_newline(in);
 
     v.resize(0);
-    for (size_t i = 0; i < size; ++i)
+    for (uint64_t i = 0; i < size; ++i)
     {
         T elt;
         in >> elt;
@@ -124,11 +124,11 @@ template<typename T1, typename T2>
 std::istream& operator>>(std::istream& in, std::map<T1, T2> &m)
 {
     m.clear();
-    size_t size;
+    uint64_t size;
     in >> size;
     consume_newline(in);
 
-    for (size_t i = 0; i < size; ++i)
+    for (uint64_t i = 0; i < size; ++i)
     {
         T1 k;
         T2 v;
@@ -160,11 +160,11 @@ template<typename T>
 std::istream& operator>>(std::istream& in, std::set<T> &s)
 {
     s.clear();
-    size_t size;
+    uint64_t size;
     in >> size;
     consume_newline(in);
 
-    for (size_t i = 0; i < size; ++i)
+    for (uint64_t i = 0; i < size; ++i)
     {
         T el;
         in >> el;

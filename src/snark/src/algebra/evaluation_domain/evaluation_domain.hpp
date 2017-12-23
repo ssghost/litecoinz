@@ -37,19 +37,19 @@ template<typename FieldT>
 class evaluation_domain {
 public:
 
-    const size_t m;
+    const uint64_t m;
 
     /**
      * Construct an evaluation domain S of size m, if possible.
      *
      * (See the function get_evaluation_domain below.)
      */
-    evaluation_domain(const size_t m) : m(m) {};
+    evaluation_domain(const uint64_t m) : m(m) {};
 
     /**
      * Get the idx-th element in S.
      */
-    virtual FieldT get_element(const size_t idx) = 0;
+    virtual FieldT get_element(const uint64_t idx) = 0;
 
     /**
      * Compute the FFT, over the domain S, of the vector a.
@@ -103,7 +103,7 @@ public:
  * The function chooses from different supported domains, depending on min_size.
  */
 template<typename FieldT>
-std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const size_t min_size);
+std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const uint64_t min_size);
 
 /**
  * Naive evaluation of a *single* Lagrange polynomial, used for testing purposes.
@@ -116,7 +116,7 @@ std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const size_t m
  * The output is the polynomial L_{idx,S}(z) evaluated at z = t.
  */
 template<typename FieldT>
-FieldT lagrange_eval(const size_t m, const std::vector<FieldT> &domain, const FieldT &t, const size_t idx);
+FieldT lagrange_eval(const uint64_t m, const std::vector<FieldT> &domain, const FieldT &t, const uint64_t idx);
 
 } // libsnark
 
