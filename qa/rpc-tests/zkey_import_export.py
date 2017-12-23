@@ -64,7 +64,7 @@ class ZkeyImportExportTest (BitcoinTestFramework):
 
         def z_send(from_node, from_addr, to_addr, amount):
             opid = from_node.z_sendmany(from_addr, [{"address": to_addr, "amount": Decimal(amount)}])
-            txid = self.wait_and_assert_operationid_status(from_node, opid)
+            self.wait_and_assert_operationid_status(from_node, opid)
             self.sync_all()
             miner.generate(1)
             self.sync_all()
@@ -108,12 +108,9 @@ class ZkeyImportExportTest (BitcoinTestFramework):
         # Shield Alice's coinbase funds to her zaddr
         alice_zaddr = alice.z_getnewaddress()
         res = alice.z_shieldcoinbase("*", alice_zaddr)
-        txid = self.wait_and_assert_operationid_status(alice, res['opid'])
+        self.wait_and_assert_operationid_status(alice, res['opid'])
         miner.generate(6)
         self.sync_all()
-        # List funds
-        funds = alice.z_listreceivedbyaddress(alice_zaddr)
-        # print("Alice's funds after shield", funds)
 
         # Ensure new funds have been confirmed
         miner.generate(2)
