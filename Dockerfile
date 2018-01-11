@@ -6,8 +6,8 @@ ENV LITECOINZ_DATA /home/litecoinz/.litecoinz
 RUN set -e && \
   apt-get update -q && \
   apt-get install -q -y apt-transport-https wget && \
-  wget -qO - http://litecoinz.info/litecoinz.asc | apt-key add - && \
-  echo "deb [arch=amd64] http://litecoinz.info/ jessie main" | tee /etc/apt/sources.list.d/litecoinz.list && \
+  wget -qO - https://litecoinz.info/litecoinz.asc | apt-key add - && \
+  echo "deb [arch=amd64] https://litecoinz.info/ jessie main" | tee /etc/apt/sources.list.d/litecoinz.list && \
   apt-get update -q && \
   apt-get install litecoinz -q -y && \
   litecoinz-fetch-params && \
