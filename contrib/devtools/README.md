@@ -43,11 +43,11 @@ Every year newly updated files need to have its copyright headers updated to ref
 If you run this script from src/ it will automatically update the year on the copyright header for all
 .cpp and .h files if these have a git commit from the current year.
 
-For example a file changed in 2014 (with 2014 being the current year):
-```// Copyright (c) 2009-2013 The Bitcoin Core developers```
+For example a file changed in 2018 (with 2018 being the current year):
+```// Copyright (c) 2017-2017 The LitecoinZ developers```
 
 would be changed to:
-```// Copyright (c) 2009-2014 The Bitcoin Core developers```
+```// Copyright (c) 2017-2018 The LitecoinZ developers```
 
 symbol-check.py
 ==================

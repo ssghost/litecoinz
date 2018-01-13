@@ -1,10 +1,10 @@
 Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?rev=174
 Upstream-Name: LitecoinZ
-Upstream-Contact: LitecoinZ Team <team@litecoinz.info>
+Upstream-Contact: LitecoinZ developers <developers@litecoinz.info>
 Source: https://github.com/litecoinz-project/litecoinz
 
 Files: *
-Copyright: 2017 The LitecoinZ Team
+Copyright: 2017-2018 The LitecoinZ developers
  2016-2017, The Zcash developers
  2009-2017, Bitcoin Core developers
 License: Expat
@@ -18,7 +18,6 @@ License: ISC
 Files: depends/sources/libsnark-*.tar.gz
 Copyright: 2012-2016 SCIPR Lab and contributors; 
 2016 The Zcash developers
-2017 The LitecoinZ Team
 License: Expat
 
 Files: depends/sources/gmp-*.tar.bz2
