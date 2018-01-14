@@ -59,6 +59,7 @@ public:
 
         ZCPAYMENT_ADDRRESS,
         ZCSPENDING_KEY,
+        ZCVIEWING_KEY,
 
         MAX_BASE58_TYPES
     };

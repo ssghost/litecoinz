@@ -87,6 +87,10 @@ _litecoinz_cli() {
                 COMPREPLY=( $( compgen -W "true false" -- "$cur" ) )
                 return 0
                 ;;
+            z_importkey|z_importviewingkey)
+                COMPREPLY=( $( compgen -W "yes no whenkeyisnew" -- "$cur" ) )
+                return 0
+                ;;
             move|setaccount)
                 _litecoinz_accounts
                 return 0

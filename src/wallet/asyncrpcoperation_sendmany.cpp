@@ -555,7 +555,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
             intermediates.insert(std::make_pair(tree.root(), tree));    // chained js are interstitial (found in between block boundaries)
 
             // Decrypt the change note's ciphertext to retrieve some data we need
-            ZCNoteDecryption decryptor(spendingkey_.viewing_key());
+            ZCNoteDecryption decryptor(spendingkey_.receiving_key());
             auto hSig = prevJoinSplit.h_sig(*pzcashParams, tx_.joinSplitPubKey);
             try {
                 NotePlaintext plaintext = NotePlaintext::decrypt(
@@ -723,7 +723,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
 
         // create output for any change
         if (jsChange>0) {
-            info.vjsout.push_back(JSOutput(frompaymentaddress_, jsChange, spendingkey_.viewing_key()));
+            info.vjsout.push_back(JSOutput(frompaymentaddress_, jsChange));
 
             LogPrint("zrpcunsafe", "%s: generating note for change (amount=%s)\n",
                     getId(),

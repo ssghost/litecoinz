@@ -127,6 +127,8 @@ public:
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x88,0xAD,0xE3};	// xprv
         // guarantees the first 2 characters, when base58 encoded, are "zm"
         base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xAA};
+        // guarantees the first 4 characters, when base58 encoded, are "ZiVK"
+        base58Prefixes[ZCVIEWING_KEY]      = {0xA8,0xAB,0xD3};
         // guarantees the first 2 characters, when base58 encoded, are "MK"
         base58Prefixes[ZCSPENDING_KEY]     = {0x89,0x64};
 
@@ -140,9 +142,9 @@ public:
 
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            (      0, consensus.hashGenesisBlock),
-            (    293, uint256S("000094343dc23483c26239f71603980a5c56062c061b81a6b6f30a77e6717d41")),
-            (    586, uint256S("000015256f276b0bb1d8e3b601ac37644e76cf860d8bc565aa1ff82fc0a6ef3f")),
+            (      0, consensus.hashGenesisBlock)
+            (    293, uint256S("000094343dc23483c26239f71603980a5c56062c061b81a6b6f30a77e6717d41"))
+            (    586, uint256S("000015256f276b0bb1d8e3b601ac37644e76cf860d8bc565aa1ff82fc0a6ef3f"))
             (    879, uint256S("000083828428d8d2f5245d9d4ada17df9418ae1c320268f477a853f800df3365")),
             1513845269,     // * UNIX timestamp of last checkpoint block
             879,            // * total number of transactions between genesis and last checkpoint
@@ -213,6 +215,8 @@ public:
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x35,0x83,0x94};	// tprv
         // guarantees the first 2 characters, when base58 encoded, are "zt"
         base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xB6};
+        // guarantees the first 4 characters, when base58 encoded, are "ZiVt"
+        base58Prefixes[ZCVIEWING_KEY]      = {0xA8,0xAC,0x0C};
         // guarantees the first 2 characters, when base58 encoded, are "TK"
         base58Prefixes[ZCSPENDING_KEY]     = {0xB1,0xF8};
 
