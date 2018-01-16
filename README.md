@@ -116,6 +116,9 @@ To get help with a particular command, use ```./src/litecoinz-cli help <command>
 ### Windows
 
 - Download Windows release binary [here](https://litecoinz.info/downloads/litecoinz-1014-win64.zip)
+- Fetch parameter files [here](https://litecoinz.info/downloads/sprout.zip) and uncompress the content inside the folder ```"C:\Users\%username%\AppData\Roaming\LitecoinZParams"```
+- Manually edit the ```litecoinz.conf``` file inside the folder ```"C:\Users\%username%\AppData\Roaming\LitecoinZ"```
+- Run ```litecoinzd.exe``` 
 
 
 ### Do you need a Wallet GUI?
