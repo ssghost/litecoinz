@@ -1,11 +1,11 @@
 *.tar.gz
 *.deb
 *.exe
-src/bitcoin
-src/zcashd
-src/zcash-cli
-src/zcash-gtest
-src/zcash-tx
+src/litecoinzd
+src/litecoinz-cli
+src/litecoinz-gtest
+src/litecoinz-tx
+src/litecoinz-addrgen
 src/test/test_bitcoin
 
 # Zcash utilities
@@ -100,7 +100,7 @@ coverage_percent.txt
 linux-coverage-build
 linux-build
 win32-build
-qa/pull-tester/run-bitcoind-for-test.sh
+qa/pull-tester/run-litecoinzd-for-test.sh
 qa/pull-tester/tests-config.sh
 qa/pull-tester/cache/*
 qa/pull-tester/test.*/*
