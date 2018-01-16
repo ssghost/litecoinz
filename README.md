@@ -57,10 +57,10 @@ $ ./zcutil/fetch-params.sh
 
 Ensure you have successfully installed all system package dependencies as described above. Then run the build, e.g.:
 ```{r, engine='bash'}
-$ ./zcutil/build.sh --disable-rust -j$(nproc)
+$ ./zcutil/build.sh -j$(nproc)
 ```
 
-This should compile our dependencies and build ```litecoinzd```. (Note: if you don't have ```nproc```, then substitute the number of cores on your system. If the build runs out of memory, try again without the ```-j``` argument, i.e. just ```./zcutil/build.sh --disable-rust```. )
+This should compile our dependencies and build ```litecoinzd```. (Note: if you don't have ```nproc```, then substitute the number of cores on your system. If the build runs out of memory, try again without the ```-j``` argument, i.e. just ```./zcutil/build.sh```. )
 
 ### Configuration
 
@@ -138,5 +138,3 @@ TO DO
 -----
 - QT Wallet
 - Backports from Bitcoin 0.12+
-
-
