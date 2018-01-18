@@ -510,6 +510,7 @@ public:
         return (GetDebit(filter) > 0);
     }
 
+    bool InMempool() const;
     bool IsTrusted() const;
 
     bool WriteToDisk(CWalletDB *pwalletdb);
