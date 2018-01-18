@@ -113,6 +113,7 @@ LIBZCASH_H = \
 .PHONY: FORCE collate-libsnark check-symbols check-security
 # bitcoin core #
 BITCOIN_CORE_H = \
+  addrdb.h \
   addrman.h \
   alert.h \
   amount.h \
@@ -232,6 +233,7 @@ libbitcoin_server_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(EVENT_CFLAGS) $(EVENT_PTHRE
 libbitcoin_server_a_SOURCES = \
   sendalert.cpp \
   addrman.cpp \
+  addrdb.cpp \
   alert.cpp \
   alertkeys.h \
   asyncrpcoperation.cpp \
