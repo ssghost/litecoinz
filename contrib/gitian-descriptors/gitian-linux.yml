@@ -13,6 +13,7 @@ packages:
 - "binutils-gold"
 - "ca-certificates"
 - "faketime"
+- "curl"
 - "g++-multilib"
 - "git-core"
 - "libc6-dev"
