@@ -2667,6 +2667,8 @@ bool ActivateBestChain(CValidationState &state, CBlock *pblock) {
     const CChainParams& chainParams = Params();
     do {
         boost::this_thread::interruption_point();
+        if (ShutdownRequested())
+            break;
 
         bool fInitialDownload;
         {
