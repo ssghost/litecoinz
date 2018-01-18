@@ -41,6 +41,7 @@
 #include "warnings.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <memory>
 
 #ifndef WIN32
 #include <signal.h>
@@ -75,6 +76,8 @@ ZCJoinSplit* pzcashParams = NULL;
 CWallet* pwalletMain = NULL;
 #endif
 bool fFeeEstimatesInitialized = false;
+
+std::unique_ptr<CConnman> g_connman;
 
 #if ENABLE_ZMQ
 static CZMQNotificationInterface* pzmqNotificationInterface = NULL;
@@ -205,7 +208,9 @@ void Shutdown()
     GenerateBitcoins(false, 0);
  #endif
 #endif
-    StopNode();
+    StopNode(*g_connman);
+    g_connman.reset();
+
     StopTorControl();
     UnregisterNodeSignals(GetNodeSignals());
 
@@ -1161,6 +1166,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #endif // ENABLE_WALLET
     // ********************************************************* Step 6: network initialization
 
+    assert(!g_connman);
+    g_connman = std::unique_ptr<CConnman>(new CConnman());
+    CConnman& connman = *g_connman;
+
     RegisterNodeSignals(GetNodeSignals());
 
     if (mapArgs.count("-onlynet")) {
@@ -1675,7 +1684,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION))
         StartTorControl(threadGroup, scheduler);
 
-    StartNode(threadGroup, scheduler);
+    std::string strNodeError;
+    if(!StartNode(connman, threadGroup, scheduler, strNodeError))
+        return InitError(strNodeError);
 
     // Monitor the chain, and alert if we get blocks much quicker or slower than expected
     int64_t nPowTargetSpacing = Params().GetConsensus().nPowTargetSpacing;

@@ -27,10 +27,12 @@ struct JoinSplitTestingSetup: public BasicTestingSetup {
  * Included are data directory, coins database, script check threads
  * and wallet (if enabled) setup.
  */
+class CConnman;
 struct TestingSetup: public JoinSplitTestingSetup {
     CCoinsViewDB *pcoinsdbview;
     boost::filesystem::path pathTemp;
     boost::thread_group threadGroup;
+    CConnman* connman;
 
     TestingSetup();
     ~TestingSetup();
