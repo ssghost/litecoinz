@@ -119,6 +119,7 @@ To get help with a particular command, use ```./src/litecoinz-cli help <command>
 - Download parameter file [here](https://litecoinz.info/downloads/sprout.zip) and uncompress the content inside the folder ```"C:\Users\%username%\AppData\Roaming\LitecoinZParams"```
 - Manually edit the ```litecoinz.conf``` file inside the folder ```"C:\Users\%username%\AppData\Roaming\LitecoinZ"```
 - Run ```litecoinzd.exe``` 
+- Optionally run the Java Wallet GUI (already provided inside the download release binary)  ```LitecoinzSwingWalletUI.cmd``` 
 
 
 ### Do you need a Wallet GUI?
