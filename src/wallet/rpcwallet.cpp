@@ -2553,6 +2553,104 @@ UniValue z_listunspent(const UniValue& params, bool fHelp)
     return results;
 }
 
+UniValue z_listunshielded(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() > 3)
+        throw runtime_error(
+            "z_listunshielded ( minconf maxconf  [\"address\",...] )\n"
+            "\nReturns array of unshielded transaction outputs\n"
+            "with between minconf and maxconf (inclusive) confirmations.\n"
+            "Optionally filter to only include txouts paid to specified addresses.\n"
+            "Results are an array of Objects, each of which has:\n"
+            "{txid, vout, scriptPubKey, amount, confirmations}\n"
+            "\nArguments:\n"
+            "1. minconf          (numeric, optional, default=1) The minimum confirmations to filter\n"
+            "2. maxconf          (numeric, optional, default=9999999) The maximum confirmations to filter\n"
+            "3. \"addresses\"    (string) A json array of LitecoinZ addresses to filter\n"
+            "    [\n"
+            "      \"address\"   (string) LitecoinZ address\n"
+            "      ,...\n"
+            "    ]\n"
+            "\nResult\n"
+            "[                   (array of json object)\n"
+            "  {\n"
+            "    \"txid\" : \"txid\",        (string) the transaction id \n"
+            "    \"address\" : \"address\",  (string) the litecoinz address\n"
+            "    \"amount\" : x.xxx,         (numeric) the transaction amount in " + CURRENCY_UNIT + "\n"
+            "    \"confirmations\" : n       (numeric) The number of confirmations\n"
+            "  }\n"
+            "  ,...\n"
+            "]\n"
+
+            "\nExamples\n"
+            + HelpExampleCli("z_listunshielded", "")
+            + HelpExampleCli("z_listunshielded", "6 9999999 \"[\\\"t1PGFqEzfmQch1gKD3ra4k18PNj3tTUUSqg\\\",\\\"t1LtvqCaApEdUGFkpKMM4MstjcaL4dKg8SP\\\"]\"")
+            + HelpExampleRpc("z_listunshielded", "6, 9999999 \"[\\\"t1PGFqEzfmQch1gKD3ra4k18PNj3tTUUSqg\\\",\\\"t1LtvqCaApEdUGFkpKMM4MstjcaL4dKg8SP\\\"]\"")
+        );
+
+    RPCTypeCheck(params, boost::assign::list_of(UniValue::VNUM)(UniValue::VNUM)(UniValue::VARR));
+
+    int nMinDepth = 1;
+    if (params.size() > 0)
+        nMinDepth = params[0].get_int();
+
+    int nMaxDepth = 9999999;
+    if (params.size() > 1)
+        nMaxDepth = params[1].get_int();
+
+    set<CBitcoinAddress> setAddress;
+    if (params.size() > 2) {
+        UniValue inputs = params[2].get_array();
+        for (size_t idx = 0; idx < inputs.size(); idx++) {
+            const UniValue& input = inputs[idx];
+            CBitcoinAddress address(input.get_str());
+            if (!address.IsValid())
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid LitecoinZ address: ")+input.get_str());
+            if (setAddress.count(address))
+                throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+input.get_str());
+           setAddress.insert(address);
+        }
+    }
+
+    UniValue results(UniValue::VARR);
+    vector<COutput> vecOutputs;
+    assert(pwalletMain != NULL);
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
+    BOOST_FOREACH(const COutput& out, vecOutputs) {
+        if (out.nDepth < nMinDepth || out.nDepth > nMaxDepth)
+            continue;
+
+        if (setAddress.size()) {
+            CTxDestination address;
+            if (!ExtractDestination(out.tx->vout[out.i].scriptPubKey, address))
+                continue;
+
+            if (!setAddress.count(address))
+                continue;
+        }
+
+        if (out.tx->IsCoinBase())
+        {
+            CAmount nValue = out.tx->vout[out.i].nValue;
+            UniValue entry(UniValue::VOBJ);
+            entry.push_back(Pair("txid", out.tx->GetHash().GetHex()));
+            CTxDestination address;
+            if (ExtractDestination(out.tx->vout[out.i].scriptPubKey, address)) {
+                entry.push_back(Pair("address", CBitcoinAddress(address).ToString()));
+            }
+            entry.push_back(Pair("amount",ValueFromAmount(nValue)));
+            entry.push_back(Pair("confirmations",out.nDepth));
+            results.push_back(entry);
+        }
+    }
+
+    return results;
+}
+
 UniValue fundrawtransaction(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
