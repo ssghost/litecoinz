@@ -915,3 +915,10 @@ int GetNumCores()
     return boost::thread::physical_concurrency();
 }
 
+std::string CopyrightHolders()
+{
+    std::string strCopyrightHolders = _(COPYRIGHT_HOLDERS);
+    if (strCopyrightHolders.find("%s") == strCopyrightHolders.npos)
+        return strCopyrightHolders;
+    return strprintf(strCopyrightHolders, _(PACKAGE_NAME));
+}
