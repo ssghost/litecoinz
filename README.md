@@ -127,6 +127,20 @@ To get help with a particular command, use ```./src/litecoinz-cli help <command>
 A Java Wallet GUI is available [here](https://github.com/litecoinz-project/litecoinz-wallet).
 
 
+DONATIONS
+---------
+
+Donations for supporting developers are welcome: 
+
+- LTC: LgSbGGqru5LVHE3cWcgwZDLjr3WorGahr3
+- BTC: 1N2rQimKbeUQA8N2LU5vGopYQJmZsBM2d6
+- ZEC: t1T8hAYzLNwe2rLQpFMjx9z9FHFd6oQ86P9
+- BTG: GNkwW2uS4ed7cofz94J8PrTXJnZgmk5nr2
+- BTCZ: t1cmr2QUMCEBRhUVrZHsgC6DnrdzC2FyHz7
+
+Thanks
+
+
 Security Warnings
 -----------------
 
