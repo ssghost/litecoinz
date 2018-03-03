@@ -594,7 +594,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 {
     boost::filesystem::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good())
-        throw missing_litecoinz_conf();
+        return; // No litecoinz.conf file is OK
 
     set<string> setOptions;
     setOptions.insert("*");
