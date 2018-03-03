@@ -456,9 +456,6 @@ void ThreadShowMetricsScreen()
 
         // Thank you text
         std::cout << ANSI_COLOR_LGREEN << _("Thank you for running a LitecoinZ node!") << ANSI_COLOR_RESET << std::endl;
-
-        // Privacy notice text
-        std::cout << PrivacyInfo();
         std::cout << std::endl;
     }
 

@@ -888,13 +888,6 @@ void SetThreadPriority(int nPriority)
 #endif // WIN32
 }
 
-std::string PrivacyInfo()
-{
-    return "\n" +
-           FormatParagraph(strprintf(_("In order to ensure you are adequately protecting your privacy when using LitecoinZ, please see <%s>."),
-                                     "https://litecoinz.info/support/security/")) + "\n";
-}
-
 std::string LicenseInfo()
 {
     return "\n" +
