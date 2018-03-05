@@ -1,7 +1,7 @@
 proton_packages := proton
 zcash_packages := libgmp libsodium
 
-packages:=boost openssl libevent zeromq $(zcash_packages) googletest
+packages:=boost openssl libevent zeromq $(zcash_packages) googletest curl
 native_packages := native_ccache
 
 qt_native_packages = native_protobuf

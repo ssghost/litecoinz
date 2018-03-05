@@ -66,6 +66,8 @@
 #include "amqp/amqpnotificationinterface.h"
 #endif
 
+#include "fetchparams.h"
+
 using namespace std;
 
 extern void ThreadSendAlert();
@@ -675,20 +677,37 @@ bool InitSanityCheck(void)
     return true;
 }
 
-
 static void ZC_LoadParams()
 {
     struct timeval tv_start, tv_end;
     float elapsed;
 
+    bool ret = true;
+
     boost::filesystem::path pk_path = ZC_GetParamsDir() / "sprout-proving.key";
     boost::filesystem::path vk_path = ZC_GetParamsDir() / "sprout-verifying.key";
 
-    if (!(boost::filesystem::exists(pk_path) && boost::filesystem::exists(vk_path))) {
+    if(!(boost::filesystem::is_directory(ZC_GetParamsDir())))
+    {
+        // Create the 'litecoinz-params' directory or the 'LitecoinZParams' folder
+        TryCreateDirectory(ZC_GetParamsDir());
+    }
+    if(!(boost::filesystem::exists(pk_path)))
+    {
+        // Download the 'sprout-proving.key' file
+        ret = LTZ_FetchParams("https://litecoinz.info/downloads/sprout-proving.key", pk_path.string());
+    }
+    if((!(boost::filesystem::exists(vk_path))) && ret)
+    {
+        // Download the 'sprout-verifying.key' file
+        ret = LTZ_FetchParams("https://litecoinz.info/downloads/sprout-verifying.key", vk_path.string());
+    }
+
+    if ((!(boost::filesystem::exists(pk_path) && boost::filesystem::exists(vk_path))) || (!ret)) {
         uiInterface.ThreadSafeMessageBox(strprintf(
             _("Cannot find the LitecoinZ network parameters in the following directory:\n"
               "%s\n"
-              "Please run 'litecoinz-fetch-params' or './zcutil/fetch-params.sh' and then restart."),
+              "Please run './zcutil/fetch-params.sh' and then restart."),
                 ZC_GetParamsDir()),
             "", CClientUIInterface::MSG_ERROR);
         StartShutdown();
