@@ -1,4 +1,4 @@
-LitecoinZ 1.0.14
+LitecoinZ 1.0.15
 ================
 
 What is LitecoinZ?
@@ -49,7 +49,7 @@ Fetch our repository with git and run ```fetch-params.sh``` like so:
 ```{r, engine='bash'}
 $ git clone https://github.com/litecoinz-project/litecoinz.git
 $ cd litecoinz/
-$ git checkout v1.0.14
+$ git checkout v1.0.15
 $ ./zcutil/fetch-params.sh
 ```
 
