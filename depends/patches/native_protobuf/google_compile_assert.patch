@@ -1,0 +1,25 @@
+--- a/src/google/protobuf/stubs/common.h	2014-10-22 21:00:24.000000000 +0200
++++ b/src/google/protobuf/stubs/common.h	2018-02-01 18:01:13.701935340 +0100
+@@ -377,11 +377,13 @@
+ }  // namespace internal
+ 
+ #undef GOOGLE_COMPILE_ASSERT
++#if __cplusplus >= 201103L
++#define GOOGLE_COMPILE_ASSERT(expr, msg) static_assert(expr, #msg)
++#else
+ #define GOOGLE_COMPILE_ASSERT(expr, msg) \
+   typedef ::google::protobuf::internal::CompileAssert<(bool(expr))> \
+           msg[bool(expr) ? 1 : -1]
+ 
+-
+ // Implementation details of COMPILE_ASSERT:
+ //
+ // - COMPILE_ASSERT works by defining an array type that has -1
+@@ -422,6 +424,7 @@
+ //
+ //   This is to avoid running into a bug in MS VC 7.1, which
+ //   causes ((0.0) ? 1 : -1) to incorrectly evaluate to 1.
++#endif  // __cplusplus >= 201103L
+ 
+ // ===================================================================
+ // from google3/base/scoped_ptr.h

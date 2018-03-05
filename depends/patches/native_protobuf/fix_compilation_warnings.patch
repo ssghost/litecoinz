@@ -1,0 +1,72 @@
+diff -Naur a/autogen.sh b/autogen.sh
+--- a/autogen.sh	2014-10-21 02:01:39.000000000 +0200
++++ b/autogen.sh	2018-02-01 18:27:24.718204936 +0100
+@@ -35,7 +35,7 @@
+            s/RuntimeLibrary="4"/RuntimeLibrary="2"/g;' gtest/msvc/*.vcproj
+ 
+ # TODO(kenton):  Remove the ",no-obsolete" part and fix the resulting warnings.
+-autoreconf -f -i -Wall,no-obsolete
++autoreconf -f -i
+ 
+ rm -rf autom4te.cache config.h.in~
+ exit 0
+diff -Naur a/gtest/cmake/internal_utils.cmake b/gtest/cmake/internal_utils.cmake
+--- a/gtest/cmake/internal_utils.cmake	2014-10-22 22:10:11.000000000 +0200
++++ b/gtest/cmake/internal_utils.cmake	2018-02-01 18:27:51.887403026 +0100
+@@ -72,7 +72,7 @@
+     set(cxx_no_exception_flags "-D_HAS_EXCEPTIONS=0")
+     set(cxx_no_rtti_flags "-GR-")
+   elseif (CMAKE_COMPILER_IS_GNUCXX)
+-    set(cxx_base_flags "-Wall -Wshadow")
++    set(cxx_base_flags "-Wshadow")
+     set(cxx_exception_flags "-fexceptions")
+     set(cxx_no_exception_flags "-fno-exceptions")
+     # Until version 4.3.2, GCC doesn't define a macro to indicate
+diff -Naur a/gtest/make/Makefile b/gtest/make/Makefile
+--- a/gtest/make/Makefile	2014-10-22 22:10:11.000000000 +0200
++++ b/gtest/make/Makefile	2018-02-01 18:27:33.885271772 +0100
+@@ -23,7 +23,7 @@
+ CPPFLAGS += -I$(GTEST_DIR)/include
+ 
+ # Flags passed to the C++ compiler.
+-CXXFLAGS += -g -Wall -Wextra
++CXXFLAGS += -g -Wextra
+ 
+ # All tests produced by this Makefile.  Remember to add new tests you
+ # created to the list.
+diff -Naur a/gtest/xcode/Config/General.xcconfig b/gtest/xcode/Config/General.xcconfig
+--- a/gtest/xcode/Config/General.xcconfig	2014-10-22 22:10:11.000000000 +0200
++++ b/gtest/xcode/Config/General.xcconfig	2018-02-01 18:27:43.575342423 +0100
+@@ -17,7 +17,7 @@
+ PREBINDING = NO
+ 
+ // Strictest warning policy
+-WARNING_CFLAGS = -Wall -Werror -Wendif-labels -Wnewline-eof -Wno-sign-compare -Wshadow
++WARNING_CFLAGS = -Werror -Wendif-labels -Wnewline-eof -Wno-sign-compare -Wshadow
+ 
+ // Work around Xcode bugs by using external strip. See:
+ // http://lists.apple.com/archives/Xcode-users/2006/Feb/msg00050.html
+diff -Naur a/src/Makefile.am b/src/Makefile.am
+--- a/src/Makefile.am	2014-10-22 21:00:24.000000000 +0200
++++ b/src/Makefile.am	2018-02-01 18:28:12.785555394 +0100
+@@ -12,7 +12,7 @@
+ 
+ if GCC
+ # These are good warnings to turn on by default
+-NO_OPT_CXXFLAGS = $(PTHREAD_CFLAGS) -Wall -Wwrite-strings -Woverloaded-virtual -Wno-sign-compare
++NO_OPT_CXXFLAGS = $(PTHREAD_CFLAGS) -Wwrite-strings -Woverloaded-virtual -Wno-sign-compare
+ else
+ NO_OPT_CXXFLAGS = $(PTHREAD_CFLAGS)
+ endif
+diff -Naur a/src/Makefile.in b/src/Makefile.in
+--- a/src/Makefile.in	2014-10-22 22:10:29.000000000 +0200
++++ b/src/Makefile.in	2018-02-01 18:28:00.212463724 +0100
+@@ -839,7 +839,7 @@
+ @GCC_FALSE@NO_OPT_CXXFLAGS = $(PTHREAD_CFLAGS)
+ 
+ # These are good warnings to turn on by default
+-@GCC_TRUE@NO_OPT_CXXFLAGS = $(PTHREAD_CFLAGS) -Wall -Wwrite-strings -Woverloaded-virtual -Wno-sign-compare
++@GCC_TRUE@NO_OPT_CXXFLAGS = $(PTHREAD_CFLAGS) -Wwrite-strings -Woverloaded-virtual -Wno-sign-compare
+ AM_CXXFLAGS = $(NO_OPT_CXXFLAGS) $(PROTOBUF_OPT_FLAG)
+ AM_LDFLAGS = $(PTHREAD_CFLAGS)
+ 

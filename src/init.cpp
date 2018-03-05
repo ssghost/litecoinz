@@ -1124,7 +1124,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if ((chainparams.NetworkIDString() != "regtest") &&
             GetBoolArg("-showmetrics", isatty(STDOUT_FILENO)) &&
-            !fPrintToConsole && !GetBoolArg("-daemon", false)) {
+            !fPrintToConsole && !GetBoolArg("-daemon", false) && !fQtGui) {
         // Start the persistent metrics interface
         ConnectMetricsScreen();
         threadGroup.create_thread(&ThreadShowMetricsScreen);
@@ -1656,6 +1656,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     // ********************************************************* Step 10: import blocks
 
+    if (!CheckDiskSpace())
+        return false;
+
     if (mapArgs.count("-blocknotify"))
         uiInterface.NotifyBlockTip.connect(BlockNotifyCallback);
 
@@ -1679,9 +1682,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 
     // ********************************************************* Step 11: start node
-
-    if (!CheckDiskSpace())
-        return false;
 
     if (!strErrors.str().empty())
         return InitError(strErrors.str());

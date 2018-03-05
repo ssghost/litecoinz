@@ -46,6 +46,8 @@ extern bool fPayAtLeastCustomFee;
 
 //! -paytxfee default
 static const CAmount DEFAULT_TRANSACTION_FEE = 0;
+//! minimum change amount
+static const CAmount MIN_CHANGE = CENT;
 //! -paytxfee will warn if called with a higher fee than this amount (in satoshis) per KB
 static const CAmount nHighTransactionFeeWarning = 0.01 * COIN;
 //! -maxtxfee default
@@ -1059,6 +1061,7 @@ public:
     DBErrors LoadWallet(bool& fFirstRunRet);
     DBErrors ZapWalletTx(std::vector<CWalletTx>& vWtx);
 
+    bool SetZAddressBook(const CZCPaymentAddress& address, const std::string& strName, const std::string& purpose);
     bool SetAddressBook(const CTxDestination& address, const std::string& strName, const std::string& purpose);
 
     bool DelAddressBook(const CTxDestination& address);
@@ -1101,6 +1104,15 @@ public:
     //! Verify the wallet database and perform salvage if required
     static bool Verify(const std::string& walletFile, std::string& warningString, std::string& errorString);
     
+    /** 
+     * Z-Address book entry changed.
+     * @note called with lock cs_wallet held.
+     */
+    boost::signals2::signal<void (CWallet *wallet, const CZCPaymentAddress
+            &address, const std::string &label, bool isMine,
+            const std::string &purpose,
+            ChangeType status)> NotifyZAddressBookChanged;
+
     /** 
      * Address book entry changed.
      * @note called with lock cs_wallet held.

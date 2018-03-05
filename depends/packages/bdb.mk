@@ -13,12 +13,13 @@ $(package)_config_opts_linux=--with-pic
 $(package)_cxxflags=-std=c++11
 endef
 
-define $(package)_config_cmds
-  ../dist/$($(package)_autoconf)
+define $(package)_preprocess_cmds
+  sed -i -e "s/WinIoCtl.h/winioctl.h/g" src/dbinc/win_db.h && \
+  cp -f $(BASEDIR)/config.guess $(BASEDIR)/config.sub dist
 endef
 
-define $(package)_preprocess_cmds
-   sed -i -e "s/WinIoCtl.h/winioctl.h/g" src/dbinc/win_db.h
+define $(package)_config_cmds
+  ../dist/$($(package)_autoconf)
 endef
 
 define $(package)_build_cmds

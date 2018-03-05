@@ -35,7 +35,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler);
 
 /** The help message mode determines what help message to show */
 enum HelpMessageMode {
-    HMM_LITECOINZD
+    HMM_LITECOINZD,
+    HMM_BITCOIN_QT
 };
 
 /** Help for options shared between UI and daemon (for -help) */

@@ -103,6 +103,7 @@ map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
 bool fDebug = false;
 bool fPrintToConsole = false;
+bool fQtGui = false;
 bool fPrintToDebugLog = true;
 bool fDaemon = false;
 bool fServer = false;
@@ -896,6 +897,14 @@ std::string LicenseInfo()
            FormatParagraph(strprintf(_("Copyright (C) 2017-%i The LitecoinZ Developers"), COPYRIGHT_YEAR)) + "\n" +
            "\n" +
            FormatParagraph(_("This is experimental software.")) + "\n" +
+           "\n" +
+           FormatParagraph(_("Donations for supporting developers are welcome:")) + "\n" +
+           "\n" +
+           FormatParagraph(_("- LTC: LgSbGGqru5LVHE3cWcgwZDLjr3WorGahr3")) + "\n" +
+           FormatParagraph(_("- BTC: 1N2rQimKbeUQA8N2LU5vGopYQJmZsBM2d6")) + "\n" +
+           FormatParagraph(_("- ZEC: t1T8hAYzLNwe2rLQpFMjx9z9FHFd6oQ86P9")) + "\n" +
+           FormatParagraph(_("- BTG: GNkwW2uS4ed7cofz94J8PrTXJnZgmk5nr2")) + "\n" +
+           FormatParagraph(_("- BTCZ: t1cmr2QUMCEBRhUVrZHsgC6DnrdzC2FyHz7")) + "\n" +
            "\n" +
            FormatParagraph(_("Distributed under the MIT software license, see the accompanying file COPYING or <http://www.opensource.org/licenses/mit-license.php>.")) + "\n" +
            "\n" +

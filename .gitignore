@@ -1,12 +1,15 @@
 *.tar.gz
 *.deb
 *.exe
+
 src/litecoinzd
 src/litecoinz-cli
 src/litecoinz-gtest
 src/litecoinz-tx
 src/litecoinz-addrgen
 src/test/test_bitcoin
+src/test/test_bitcoin_fuzzy
+src/qt/test/test_litecoinz-qt
 
 # Zcash utilities
 src/zcash/GenerateParams
@@ -40,10 +43,23 @@ src/config/bitcoin-config.h
 src/config/bitcoin-config.h.in
 src/config/stamp-h1
 share/setup.nsi
+share/qt/Info.plist
 
 cache/
 venv-mnf/
 src/univalue/gen
+
+src/qt/*.moc
+src/qt/moc_*.cpp
+src/qt/forms/ui_*.h
+
+src/qt/test/moc*.cpp
+
+src/qt/bitcoin-qt.config
+src/qt/bitcoin-qt.creator
+src/qt/bitcoin-qt.creator.user
+src/qt/bitcoin-qt.files
+src/qt/bitcoin-qt.includes
 
 .deps
 .dirstamp
@@ -73,11 +89,17 @@ src/univalue/gen
 *.lo
 *.la
 
-# Compilation
+# Compilation and Qt preprocessor part
+*.qm
 Makefile
+litecoinz-qt
+LitecoinZ-Qt.app
+Litecoinz-Qt.app
+background.tiff*
 
 # Unit-tests
 Makefile.test
+litecoinz-qt_test
 src/test/buildenv.py
 
 # Resources cpp
@@ -100,6 +122,8 @@ coverage_percent.txt
 linux-coverage-build
 linux-build
 win32-build
+test/config.ini
+test/cache/*
 qa/pull-tester/run-litecoinzd-for-test.sh
 qa/pull-tester/tests-config.sh
 qa/pull-tester/cache/*

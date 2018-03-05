@@ -126,7 +126,7 @@ eval "$CXX" --version
 as --version
 ld -v
 
-HOST="$HOST" BUILD="$BUILD" NO_PROTON="$PROTON_ARG" "$MAKE" "$@" -C ./depends/ V=1
+HOST="$HOST" NO_PROTON="$PROTON_ARG" "$MAKE" "$@" -C ./depends/
 ./autogen.sh
-HOST="$HOST" BUILD="$BUILD" CC="$CC" CXX="$CXX" CONFIG_SITE="$PWD/depends/$BUILD/share/config.site" ./configure --prefix="${PREFIX}" "$BUILD_OPT" "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" "$LIBS_ARG" CXXFLAGS='-g'
-HOST="$HOST" BUILD="$BUILD" "$MAKE" "$@" V=1
+HOST="$HOST" CC="$CC" CXX="$CXX" CONFIG_SITE="$PWD/depends/$BUILD/share/config.site" ./configure --prefix="${PREFIX}" "$BUILD_OPT" "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" "$LIBS_ARG" CXXFLAGS='-g'
+HOST="$HOST" "$MAKE" "$@"
