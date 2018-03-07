@@ -14,7 +14,7 @@ AC_CONFIG_HEADERS([src/config/bitcoin-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
-BITCOIN_DAEMON_NAME=itecoinzd
+BITCOIN_DAEMON_NAME=litecoinzd
 BITCOIN_GUI_NAME=litecoinz-qt
 BITCOIN_CLI_NAME=litecoinz-cli
 BITCOIN_TX_NAME=litecoinz-tx
@@ -838,7 +838,7 @@ AX_CHECK_COMPILE_FLAG([-fwrapv],[CXXFLAGS="$CXXFLAGS -fwrapv"])
 AX_CHECK_COMPILE_FLAG([-fno-strict-aliasing],[CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"])
 AX_CHECK_COMPILE_FLAG([-Wno-builtin-declaration-mismatch],[CXXFLAGS="$CXXFLAGS -Wno-builtin-declaration-mismatch"],,[[$CXXFLAG_WERROR]])
 
-LIBZCASH_LIBS="-lgmp -lgmpxx -lboost_system-mt -lcrypto -lsodium $RUST_LIBS"
+LIBZCASH_LIBS="$GMP_LIBS $GMPXX_LIBS $BOOST_SYSTEM_LIB $CRYPTO_LIBS -lsodium"
 
 AC_MSG_CHECKING([whether to build litecoinzd])
 AM_CONDITIONAL([BUILD_BITCOIND], [test x$build_bitcoind = xyes])

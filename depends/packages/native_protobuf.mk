@@ -6,6 +6,10 @@ $(package)_sha256_hash=ee445612d544d885ae240ffbcbf9267faa9f593b7b101f21d58beceb9
 $(package)_patches=google_compile_assert.patch fix_compilation_warnings.patch
 $(package)_cxxflags=-Wno-unused-local-typedefs -Wno-return-type -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-unused-function
 
+define $(package)_preprocess_cmds
+  ./autogen.sh
+endef
+
 define $(package)_set_vars
 $(package)_config_opts=--disable-shared
 endef

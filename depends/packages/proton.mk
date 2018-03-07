@@ -2,11 +2,9 @@ package=proton
 $(package)_version=0.20.0
 $(package)_download_path=http://apache.cs.utah.edu/qpid/proton/$($(package)_version)
 $(package)_file_name=qpid-proton-$($(package)_version).tar.gz
-$(package)_sha256_hash=d3b375b6e357aeb522cb533224262587e7b81423e6ffbbfa778dae1f
-$(package)_patches=minimal-build.patch
+$(package)_sha256_hash=b7d6e61b428b04a483068d0cc7cd2b360034a86897549bff5a2124eaac1cc38a
 
 define $(package)_preprocess_cmds
-  patch -p1 < $($(package)_patch_dir)/minimal-build.patch && \
   mkdir -p build/proton-c/src
 endef
 

@@ -6,6 +6,10 @@ $(package)_sha256_hash=$(native_$(package)_sha256_hash)
 $(package)_dependencies=native_$(package)
 $(package)_cxxflags=-std=c++11 -Wno-unused-local-typedefs -Wno-return-type -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-unused-function
 
+define $(package)_preprocess_cmds
+  ./autogen.sh
+endef
+
 define $(package)_set_vars
   $(package)_config_opts=--disable-shared --with-protoc=$(build_prefix)/bin/protoc
   $(package)_config_opts_linux=--with-pic
