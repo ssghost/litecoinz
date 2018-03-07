@@ -120,7 +120,7 @@ void ResultsDialog::updateProgressBar()
         msgBox.exec();
     }
 
-    if(strStatus == "executing")
+    if((strStatus == "executing") || (strStatus == "queued"))
     {
         counter++;
         ui->progressBar->setValue(counter);
