@@ -278,7 +278,7 @@ void SendZCoinsDialog::on_sendButton_clicked()
 
     try {
         ret = z_sendmany(params, false);
-        QString opid = QString::fromStdString(find_value(ret, "opid").get_str());
+        QString opid = QString::fromStdString(ret.get_str());
 
         ResultsDialog dlg(this);
         dlg.setOperationId(opid);
