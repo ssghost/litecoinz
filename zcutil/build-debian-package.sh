@@ -42,15 +42,18 @@ cp $SRC_PATH/src/litecoinzd $DEB_BIN
 cp $SRC_PATH/src/litecoinz-cli $DEB_BIN
 cp $SRC_PATH/src/litecoinz-tx $DEB_BIN
 cp $SRC_PATH/src/litecoinz-addrgen $DEB_BIN
+cp $SRC_PATH/src/qt/litecoinz-qt $DEB_BIN
 cp $SRC_PATH/zcutil/fetch-params.sh $DEB_BIN/litecoinz-fetch-params
 # Copy docs
-cp $SRC_PATH/doc/release-notes/release-notes-1.0.0.md $DEB_DOC/changelog
+cp $SRC_PATH/doc/release-notes/release-notes-1.0.15.md $DEB_DOC/changelog
 cp $SRC_DEB/changelog $DEB_DOC/changelog.Debian
 cp $SRC_DEB/copyright $DEB_DOC
 cp -r $SRC_DEB/examples $DEB_DOC
 # Copy manpages
 cp $SRC_DOC/man/litecoinzd.1 $DEB_MAN
 cp $SRC_DOC/man/litecoinz-cli.1 $DEB_MAN
+cp $SRC_DOC/man/litecoinz-tx.1 $DEB_MAN
+cp $SRC_DOC/man/litecoinz-qt.1 $DEB_MAN
 cp $SRC_DOC/man/litecoinz-fetch-params.1 $DEB_MAN
 # Copy bash completion files
 cp $SRC_PATH/contrib/litecoinzd.bash-completion $DEB_CMP/litecoinzd
@@ -60,6 +63,7 @@ gzip --best -n $DEB_DOC/changelog
 gzip --best -n $DEB_DOC/changelog.Debian
 gzip --best -n $DEB_MAN/litecoinzd.1
 gzip --best -n $DEB_MAN/litecoinz-cli.1
+gzip --best -n $DEB_MAN/litecoinz-qt.1
 gzip --best -n $DEB_MAN/litecoinz-fetch-params.1
 
 cd $SRC_PATH/contrib

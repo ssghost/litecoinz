@@ -5,7 +5,7 @@ $(package)_file_name=$(package)-$($(package)_version).tar.bz2
 $(package)_sha256_hash=c90035e16921117d4086a7fdee65aab85be32beb4a376f6b664b8a425d327d0b
 
 define $(package)_preprocess_cmds
-  ./autogen.sh
+  $($(package)_autoreconf
 endef
 
 define $(package)_set_vars
