@@ -164,7 +164,7 @@ AC_ARG_ENABLE([tromp-avx2],
   [AS_HELP_STRING([--enable-tromp-avx2],
   [enable AVX2 blake2 optimizaion in Tromp equihash solver])],
   [tromp_avx2=$enableval],
-  [tromp_avx2=yes])
+  [tromp_avx2=no])
 
 AC_ARG_WITH([protoc-bindir],[AS_HELP_STRING([--with-protoc-bindir=BIN_DIR],[specify protoc bin path])], [protoc_bin_path=$withval], [])
 
