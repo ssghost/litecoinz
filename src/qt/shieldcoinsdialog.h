@@ -10,7 +10,7 @@
 #include <QDialog>
 #include <QTimer>
 
-#define ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE   1000
+#define ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE   10000
 
 class AddressTableModel;
 class WalletModel;

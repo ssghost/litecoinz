@@ -13,7 +13,7 @@
 #include <QTimer>
 
 #define SEND_CONFIRM_DELAY   3
-#define ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE   1000
+#define ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE   10000
 
 class OptionsModel;
 class PlatformStyle;
