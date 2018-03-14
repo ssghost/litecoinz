@@ -6,26 +6,26 @@ DATADIR=./benchmark-datadir
 SHA256CMD="$(command -v sha256sum || echo shasum)"
 SHA256ARGS="$(command -v sha256sum >/dev/null || echo '-a 256')"
 
-function zcash_rpc {
+function litecoinz_rpc {
     ./src/litecoinz-cli -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 "$@"
 }
 
-function zcash_rpc_slow {
+function litecoinz_rpc_slow {
     # Timeout of 1 hour
-    zcash_rpc -rpcclienttimeout=3600 "$@"
+    litecoinz_rpc -rpcclienttimeout=3600 "$@"
 }
 
-function zcash_rpc_veryslow {
+function litecoinz_rpc_veryslow {
     # Timeout of 2.5 hours
-    zcash_rpc -rpcclienttimeout=9000 "$@"
+    litecoinz_rpc -rpcclienttimeout=9000 "$@"
 }
 
-function zcash_rpc_wait_for_start {
-    zcash_rpc -rpcwait getinfo > /dev/null
+function litecoinz_rpc_wait_for_start {
+    litecoinz_rpc -rpcwait getinfo > /dev/null
 }
 
 function litecoinzd_generate {
-    zcash_rpc generate 101 > /dev/null
+    litecoinz_rpc generate 101 > /dev/null
 }
 
 function extract_benchmark_datadir {
@@ -76,11 +76,11 @@ function litecoinzd_start {
     esac
     ./src/litecoinzd -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
     LITECOINZD_PID=$!
-    zcash_rpc_wait_for_start
+    litecoinz_rpc_wait_for_start
 }
 
 function litecoinzd_stop {
-    zcash_rpc stop > /dev/null
+    litecoinz_rpc stop > /dev/null
     wait $LITECOINZD_PID
 }
 
@@ -107,11 +107,11 @@ function litecoinzd_massif_start {
     rm -f massif.out
     valgrind --tool=massif --time-unit=ms --massif-out-file=massif.out ./src/litecoinzd -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
     LITECOINZD_PID=$!
-    zcash_rpc_wait_for_start
+    litecoinz_rpc_wait_for_start
 }
 
 function litecoinzd_massif_stop {
-    zcash_rpc stop > /dev/null
+    litecoinz_rpc stop > /dev/null
     wait $LITECOINZD_PID
     ms_print massif.out
 }
@@ -123,11 +123,11 @@ function litecoinzd_valgrind_start {
     rm -f valgrind.out
     valgrind --leak-check=yes -v --error-limit=no --log-file="valgrind.out" ./src/litecoinzd -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
     LITECOINZD_PID=$!
-    zcash_rpc_wait_for_start
+    litecoinz_rpc_wait_for_start
 }
 
 function litecoinzd_valgrind_stop {
-    zcash_rpc stop > /dev/null
+    litecoinz_rpc stop > /dev/null
     wait $LITECOINZD_PID
     cat valgrind.out
 }
@@ -146,7 +146,7 @@ EOF
     if [ $ARCHIVE_RESULT -ne 0 ]; then
         litecoinzd_stop
         echo
-        echo "Please generate it using qa/zcash/create_benchmark_archive.py"
+        echo "Please generate it using qa/litecoinz/create_benchmark_archive.py"
         echo "and place it in the base directory of the repository."
         echo "Usage details are inside the Python script."
         exit 1
@@ -167,7 +167,7 @@ case "$1" in
         case "$2" in
             verifyjoinsplit)
                 litecoinzd_start "${@:2}"
-                RAWJOINSPLIT=$(zcash_rpc zcsamplejoinsplit)
+                RAWJOINSPLIT=$(litecoinz_rpc zcsamplejoinsplit)
                 litecoinzd_stop
         esac
 esac
@@ -177,44 +177,44 @@ case "$1" in
         litecoinzd_start "${@:2}"
         case "$2" in
             sleep)
-                zcash_rpc zcbenchmark sleep 10
+                litecoinz_rpc zcbenchmark sleep 10
                 ;;
             parameterloading)
-                zcash_rpc zcbenchmark parameterloading 10
+                litecoinz_rpc zcbenchmark parameterloading 10
                 ;;
             createjoinsplit)
-                zcash_rpc zcbenchmark createjoinsplit 10 "${@:3}"
+                litecoinz_rpc zcbenchmark createjoinsplit 10 "${@:3}"
                 ;;
             verifyjoinsplit)
-                zcash_rpc zcbenchmark verifyjoinsplit 1000 "\"$RAWJOINSPLIT\""
+                litecoinz_rpc zcbenchmark verifyjoinsplit 1000 "\"$RAWJOINSPLIT\""
                 ;;
             solveequihash)
-                zcash_rpc_slow zcbenchmark solveequihash 50 "${@:3}"
+                litecoinz_rpc_slow zcbenchmark solveequihash 50 "${@:3}"
                 ;;
             verifyequihash)
-                zcash_rpc zcbenchmark verifyequihash 1000
+                litecoinz_rpc zcbenchmark verifyequihash 1000
                 ;;
             validatelargetx)
-                zcash_rpc zcbenchmark validatelargetx 5
+                litecoinz_rpc zcbenchmark validatelargetx 5
                 ;;
             trydecryptnotes)
-                zcash_rpc zcbenchmark trydecryptnotes 1000 "${@:3}"
+                litecoinz_rpc zcbenchmark trydecryptnotes 1000 "${@:3}"
                 ;;
             incnotewitnesses)
-                zcash_rpc zcbenchmark incnotewitnesses 100 "${@:3}"
+                litecoinz_rpc zcbenchmark incnotewitnesses 100 "${@:3}"
                 ;;
             connectblockslow)
                 extract_benchmark_data
-                zcash_rpc zcbenchmark connectblockslow 10
+                litecoinz_rpc zcbenchmark connectblockslow 10
                 ;;
             sendtoaddress)
-                zcash_rpc zcbenchmark sendtoaddress 10 "${@:4}"
+                litecoinz_rpc zcbenchmark sendtoaddress 10 "${@:4}"
                 ;;
             loadwallet)
-                zcash_rpc zcbenchmark loadwallet 10 
+                litecoinz_rpc zcbenchmark loadwallet 10 
                 ;;
             listunspent)
-                zcash_rpc zcbenchmark listunspent 10
+                litecoinz_rpc zcbenchmark listunspent 10
                 ;;
             *)
                 litecoinzd_stop
@@ -227,44 +227,44 @@ case "$1" in
         litecoinzd_massif_start "${@:2}"
         case "$2" in
             sleep)
-                zcash_rpc zcbenchmark sleep 1
+                litecoinz_rpc zcbenchmark sleep 1
                 ;;
             parameterloading)
-                zcash_rpc zcbenchmark parameterloading 1
+                litecoinz_rpc zcbenchmark parameterloading 1
                 ;;
             createjoinsplit)
-                zcash_rpc_slow zcbenchmark createjoinsplit 1 "${@:3}"
+                litecoinz_rpc_slow zcbenchmark createjoinsplit 1 "${@:3}"
                 ;;
             verifyjoinsplit)
-                zcash_rpc zcbenchmark verifyjoinsplit 1 "\"$RAWJOINSPLIT\""
+                litecoinz_rpc zcbenchmark verifyjoinsplit 1 "\"$RAWJOINSPLIT\""
                 ;;
             solveequihash)
-                zcash_rpc_slow zcbenchmark solveequihash 1 "${@:3}"
+                litecoinz_rpc_slow zcbenchmark solveequihash 1 "${@:3}"
                 ;;
             verifyequihash)
-                zcash_rpc zcbenchmark verifyequihash 1
+                litecoinz_rpc zcbenchmark verifyequihash 1
                 ;;
             validatelargetx)
-                zcash_rpc zcbenchmark validatelargetx 1
+                litecoinz_rpc zcbenchmark validatelargetx 1
                 ;;
             trydecryptnotes)
-                zcash_rpc zcbenchmark trydecryptnotes 1 "${@:3}"
+                litecoinz_rpc zcbenchmark trydecryptnotes 1 "${@:3}"
                 ;;
             incnotewitnesses)
-                zcash_rpc zcbenchmark incnotewitnesses 1 "${@:3}"
+                litecoinz_rpc zcbenchmark incnotewitnesses 1 "${@:3}"
                 ;;
             connectblockslow)
                 extract_benchmark_data
-                zcash_rpc zcbenchmark connectblockslow 1
+                litecoinz_rpc zcbenchmark connectblockslow 1
                 ;;
             sendtoaddress)
-                zcash_rpc zcbenchmark sendtoaddress 1 "${@:4}"
+                litecoinz_rpc zcbenchmark sendtoaddress 1 "${@:4}"
                 ;;
             loadwallet)
                 # The initial load is sufficient for measurement
                 ;;
             listunspent)
-                zcash_rpc zcbenchmark listunspent 1
+                litecoinz_rpc zcbenchmark listunspent 1
                 ;;
             *)
                 litecoinzd_massif_stop
@@ -278,32 +278,32 @@ case "$1" in
         litecoinzd_valgrind_start
         case "$2" in
             sleep)
-                zcash_rpc zcbenchmark sleep 1
+                litecoinz_rpc zcbenchmark sleep 1
                 ;;
             parameterloading)
-                zcash_rpc zcbenchmark parameterloading 1
+                litecoinz_rpc zcbenchmark parameterloading 1
                 ;;
             createjoinsplit)
-                zcash_rpc_veryslow zcbenchmark createjoinsplit 1 "${@:3}"
+                litecoinz_rpc_veryslow zcbenchmark createjoinsplit 1 "${@:3}"
                 ;;
             verifyjoinsplit)
-                zcash_rpc zcbenchmark verifyjoinsplit 1 "\"$RAWJOINSPLIT\""
+                litecoinz_rpc zcbenchmark verifyjoinsplit 1 "\"$RAWJOINSPLIT\""
                 ;;
             solveequihash)
-                zcash_rpc_veryslow zcbenchmark solveequihash 1 "${@:3}"
+                litecoinz_rpc_veryslow zcbenchmark solveequihash 1 "${@:3}"
                 ;;
             verifyequihash)
-                zcash_rpc zcbenchmark verifyequihash 1
+                litecoinz_rpc zcbenchmark verifyequihash 1
                 ;;
             trydecryptnotes)
-                zcash_rpc zcbenchmark trydecryptnotes 1 "${@:3}"
+                litecoinz_rpc zcbenchmark trydecryptnotes 1 "${@:3}"
                 ;;
             incnotewitnesses)
-                zcash_rpc zcbenchmark incnotewitnesses 1 "${@:3}"
+                litecoinz_rpc zcbenchmark incnotewitnesses 1 "${@:3}"
                 ;;
             connectblockslow)
                 extract_benchmark_data
-                zcash_rpc zcbenchmark connectblockslow 1
+                litecoinz_rpc zcbenchmark connectblockslow 1
                 ;;
             *)
                 litecoinzd_valgrind_stop
