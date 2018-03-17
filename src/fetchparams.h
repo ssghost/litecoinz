@@ -11,6 +11,7 @@
 
 #include <string>
 
-bool LTZ_FetchParams(std::string url, std::string file);
+void LTZ_VerifyParams(std::string file, std::string sha256expected);
+void LTZ_FetchParams(std::string url, std::string file);
 
 #endif // LITECOINZ_FETCHPARAMS_H
