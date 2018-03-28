@@ -12,7 +12,7 @@ OPTFLAGS = -O2 -march=native -mtune=native
 FEATUREFLAGS = -DUSE_ASM -DMONTGOMERY_OUTPUT
 
 # Initialize this using "CXXFLAGS=... make". The makefile appends to that.
-CXXFLAGS += -std=c++11 -Wall -Wextra -Wno-unused-parameter -Wno-comment -Wfatal-errors $(OPTFLAGS) $(FEATUREFLAGS) -DCURVE_$(CURVE)
+CXXFLAGS += -std=c++11 -Wall -Wextra -Wno-unused-parameter -Wno-comment -Wfatal-errors $(OPTFLAGS) $(FEATUREFLAGS) -DCURVE_$(CURVE) -Wno-sign-compare
 
 DEPSRC = depsrc
 DEPINST = depinst
@@ -141,7 +141,10 @@ ifeq ($(PROFILE_OP_COUNTS),1)
 endif
 
 ifeq ($(STATIC),1)
-	CXXFLAGS += -static -DSTATIC
+ifneq ($(PLATFORM),darwin)
+	CXXFLAGS += -static
+endif
+	CXXFLAGS += -DSTATIC
 else
 	CXXFLAGS += -fPIC
 endif
@@ -165,6 +168,10 @@ ifeq ($(PERFORMANCE),1)
         # Enable link-time optimization:
         CXXFLAGS += -flto -fuse-linker-plugin
         LDFLAGS += -flto
+endif
+
+ifeq ($(PLATFORM),darwin)
+	CXXFLAGS += -mmacosx-version-min=10.8 -stdlib=libc++
 endif
 
 LIB_OBJS  =$(patsubst %.cpp,%.o,$(LIB_SRCS))

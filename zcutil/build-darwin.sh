@@ -54,13 +54,9 @@ Usage:
 $0 --help
   Show this help message and exit.
 
-$0 [ --enable-lcov || --disable-tests ] [ --disable-mining ] [ --enable-proton ] [ --disable-libs ] [ MAKEARGS... ]
+$0 [ --disable-mining ] [ --enable-proton ] [ MAKEARGS... ]
   Build LitecoinZ and most of its transitive dependencies from
   source. MAKEARGS are applied to both dependencies and LitecoinZ itself.
-
-  If --enable-lcov is passed, LitecoinZ is configured to add coverage
-  instrumentation, thus enabling "make cov" to work.
-  If --disable-tests is passed instead, the LitecoinZ tests are not built.
 
   If --disable-mining is passed, LitecoinZ is configured to not build any mining
   code. It must be passed after the test arguments, if present.
@@ -68,29 +64,13 @@ $0 [ --enable-lcov || --disable-tests ] [ --disable-mining ] [ --enable-proton ]
   If --enable-proton is passed, LitecoinZ is configured to build the Apache Qpid Proton
   library required for AMQP support. This library is not built by default.
   It must be passed after the test/mining arguments, if present.
-
-  If --disable-libs is passed, LitecoinZ is configured to not build any libraries like
-  'libzcashconsensus'.
 EOF
     exit 0
 fi
 
 set -x
 
-# If --enable-lcov is the first argument, enable lcov coverage support:
-LCOV_ARG=''
 HARDENING_ARG='--enable-hardening'
-TEST_ARG=''
-if [ "x${1:-}" = 'x--enable-lcov' ]
-then
-    LCOV_ARG='--enable-lcov'
-    HARDENING_ARG='--disable-hardening'
-    shift
-elif [ "x${1:-}" = 'x--disable-tests' ]
-then
-    TEST_ARG='--enable-tests=no'
-    shift
-fi
 
 # If --disable-mining is the next argument, disable mining code:
 MINING_ARG=''
@@ -108,14 +88,6 @@ then
     shift
 fi
 
-# If --disable-libs is the next argument, build without libs:
-LIBS_ARG=''
-if [ "x${1:-}" = 'x--disable-libs' ]
-then
-    LIBS_ARG='--without-libs'
-    shift
-fi
-
 PREFIX="$(pwd)/depends/$BUILD/"
 
 eval "$MAKE" --version
@@ -126,5 +98,5 @@ ld -v
 
 HOST="$HOST" NO_PROTON="$PROTON_ARG" "$MAKE" "$@" -C ./depends/
 ./autogen.sh
-HOST="$HOST" CC="$CC" CXX="$CXX" CONFIG_SITE="$PWD/depends/$BUILD/share/config.site" ./configure --prefix="${PREFIX}" "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" "$LIBS_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g'
+HOST="$HOST" CC="$CC" CXX="$CXX" CONFIG_SITE="$PWD/depends/$BUILD/share/config.site" ./configure --prefix="${PREFIX}" --without-libs --enable-tests=no "$HARDENING_ARG" "$MINING_ARG" "$PROTON_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g'
 HOST="$HOST" "$MAKE" "$@"

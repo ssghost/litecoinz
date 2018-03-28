@@ -48,7 +48,7 @@ int ResultsDialog::exec()
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(updateProgressBar()));
     timer.start(1000);
-    QDialog::exec();
+    return QDialog::exec();
 }
 
 void ResultsDialog::reject()
