@@ -40,7 +40,14 @@ On Fedora-based systems:
 ```{r, engine='bash'}
 $ sudo dnf install \
       git pkgconfig automake autoconf ncurses-devel python \
-      python-zmq wget gtest-devel gcc gcc-c++ libtool patch
+      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2
+```
+
+On Redhat/Centos-based systems:
+```{r, engine='bash'}
+$ sudo yum install \
+      git pkgconfig automake autoconf ncurses-devel python \
+      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2
 ```
 
 ### Fetch the software and parameter files
@@ -49,7 +56,6 @@ Fetch our repository with git and run ```fetch-params.sh``` like so:
 ```{r, engine='bash'}
 $ git clone https://github.com/litecoinz-project/litecoinz.git
 $ cd litecoinz/
-$ git checkout v1.0.15
 $ ./zcutil/fetch-params.sh
 ```
 
