@@ -56,7 +56,7 @@ CCriticalSection cs_main;
 BlockMap mapBlockIndex;
 CChain chainActive;
 CBlockIndex *pindexBestHeader = NULL;
-int64_t nTimeBestReceived = 0;
+static int64_t nTimeBestReceived = 0;
 CWaitableCriticalSection csBestBlock;
 CConditionVariable cvBlockChange;
 int nScriptCheckThreads = 0;
@@ -1434,7 +1434,8 @@ bool IsInitialBlockDownload()
     return state;
 }
 
-CBlockIndex *pindexBestForkTip = NULL, *pindexBestForkBase = NULL;
+static CBlockIndex *pindexBestForkTip = NULL;
+static CBlockIndex *pindexBestForkBase = NULL;
 
 void CheckForkWarningConditions()
 {
@@ -5489,7 +5490,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
     return true;
 }
 
-class CMainCleanup
+static class CMainCleanup
 {
 public:
     CMainCleanup() {}
