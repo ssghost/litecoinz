@@ -24,7 +24,7 @@ See [LICENSE](LICENSE) for more information or see [http://opensource.org/licens
 Get started
 -----------
 
-## Linux
+## Linux 64-bit
 
 ### Install dependencies
 
@@ -48,15 +48,6 @@ On Redhat/Centos-based systems:
 $ sudo yum install \
       git pkgconfig automake autoconf ncurses-devel python \
       python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2
-```
-
-### Fetch the software and parameter files
-
-Fetch our repository with git and run ```fetch-params.sh``` like so:
-```{r, engine='bash'}
-$ git clone https://github.com/litecoinz-project/litecoinz.git
-$ cd litecoinz/
-$ ./zcutil/fetch-params.sh
 ```
 
 ### Build
@@ -118,19 +109,13 @@ To list all LitecoinZ commands, use ```./src/litecoinz-cli help```.
 
 To get help with a particular command, use ```./src/litecoinz-cli help <command>```.
 
+## Windows 64-bit
 
-### Windows
+See [build-windows.md](doc/build-windows.md) for instructions on building LitecoinZ Core on Windows 64-bit.
 
-- Download Windows release binary [here](https://litecoinz.info/downloads/litecoinz-1014-win64.zip)
-- Download parameter file [here](https://litecoinz.info/downloads/sprout.zip) and uncompress the content inside the folder ```"C:\Users\%username%\AppData\Roaming\LitecoinZParams"```
-- Manually edit the ```litecoinz.conf``` file inside the folder ```"C:\Users\%username%\AppData\Roaming\LitecoinZ"```
-- Run ```litecoinzd.exe``` 
-- Optionally run the Java Wallet GUI (already provided inside the download release binary)  ```LitecoinzSwingWalletUI.cmd``` 
+## Mac OS X
 
-
-### Do you need a Wallet GUI?
-
-A Java Wallet GUI is available [here](https://github.com/litecoinz-project/litecoinz-wallet).
+See [build-osx.md](doc/build-osx.md) for instructions on building LitecoinZ Core on Mac OS X.
 
 
 DONATIONS
@@ -154,8 +139,3 @@ Security Warnings
 
 Participation in the LitecoinZ project is subject to a
 [Code of Conduct](code_of_conduct.md).
-
-TO DO
------
-- QT Wallet
-- Backports from Bitcoin 0.12+
