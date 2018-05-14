@@ -108,7 +108,7 @@ public:
     DATA_TYPE Get() const;
 };
 
-class CZCPaymentAddress : public CZCEncoding<libzcash::PaymentAddress, CChainParams::ZCPAYMENT_ADDRRESS, libzcash::SerializedPaymentAddressSize> {
+class CZCPaymentAddress : public CZCEncoding<libzcash::PaymentAddress, CChainParams::ZCPAYMENT_ADDRESS, libzcash::SerializedPaymentAddressSize> {
 protected:
     std::string PrependName(const std::string& s) const { return "payment address" + s; }
 
@@ -195,7 +195,7 @@ public:
     K GetKey() {
         K ret;
         if (vchData.size() == Size) {
-            //if base58 encouded data not holds a ext key, return a !IsValid() key
+            //if base58 encoded data not holds a ext key, return a !IsValid() key
             ret.Decode(&vchData[0]);
         }
         return ret;

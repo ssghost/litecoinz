@@ -274,7 +274,7 @@ void BitcoinGUI::createActions()
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
 
-    addressBookAction = new QAction(platformStyle->MultiColorIcon(":/images/addressbook1"), tr("&Addrress Book"), this);
+    addressBookAction = new QAction(platformStyle->MultiColorIcon(":/images/addressbook1"), tr("&Address Book"), this);
     addressBookAction->setStatusTip(tr("View and manage the LitecoinZ address book"));
     addressBookAction->setToolTip(addressBookAction->statusTip());
     addressBookAction->setCheckable(true);

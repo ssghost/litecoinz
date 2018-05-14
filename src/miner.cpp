@@ -647,7 +647,7 @@ void static BitcoinMiner()
                     // initialize solver
                     eq.setstate(&curr_state);
 
-                    // Intialization done, start algo driver.
+                    // Initialization done, start algo driver.
                     eq.digit0(0);
                     eq.bfull = eq.hfull = 0;
                     eq.showbsizes(0);

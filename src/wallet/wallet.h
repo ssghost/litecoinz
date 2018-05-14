@@ -155,7 +155,7 @@ struct COutputEntry
     int vout;
 };
 
-/** An note outpoint */
+/** A note outpoint */
 class JSOutPoint
 {
 public:

@@ -360,10 +360,10 @@ DATA_TYPE CZCEncoding<DATA_TYPE, PREFIX, SER_SIZE>::Get() const
 
 // Explicit instantiations for libzcash::PaymentAddress
 template bool CZCEncoding<libzcash::PaymentAddress,
-                          CChainParams::ZCPAYMENT_ADDRRESS,
+                          CChainParams::ZCPAYMENT_ADDRESS,
                           libzcash::SerializedPaymentAddressSize>::Set(const libzcash::PaymentAddress& addr);
 template libzcash::PaymentAddress CZCEncoding<libzcash::PaymentAddress,
-                                              CChainParams::ZCPAYMENT_ADDRRESS,
+                                              CChainParams::ZCPAYMENT_ADDRESS,
                                               libzcash::SerializedPaymentAddressSize>::Get() const;
 
 // Explicit instantiations for libzcash::ViewingKey
