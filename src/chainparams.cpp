@@ -100,7 +100,7 @@ public:
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
         const size_t N = 200, K = 9;
-        const size_t N2 = 192, K2 = 7;
+        const size_t N2 = 144, K2 = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
         nEquihashN = N;
@@ -198,7 +198,7 @@ public:
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 1000;
         const size_t N = 200, K = 9;
-        const size_t N2 = 192, K2 = 7;
+        const size_t N2 = 144, K2 = 5;
 
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
