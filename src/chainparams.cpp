@@ -186,7 +186,7 @@ public:
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 2.5 * 60;
-        consensus.nEquihashForkHeight = 3087;
+        consensus.nEquihashForkHeight = 435;
 
         pchMessageStart[0] = 0xfe;
         pchMessageStart[1] = 0x90;
