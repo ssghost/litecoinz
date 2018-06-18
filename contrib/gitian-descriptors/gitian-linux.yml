@@ -1,5 +1,5 @@
 ---
-name: "litecoinz-1.0.15"
+name: "litecoinz-1.0.16"
 enable_cache: true
 distro: "debian"
 suites:
