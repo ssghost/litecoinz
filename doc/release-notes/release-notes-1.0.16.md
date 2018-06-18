@@ -26,13 +26,15 @@ supported by the LitecoinZ Team.
 Changelog
 =========
 
-* d42544f Give a better error message if system clock is bad
-* 8478c71 Fix parsing parameters in getnetworksolps
-* 6f4d27f Remove config option -disabledeprecation
-* 501bb23 Modify the APPROX_RELEASE_HEIGHT.
-* 610e78c Update version to 1.0.16
-* 5e4da1a Update checkpoints
-* 3349e00 Halving the difficulty for the algorithm change
+* 5cc7116 Fix Windows deploy
+* c48453e Add release-notes-1.0.16.md
+* cd5f960 Reset the difficulty only for testnet and regtest
+* d3fc272 Give a better error message if system clock is bad
+* c408129 Fix parsing parameters in getnetworksolps
+* 1ce5d5c Remove config option -disabledeprecation
+* 744f8f9 Modify the APPROX_RELEASE_HEIGHT
+* 941c5e3 Update version to 1.0.16
+* cf7f8d8 Update checkpoints
 * b7ff4b8 Update network protocol version
 * d1f5dfe Change equihash parameters for mainnet/testnet (n=144,k=5).
 * edc9fa1 Use std::thread::hardware_concurrency instead of Boost, to determine available cores
