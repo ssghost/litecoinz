@@ -296,4 +296,11 @@ BOOST_AUTO_TEST_CASE(rpc_ban)
     BOOST_CHECK_EQUAL(adr.get_str(), "2001:4d48:ac57:400:cacf:e9ff:fe1d:9c63/128");
 }
 
+BOOST_AUTO_TEST_CASE(rpc_getnetworksolps)
+{
+    BOOST_CHECK_NO_THROW(CallRPC("getnetworksolps"));
+    BOOST_CHECK_NO_THROW(CallRPC("getnetworksolps 120"));
+    BOOST_CHECK_NO_THROW(CallRPC("getnetworksolps 120 -1"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
