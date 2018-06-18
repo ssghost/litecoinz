@@ -36,7 +36,7 @@ protected:
 
     virtual void TearDown() {
         fRequestShutdown = false;
-        mapArgs["-disabledeprecation"] = "";
+        mapArgs.clear();
     }
 
     StrictMock<MockUIInterface> mock_;
@@ -86,20 +86,4 @@ TEST_F(DeprecationTest, DeprecatedNodeErrorIsRepeatedOnStartup) {
     EXPECT_CALL(mock_, ThreadSafeMessageBox(::testing::_, "", CClientUIInterface::MSG_ERROR));
     EnforceNodeDeprecation(DEPRECATION_HEIGHT + 1, true);
     EXPECT_TRUE(ShutdownRequested());
-}
-
-TEST_F(DeprecationTest, DeprecatedNodeShutsDownIfOldVersionDisabled) {
-    EXPECT_FALSE(ShutdownRequested());
-    mapArgs["-disabledeprecation"] = "1.0.0";
-    EXPECT_CALL(mock_, ThreadSafeMessageBox(::testing::_, "", CClientUIInterface::MSG_ERROR));
-    EnforceNodeDeprecation(DEPRECATION_HEIGHT);
-    EXPECT_TRUE(ShutdownRequested());
-}
-
-TEST_F(DeprecationTest, DeprecatedNodeKeepsRunningIfCurrentVersionDisabled) {
-    EXPECT_FALSE(ShutdownRequested());
-    mapArgs["-disabledeprecation"] = CLIENT_VERSION_STR;
-    EXPECT_CALL(mock_, ThreadSafeMessageBox(::testing::_, "", CClientUIInterface::MSG_ERROR));
-    EnforceNodeDeprecation(DEPRECATION_HEIGHT);
-    EXPECT_FALSE(ShutdownRequested());
 }
