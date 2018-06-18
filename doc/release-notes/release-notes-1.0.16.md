@@ -26,6 +26,8 @@ supported by the LitecoinZ Team.
 Changelog
 =========
 
+* 144082f Fix build-debian-package.sh
+* d8a8c06 Update release-notes-1.0.16.md
 * 5cc7116 Fix Windows deploy
 * c48453e Add release-notes-1.0.16.md
 * cd5f960 Reset the difficulty only for testnet and regtest
