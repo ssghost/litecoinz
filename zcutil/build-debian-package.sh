@@ -58,19 +58,21 @@ cp $SRC_DOC/man/litecoinz-fetch-params.1 $DEB_MAN
 # Copy bash completion files
 cp $SRC_PATH/contrib/litecoinzd.bash-completion $DEB_CMP/litecoinzd
 cp $SRC_PATH/contrib/litecoinz-cli.bash-completion $DEB_CMP/litecoinz-cli
+cp $SRC_PATH/contrib/litecoinz-tx.bash-completion $DEB_CMP/litecoinz-tx
 # Gzip files
 gzip --best -n $DEB_DOC/changelog
 gzip --best -n $DEB_DOC/changelog.Debian
 gzip --best -n $DEB_MAN/litecoinzd.1
 gzip --best -n $DEB_MAN/litecoinz-cli.1
+gzip --best -n $DEB_MAN/litecoinz-tx.1
 gzip --best -n $DEB_MAN/litecoinz-qt.1
 gzip --best -n $DEB_MAN/litecoinz-fetch-params.1
 
 cd $SRC_PATH/contrib
 
 # Create the control file
-strip $DEB_BIN/litecoinzd $DEB_BIN/litecoinz-cli $DEB_BIN/litecoinz-tx $DEB_BIN/litecoinz-addrgen
-dpkg-shlibdeps $DEB_BIN/litecoinzd $DEB_BIN/litecoinz-cli $DEB_BIN/litecoinz-tx $DEB_BIN/litecoinz-addrgen
+strip $DEB_BIN/litecoinzd $DEB_BIN/litecoinz-cli $DEB_BIN/litecoinz-tx $DEB_BIN/litecoinz-addrgen $DEB_BIN/litecoinz-qt
+dpkg-shlibdeps $DEB_BIN/litecoinzd $DEB_BIN/litecoinz-cli $DEB_BIN/litecoinz-tx $DEB_BIN/litecoinz-addrgen $DEB_BIN/litecoinz-qt
 dpkg-gencontrol -P$BUILD_DIR -v$DEBVERSION
 
 # Create the Debian package
