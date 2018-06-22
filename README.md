@@ -1,4 +1,4 @@
-LitecoinZ 1.0.16
+LitecoinZ 1.0.17
 ================
 
 What is LitecoinZ?
