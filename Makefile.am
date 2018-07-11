@@ -143,7 +143,7 @@ endif
 $(BITCOIN_QT_BIN): FORCE
 	$(MAKE) -C src qt/$(@F)
 
-$(ITCOIND_BIN): FORCE
+$(BITCOIND_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 $(BITCOIN_CLI_BIN): FORCE
