@@ -675,7 +675,7 @@ bool InitSanityCheck(void)
     return true;
 }
 
-static void ZC_LoadParams()
+static bool ZC_LoadParams()
 {
     struct timeval tv_start, tv_end;
     float elapsed;
@@ -689,45 +689,27 @@ static void ZC_LoadParams()
         TryCreateDirectory(ZC_GetParamsDir());
     }
 
-    if(boost::filesystem::exists(pk_path))
-    {
-        // Verify the 'sprout-proving.key' file
-        LTZ_VerifyParams(pk_path.string(), "8bc20a7f013b2b58970cddd2e7ea028975c88ae7ceb9259a5344a16bc2c0eef7");
-    }
-
     if(!(boost::filesystem::exists(pk_path)))
     {
         // Download the 'sprout-proving.key' file
-        LTZ_FetchParams("https://z.cash/downloads/sprout-proving.key", pk_path.string());
-        // Verify the 'sprout-proving.key' file after download
-        LTZ_VerifyParams(pk_path.string(), "8bc20a7f013b2b58970cddd2e7ea028975c88ae7ceb9259a5344a16bc2c0eef7");
+        if (!LTZ_FetchParams("https://z.cash/downloads/sprout-proving.key", pk_path.string()))
+            return false;
     }
 
-    if(boost::filesystem::exists(vk_path))
-    {
-        // Verify the 'sprout-verifying.key' file
-        LTZ_VerifyParams(vk_path.string(), "4bd498dae0aacfd8e98dc306338d017d9c08dd0918ead18172bd0aec2fc5df82");
-    }
+    // Verify the 'sprout-proving.key' file
+    if (!(LTZ_VerifyParams(pk_path.string(), "8bc20a7f013b2b58970cddd2e7ea028975c88ae7ceb9259a5344a16bc2c0eef7")))
+        return false;
 
     if(!(boost::filesystem::exists(vk_path)))
     {
         // Download the 'sprout-verifying.key' file
-        LTZ_FetchParams("https://z.cash/downloads/sprout-verifying.key", vk_path.string());
-        // Verify the 'sprout-proving.key' file after download
-        LTZ_VerifyParams(vk_path.string(), "4bd498dae0aacfd8e98dc306338d017d9c08dd0918ead18172bd0aec2fc5df82");
+        if (!LTZ_FetchParams("https://z.cash/downloads/sprout-verifying.key", vk_path.string()))
+            return false;
     }
 
-    if (!(boost::filesystem::exists(pk_path) && boost::filesystem::exists(vk_path))) {
-        uiInterface.ThreadSafeMessageBox(strprintf(
-            _("Cannot find the LitecoinZ network parameters in the following directory:\n"
-              "%s\n"
-#ifndef WIN32
-              "Please run 'zcash-fetch-params' or './zcutil/fetch-params.sh' and then restart."
-#endif
-             ), ZC_GetParamsDir()), "", CClientUIInterface::MSG_ERROR);
-        StartShutdown();
-        return;
-    }
+    // Verify the 'sprout-verifying.key' file
+    if (!(LTZ_VerifyParams(vk_path.string(), "4bd498dae0aacfd8e98dc306338d017d9c08dd0918ead18172bd0aec2fc5df82")))
+        return false;
 
     LogPrintf("Loading verifying key from %s\n", vk_path.string().c_str());
     gettimeofday(&tv_start, 0);
@@ -737,6 +719,8 @@ static void ZC_LoadParams()
     gettimeofday(&tv_end, 0);
     elapsed = float(tv_end.tv_sec-tv_start.tv_sec) + (tv_end.tv_usec-tv_start.tv_usec)/float(1000000);
     LogPrintf("Loaded verifying key in %fs seconds.\n", elapsed);
+
+    return true;
 }
 
 bool AppInitServers(boost::thread_group& threadGroup)
@@ -1170,7 +1154,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     libsnark::inhibit_profiling_counters = true;
 
     // Initialize LitecoinZ circuit parameters
-    ZC_LoadParams();
+    if (!(ZC_LoadParams()))
+        return InitError(_("Error downloading or verifying LitecoinZ network parameters"));
 
     /* Start the RPC server already.  It will be started in "warmup" mode
      * and not really process calls already (but it will signify connections
