@@ -4,7 +4,7 @@ LitecoinZ 1.0.17
 What is LitecoinZ?
 ------------------
 
-[LitecoinZ](https://litecoinz.info/) is an implementation of the "[Zerocash](https://github.com/zcash/zips/raw/master/protocol/protocol.pdf)" protocol forked from [ZCash](https://z.cash/).
+[LitecoinZ](https://litecoinz.org/) is an implementation of the "[Zerocash](https://github.com/zcash/zips/raw/master/protocol/protocol.pdf)" protocol forked from [ZCash](https://z.cash/).
 Based on Bitcoin's code, it intends to offer a far higher standard of privacy
 through a sophisticated zero-knowledge proving scheme that preserves
 confidentiality of transaction metadata. 
