@@ -1,5 +1,9 @@
 LitecoinZ 1.0.17
 ================
+<p align="left">
+  <img src="doc/litecoinz-logo-git.png">
+</p>
+
 
 What is LitecoinZ?
 ------------------
@@ -13,6 +17,7 @@ This software is the LitecoinZ client. It downloads and stores the entire histor
 of LitecoinZ transactions; depending on the speed of your computer and network
 connection, the synchronization process could take a day or more once the
 blockchain has reached a significant size.
+
 
 License
 -------
