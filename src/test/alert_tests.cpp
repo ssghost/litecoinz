@@ -19,9 +19,8 @@
 #include "serialize.h"
 #include "streams.h"
 #include "util.h"
-#include "warnings.h"
-
 #include "utilstrencodings.h"
+#include "warnings.h"
 
 #include "test/test_bitcoin.h"
 

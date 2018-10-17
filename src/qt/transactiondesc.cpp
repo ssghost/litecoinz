@@ -9,8 +9,8 @@
 #include "paymentserver.h"
 #include "transactionrecord.h"
 
-#include "base58.h"
 #include "consensus/consensus.h"
+#include "key_io.h"
 #include "main.h"
 #include "script/script.h"
 #include "timedata.h"
@@ -94,9 +94,9 @@ QString TransactionDesc::zToHTML(CWallet *wallet, CWalletTx &wtx, TransactionRec
     if(rec->type == TransactionRecord::RecvWithAddress)
         strHTML += "<b>" + tr("From") + ":</b> " + tr("unknown") + "<br>";
 
-    if (CBitcoinAddress(rec->address).IsValid())
+    CTxDestination address = DecodeDestination(rec->address);
+    if (IsValidDestination(address))
     {
-        CTxDestination address = CBitcoinAddress(rec->address).Get();
         if (wallet->mapAddressBook.count(address))
         {
              strHTML += "<b>" + tr("To") + ":</b> ";
@@ -111,15 +111,10 @@ QString TransactionDesc::zToHTML(CWallet *wallet, CWalletTx &wtx, TransactionRec
     }
     else
     {
-        libzcash::PaymentAddress zaddr;
-        CZCPaymentAddress address(rec->address);
-
         bool isZaddr = false;
-        try {
-            zaddr = address.Get();
+        libzcash::PaymentAddress zaddr = DecodePaymentAddress(rec->address);
+        if (IsValidPaymentAddress(zaddr)) {
             isZaddr = true;
-        } catch (const std::runtime_error&) {
-            isZaddr = false;
         }
 
         if (isZaddr)
@@ -226,9 +221,9 @@ QString TransactionDesc::tToHTML(CWallet *wallet, CWalletTx &wtx, TransactionRec
         if (nNet > 0)
         {
             // Credit
-            if (CBitcoinAddress(rec->address).IsValid())
+            CTxDestination address = DecodeDestination(rec->address);
+            if (IsValidDestination(address))
             {
-                CTxDestination address = CBitcoinAddress(rec->address).Get();
                 if (wallet->mapAddressBook.count(address))
                 {
                     strHTML += "<b>" + tr("From") + ":</b> " + tr("unknown") + "<br>";
@@ -253,7 +248,7 @@ QString TransactionDesc::tToHTML(CWallet *wallet, CWalletTx &wtx, TransactionRec
         // Online transaction
         std::string strAddress = wtx.mapValue["to"];
         strHTML += "<b>" + tr("To") + ":</b> ";
-        CTxDestination dest = CBitcoinAddress(strAddress).Get();
+        CTxDestination dest = DecodeDestination(strAddress);
         if (wallet->mapAddressBook.count(dest) && !wallet->mapAddressBook[dest].name.empty())
             strHTML += GUIUtil::HtmlEscape(wallet->mapAddressBook[dest].name) + " ";
         strHTML += GUIUtil::HtmlEscape(strAddress) + "<br>";
@@ -324,7 +319,8 @@ QString TransactionDesc::tToHTML(CWallet *wallet, CWalletTx &wtx, TransactionRec
                         strHTML += "<b>" + tr("To") + ":</b> ";
                         if (wallet->mapAddressBook.count(address) && !wallet->mapAddressBook[address].name.empty())
                             strHTML += GUIUtil::HtmlEscape(wallet->mapAddressBook[address].name) + " ";
-                        strHTML += GUIUtil::HtmlEscape(CBitcoinAddress(address).ToString());
+                        strHTML += GUIUtil::HtmlEscape(EncodeDestination(address));
+
                         if(toSelf == ISMINE_SPENDABLE)
                             strHTML += " (own address)";
                         else if(toSelf & ISMINE_WATCH_ONLY)
@@ -439,7 +435,7 @@ QString TransactionDesc::tToHTML(CWallet *wallet, CWalletTx &wtx, TransactionRec
                     {
                         if (wallet->mapAddressBook.count(address) && !wallet->mapAddressBook[address].name.empty())
                             strHTML += GUIUtil::HtmlEscape(wallet->mapAddressBook[address].name) + " ";
-                        strHTML += QString::fromStdString(CBitcoinAddress(address).ToString());
+                        strHTML += QString::fromStdString(EncodeDestination(address));
                     }
                     strHTML = strHTML + " " + tr("Amount") + "=" + BitcoinUnits::formatHtmlWithUnit(unit, vout.nValue);
                     strHTML = strHTML + " IsMine=" + (wallet->IsMine(vout) & ISMINE_SPENDABLE ? tr("true") : tr("false")) + "</li>";

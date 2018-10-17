@@ -6,7 +6,6 @@
 
 #include "addressbookpage.h"
 #include "askpassphrasedialog.h"
-#include "unspentpage.h"
 #include "bitcoingui.h"
 #include "clientmodel.h"
 #include "guiutil.h"
@@ -40,7 +39,6 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     // Create tabs
     overviewPage = new OverviewPage(platformStyle);
     addressBookPage = new AddressBookPage(platformStyle);
-    unspentPage = new UnspentPage(platformStyle);
 
     transactionsPage = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout();
@@ -70,7 +68,6 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
 
     addWidget(overviewPage);
     addWidget(addressBookPage);
-    addWidget(unspentPage);
     addWidget(transactionsPage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsDialog);
@@ -132,7 +129,6 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     transactionView->setModel(walletModel);
     overviewPage->setWalletModel(walletModel);
     addressBookPage->setModel(walletModel->getAddressTableModel());
-    unspentPage->setModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
     sendCoinsDialog->setModel(walletModel);
     sendZCoinsDialog->setModel(walletModel);
@@ -186,11 +182,6 @@ void WalletView::gotoOverviewPage()
 void WalletView::gotoAddressBookPage()
 {
     setCurrentWidget(addressBookPage);
-}
-
-void WalletView::gotoUnspentPage()
-{
-    setCurrentWidget(unspentPage);
 }
 
 void WalletView::gotoHistoryPage()

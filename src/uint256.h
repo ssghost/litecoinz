@@ -1,6 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin Core developers
-// Copyright (c) 2017-2018 The LitecoinZ developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,7 +12,6 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include "crypto/common.h"
 
 /** Template base class for fixed-sized opaque blobs. */
 template<unsigned int BITS>
@@ -77,22 +75,26 @@ public:
         return sizeof(data);
     }
 
-    unsigned int GetSerializeSize(int nType, int nVersion) const
-    {
-        return sizeof(data);
-    }
-
     template<typename Stream>
-    void Serialize(Stream& s, int nType, int nVersion) const
+    void Serialize(Stream& s) const
     {
         s.write((char*)data, sizeof(data));
     }
 
     template<typename Stream>
-    void Unserialize(Stream& s, int nType, int nVersion)
+    void Unserialize(Stream& s)
     {
         s.read((char*)data, sizeof(data));
     }
+};
+
+/** 88-bit opaque blob.
+ */
+class blob88 : public base_blob<88> {
+public:
+    blob88() {}
+    blob88(const base_blob<88>& b) : base_blob<88>(b) {}
+    explicit blob88(const std::vector<unsigned char>& vch) : base_blob<88>(vch) {}
 };
 
 /** 160-bit opaque blob.
@@ -121,10 +123,13 @@ public:
      * used when the contents are considered uniformly random. It is not appropriate
      * when the value can easily be influenced from outside as e.g. a network adversary could
      * provide values to trigger worst-case behavior.
+     * @note The result of this function is not stable between little and big endian.
      */
     uint64_t GetCheapHash() const
     {
-        return ReadLE64(data);
+        uint64_t result;
+        memcpy((void*)&result, (void*)data, 8);
+        return result;
     }
 
     /** A more secure, salted hash function.

@@ -1,5 +1,4 @@
 // Copyright (c) 2012-2013 The Bitcoin Core developers
-// Copyright (c) 2017-2018 The LitecoinZ developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -121,7 +120,6 @@ BOOST_AUTO_TEST_CASE(pmt_malleability)
     std::vector<bool> vMatch = boost::assign::list_of(false)(false)(false)(false)(false)(false)(false)(false)(false)(true)(true)(false);
 
     CPartialMerkleTree tree(vTxid, vMatch);
-    std::vector<uint256> vTxid2;
     BOOST_CHECK(tree.ExtractMatches(vTxid).IsNull());
 }
 

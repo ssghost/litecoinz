@@ -1,4 +1,4 @@
-LitecoinZ 1.0.17
+LitecoinZ 2.0.0
 ================
 <p align="left">
   <img src="doc/litecoinz-logo-git.png">
