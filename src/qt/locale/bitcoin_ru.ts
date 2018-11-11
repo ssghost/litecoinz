@@ -1122,7 +1122,7 @@
     </message>
     <message>
         <source>&amp;Hide the icon from the system tray.</source>
-        <translation>&amp;Скрыть иконку из системного трея.</translation>
+        <translation>Скрыть иконку из системного трея.</translation>
     </message>
     <message>
         <source>Hide tray icon</source>
