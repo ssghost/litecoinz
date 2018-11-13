@@ -73,13 +73,14 @@ void ThreadSendAlert()
     CAlert alert;
     alert.nRelayUntil   = GetTime() + 15 * 60;
     alert.nExpiration   = GetTime() + 10 * 365 * 24 * 60 * 60;
-    alert.nID           = 1005;  // use https://github.com/zcash/zcash/wiki/specification#assigned-numbers to keep track of alert IDs
-    alert.nCancel       = 1004;  // cancels previous messages up to this ID number
+    alert.nID           = 1006;  // use https://github.com/zcash/zcash/wiki/specification#assigned-numbers to keep track of alert IDs
+    alert.nCancel       = 1005;  // cancels previous messages up to this ID number
 
     // These versions are protocol versions
     // 170004 : 1.0.16
+    // 170007 : 2.0.0
     alert.nMinVer       = 170004;
-    alert.nMaxVer       = 170004;
+    alert.nMaxVer       = 170006;
 
     //
     // main.cpp:
@@ -89,7 +90,7 @@ void ThreadSendAlert()
     //  4000 or higher will put the RPC into safe mode
     alert.nPriority     = 4000;
     alert.strComment    = "";
-    alert.strStatusBar  = "Your client is out of date and incompatible with the Overwinter network upgrade. Please update to a recent version of LitecoinZ (2.0.0 or later).";
+    alert.strStatusBar  = "Your client is out of date and incompatible with the Sapling network upgrade. Please update to a recent version of LitecoinZ (2.0.0 or later).";
     alert.strRPCError   = alert.strStatusBar;
 
     // Set specific client version/versions here. If setSubVer is empty, no filtering on subver is done:
