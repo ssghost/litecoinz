@@ -38,21 +38,21 @@ On Ubuntu/Debian-based systems:
 $ sudo apt-get install \
       build-essential pkg-config libc6-dev m4 g++-multilib \
       autoconf libtool ncurses-dev unzip git python \
-      zlib1g-dev wget bsdmainutils automake
+      zlib1g-dev wget bsdmainutils automake glibc-static libstdc++-static
 ```
 
 On Fedora-based systems:
 ```{r, engine='bash'}
 $ sudo dnf install \
       git pkgconfig automake autoconf ncurses-devel python \
-      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2
+      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2 glibc-static libstdc++-static
 ```
 
 On Redhat/Centos-based systems:
 ```{r, engine='bash'}
 $ sudo yum install \
       git pkgconfig automake autoconf ncurses-devel python \
-      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2
+      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2 glibc-static libstdc++-static
 ```
 
 ### Build
