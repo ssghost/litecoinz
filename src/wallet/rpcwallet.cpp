@@ -3264,7 +3264,7 @@ UniValue z_getnewaddress(const UniValue& params, bool fHelp)
     }
 
     if (addrType == ADDR_TYPE_SPROUT) {
-        std::string pubaddr = EncodePaymentAddress(pwalletMain->GenerateNewZKey());
+        std::string pubaddr = EncodePaymentAddress(pwalletMain->GenerateNewSproutZKey());
         pwalletMain->SetZAddressBook(pubaddr, "", "zreceive");
         return pubaddr;
     } else if (addrType == ADDR_TYPE_SAPLING) {

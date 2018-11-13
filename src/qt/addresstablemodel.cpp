@@ -415,7 +415,7 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
         // Generate a new z-address
         LOCK(wallet->cs_wallet);
 
-        libzcash::PaymentAddress pubaddr = wallet->GenerateNewZKey();
+        libzcash::SproutPaymentAddress pubaddr = wallet->GenerateNewSproutZKey();
         strAddress = EncodePaymentAddress(pubaddr);
     }
     else
