@@ -108,7 +108,7 @@ if BUILD_BITCOIND
 endif
 
 if BUILD_BITCOIN_UTILS
-  bin_PROGRAMS += litecoinz-cli litecoinz-tx litecoinz-addrgen
+  bin_PROGRAMS += litecoinz-cli litecoinz-tx
 endif
 
 LIBZCASH_H = \
@@ -531,29 +531,6 @@ litecoinz_tx_LDADD = \
   $(LIBZCASH_LIBS)
 
 litecoinz_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
-
-# litecoinz-addrgen
-litecoinz_addrgen_SOURCES = litecoinz-addrgen.cpp
-litecoinz_addrgen_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-litecoinz_addrgen_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-litecoinz_addrgen_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
-
-if TARGET_WINDOWS
-litecoinz_addrgen_SOURCES += litecoinz-addrgen-res.rc
-endif
-
-litecoinz_addrgen_LDADD = \
-  $(LIBUNIVALUE) \
-  $(LIBBITCOIN_COMMON) \
-  $(LIBBITCOIN_UTIL) \
-  $(LIBSECP256K1) \
-  $(LIBZCASH) \
-  $(LIBSNARK) \
-  $(LIBBITCOIN_CRYPTO) \
-  $(LIBZCASH_LIBS)
-
-litecoinz_addrgen_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
-#
 
 # litecoinz protocol primitives #
 libzcash_a_SOURCES = \
