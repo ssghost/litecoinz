@@ -64,11 +64,6 @@ endif
 
 litecoinz_gtest_LDADD += $(LIBZCASH_CONSENSUS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBZCASH) $(LIBSNARK) $(LIBZCASH_LIBS) $(CURL_LIBS)
 
-if ENABLE_PROTON
-litecoinz_gtest_LDADD += $(LIBBITCOIN_PROTON) $(PROTON_LIBS)
-endif
-
-
 litecoinz_gtest_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
 
 litecoinz-gtest_check: litecoinz-gtest FORCE
