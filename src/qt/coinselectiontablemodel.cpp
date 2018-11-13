@@ -136,7 +136,7 @@ public:
             if (zaddrs.size() > 0) {
                 std::vector<CSproutNotePlaintextEntry> sproutEntries;
                 std::vector<SaplingNoteEntry> saplingEntries;
-                wallet->GetUnspentFilteredNotes(sproutEntries, saplingEntries, zaddrs, nMinDepth, nMaxDepth, false);
+                wallet->GetFilteredNotes(sproutEntries, saplingEntries, zaddrs, nMinDepth, nMaxDepth, true, false, false);
                 std::set<std::pair<libzcash::PaymentAddress, uint256>> nullifierSet = wallet->GetNullifiersForAddresses(zaddrs);
                 for (auto & entry : sproutEntries) {
                     nSum = CAmount(entry.plaintext.value());
