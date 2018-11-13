@@ -134,11 +134,11 @@ public:
             zaddrs.insert(saplingzaddrs.begin(), saplingzaddrs.end());
 
             if (zaddrs.size() > 0) {
-                std::vector<CUnspentSproutNotePlaintextEntry> sproutEntries;
-                std::vector<UnspentSaplingNoteEntry> saplingEntries;
+                std::vector<CSproutNotePlaintextEntry> sproutEntries;
+                std::vector<SaplingNoteEntry> saplingEntries;
                 wallet->GetUnspentFilteredNotes(sproutEntries, saplingEntries, zaddrs, nMinDepth, nMaxDepth, false);
                 std::set<std::pair<libzcash::PaymentAddress, uint256>> nullifierSet = wallet->GetNullifiersForAddresses(zaddrs);
-                for (CUnspentSproutNotePlaintextEntry & entry : sproutEntries) {
+                for (auto & entry : sproutEntries) {
                     nSum = CAmount(entry.plaintext.value());
                     if (nSum > 0)
                     {
@@ -146,7 +146,7 @@ public:
                         cachedCoinSelectionTable.append(CoinSelectionTableEntry(unspentType, QString::fromStdString(EncodePaymentAddress(entry.address)), nSum));
                     }
                 }
-                for (UnspentSaplingNoteEntry & entry : saplingEntries) {
+                for (auto & entry : saplingEntries) {
                     nSum = CAmount(entry.note.value());
                     if (nSum > 0)
                     {
