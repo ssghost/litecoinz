@@ -141,6 +141,10 @@ class WalletOverwinterTxTest (BitcoinTestFramework):
         self.nodes[0].generate(1)
         self.sync_all()
         bci = self.nodes[0].getblockchaininfo()
+
+        # size_on_disk should be > 0
+        assert_greater_than(bci['size_on_disk'], 0)
+
         assert_equal(bci['consensus']['chaintip'], '5ba81b19')
         assert_equal(bci['consensus']['nextblock'], '5ba81b19')
         assert_equal(bci['upgrades']['5ba81b19']['status'], 'active')
