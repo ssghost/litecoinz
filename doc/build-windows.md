@@ -3,25 +3,115 @@ WINDOWS BUILD NOTES
 
 Some notes on how to build LitecoinZ Core for Windows.
 
-Most developers use cross-compilation from Ubuntu to build executables for
-Windows. This is also used to build the release binaries.
+The options known to work for building LitecoinZ Core on Windows are:
 
-Building on Windows itself is possible (for example using msys / mingw-w64),
-but no one documented the steps to do this. If you are doing this, please contribute them.
+* On Linux, using the [Mingw-w64](https://mingw-w64.org/doku.php) cross compiler tool chain. Ubuntu Bionic 18.04 is required
+and is the platform used to build the LitecoinZ Core Windows release binaries.
+* On Windows, using [Windows
+Subsystem for Linux (WSL)](https://msdn.microsoft.com/commandline/wsl/about) and the Mingw-w64 cross compiler tool chain.
 
-Cross-compilation
--------------------
+Installing Windows Subsystem for Linux
+---------------------------------------
 
-These steps can be performed on, for example, an Ubuntu VM. The depends system
+With Windows 10, Microsoft has released a new feature named the [Windows
+Subsystem for Linux (WSL)](https://msdn.microsoft.com/commandline/wsl/about). This
+feature allows you to run a bash shell directly on Windows in an Ubuntu-based
+environment. Within this environment you can cross compile for Windows without
+the need for a separate Linux VM or server. Note that while WSL can be installed with
+other Linux variants, such as OpenSUSE, the following instructions have only been
+tested with Ubuntu.
+
+This feature is not supported in versions of Windows prior to Windows 10 or on
+Windows Server SKUs. In addition, it is available [only for 64-bit versions of
+Windows](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide).
+
+Full instructions to install WSL are available on the above link.
+To install WSL on Windows 10 with Fall Creators Update installed (version >= 16215.0) do the following:
+
+1. Enable the Windows Subsystem for Linux feature
+  * Open the Windows Features dialog (`OptionalFeatures.exe`)
+  * Enable 'Windows Subsystem for Linux'
+  * Click 'OK' and restart if necessary
+2. Install Ubuntu
+  * Open Microsoft Store and search for "Ubuntu 18.04" or use [this link](https://www.microsoft.com/store/productId/9N9TNGVNDL3Q)
+  * Click Install
+3. Complete Installation
+  * Open a cmd prompt and type "Ubuntu1804"
+  * Create a new UNIX user account (this is a separate account from your Windows account)
+
+After the bash shell is active, you can follow the instructions below, starting
+with the "Cross-compilation" section.
+
+Cross-compilation for Ubuntu and Windows Subsystem for Linux
+------------------------------------------------------------
+
+The steps below can be performed on Ubuntu (including in a VM) or WSL. The depends system
 will also work on other Linux distributions, however the commands for
 installing the toolchain will be different.
 
-First install the toolchains:
+First, install the general dependencies:
 
-    sudo apt-get install g++-mingw-w64-i686 mingw-w64-i686-dev g++-mingw-w64-x86-64 mingw-w64-x86-64-dev
+    sudo apt update
+    sudo apt upgrade
+    sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git nsis
 
-To build executables for Windows 64-bit:
+A host toolchain (`build-essential`) is necessary because some dependency
+packages (such as `protobuf`) need to build host utilities that are used in the
+build process.
 
+## Building for 64-bit Windows
+
+The first step is to install the mingw-w64 cross-compilation tool chain:
+
+    sudo apt install g++-mingw-w64-x86-64 mingw-w64-x86-64-dev
+
+Ubuntu Bionic 18.04 <sup>[1](#footnote1)</sup>:
+
+    sudo update-alternatives --config x86_64-w64-mingw32-g++ # Set the default mingw32 g++ compiler option to posix.
+
+Once the toolchain is installed the build steps are common:
+
+Note that for WSL the LitecoinZ Core source path MUST be somewhere in the default mount file system, for
+example /usr/src/litecoinz, AND not under /mnt/d/. If this is not the case the dependency autoconf scripts will fail.
+This means you cannot use a directory that is located directly on the host Windows file system to perform the build.
+
+Acquire the source in the usual way:
+
+    git clone https://github.com/litecoinz-project/litecoinz.git
+
+Once the source code is ready the build steps are below:
+
+    PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
     ./zcutil/build-win.sh
 
+You can also create an installer .exe which will install the application (optional):
+
+    make deploy
+
+## Building for 32-bit Windows
+
+Build executables for Windows 32-bit is not supported.
+
+## Depends system
+
 For further documentation on the depends system see [README.md](../depends/README.md) in the depends directory.
+
+Installation
+-------------
+
+After building using the Windows subsystem it can be useful to copy the compiled
+executables to a directory on the Windows drive in the same directory structure
+as they appear in the release `.zip` archive. This can be done in the following
+way. This will install to `c:\workspace\litecoinz`, for example:
+
+    make install DESTDIR=/mnt/c/workspace/litecoinz
+
+Footnotes
+---------
+
+<a name="footnote1">1</a>: Starting from Ubuntu Xenial 16.04, both the 32 and 64 bit Mingw-w64 packages install two different
+compiler options to allow a choice between either posix or win32 threads. The default option is win32 threads which is the more
+efficient since it will result in binary code that links directly with the Windows kernel32.lib. Unfortunately, the headers
+required to support win32 threads conflict with some of the classes in the C++11 standard library, in particular std::mutex.
+It's not possible to build the LitecoinZ Core code using the win32 version of the Mingw-w64 cross compilers (at least not without
+modifying headers in the LitecoinZ Core source code).
