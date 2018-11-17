@@ -37,8 +37,8 @@ bool LTZ_VerifyParams(std::string file, std::string sha256expected)
     int len = 0;
     int bytesRead = 0;
 
-    int pos = file.find("sprout");
-    std::string initMsg = "Verifying " + file.substr(pos) + "...";
+    boost::filesystem::path p(file);
+    std::string initMsg = "Verifying " + p.filename().string() + "...";
     uiInterface.InitMessage(_(initMsg.c_str()));
 
     SHA256_CTX ctx;
@@ -62,7 +62,7 @@ bool LTZ_VerifyParams(std::string file, std::string sha256expected)
     {
         msg = "Deleting corrupted file " + file + "!";
         LogPrintf("%s\n", msg.c_str());
-        initMsg = "Deleting corrupted file " + file.substr(pos) + "!";
+        initMsg = "Deleting corrupted file " + p.filename().string() + "!";
         uiInterface.InitMessage(_(initMsg.c_str()));
         boost::filesystem::remove(file.c_str());
         return false;
@@ -80,8 +80,8 @@ bool LTZ_FetchParams(std::string url, std::string file)
     std::string msg = "Downloading " + url + "...";
     LogPrintf("%s\n", msg.c_str());
 
-    int pos = file.find("sprout");
-    std::string initMsg = "Downloading " + file.substr(pos) + "...";
+    boost::filesystem::path p(file);
+    std::string initMsg = "Downloading " + p.filename().string() + "...";
 
     uiInterface.InitMessage(_(initMsg.c_str()));
 

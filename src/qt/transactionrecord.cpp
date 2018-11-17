@@ -4,8 +4,8 @@
 
 #include "transactionrecord.h"
 
-#include "base58.h"
 #include "consensus/consensus.h"
+#include "key_io.h"
 #include "main.h"
 #include "timedata.h"
 #include "wallet/wallet.h"
@@ -34,12 +34,12 @@ bool TransactionRecord::showTransaction(const CWalletTx &wtx)
 
 bool TransactionRecord::findZTransaction(const CWallet *wallet, const uint256 &hash, CAmount &amout, std::string &address)
 {
-    std::set<libzcash::PaymentAddress> addresses;
-    wallet->GetPaymentAddresses(addresses);
+    std::set<libzcash::SproutPaymentAddress> addresses;
+    wallet->GetSproutPaymentAddresses(addresses);
     for (auto addr : addresses ) {
-        if (wallet->HaveSpendingKey(addr)) {
+        if (wallet->HaveSproutSpendingKey(addr)) {
             UniValue params(UniValue::VARR);
-            params.push_back(CZCPaymentAddress(addr).ToString());
+            params.push_back(EncodePaymentAddress(addr));
             params.push_back(0);
             UniValue ret = z_listreceivedbyaddress(params, false);
             for (const UniValue& entry : ret.getValues()) {
@@ -48,7 +48,7 @@ bool TransactionRecord::findZTransaction(const CWallet *wallet, const uint256 &h
                 if(txid.get_str() == hash.GetHex())
                 {
                     amout = AmountFromValue(amount);
-                    address = CZCPaymentAddress(addr).ToString();
+                    address = EncodePaymentAddress(addr);
                     return true;
                 }
             }
@@ -92,13 +92,13 @@ QList<TransactionRecord> TransactionRecord::decomposeZTransaction(const CWallet 
     if(found)
     {
         // Received on Z-Addeess or Sent to T-Address or ?Sent to T-Address?
-        if((wtx.vin.size() > 0) && (wtx.vout.size() > 0) && (wtx.mapNoteData.size() > 0))
+        if((wtx.vin.size() > 0) && (wtx.vout.size() > 0) && ((wtx.mapSproutNoteData.size() > 0) || (wtx.mapSaplingNoteData.size() > 0)))
         {
             // Received Z<-T
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::RecvWithAddress, address,
                             -(nDebit - nChange), nCredit - nChange));
         }
-        else if((wtx.vin.size() == 0) && (wtx.vout.size() > 0) && (wtx.mapNoteData.size() > 0))
+        else if((wtx.vin.size() == 0) && (wtx.vout.size() > 0) && ((wtx.mapSproutNoteData.size() > 0) || (wtx.mapSaplingNoteData.size() > 0)))
         {
             // Sent Z->T
             BOOST_FOREACH(const CTxOut& txout, wtx.vout)
@@ -108,7 +108,7 @@ QList<TransactionRecord> TransactionRecord::decomposeZTransaction(const CWallet 
                 if (ExtractDestination(txout.scriptPubKey, tAddress))
                 {
                     // Received by LitecoinZ Address
-                    address = CBitcoinAddress(tAddress).ToString();
+                    address = EncodeDestination(tAddress);
                 }
 
             }
@@ -125,13 +125,13 @@ QList<TransactionRecord> TransactionRecord::decomposeZTransaction(const CWallet 
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToAddress, address,
                             (nDebit - fee - nChange), nCredit));
         }
-        else if((wtx.vin.size() == 0) && (wtx.vout.size() == 0) && (wtx.mapNoteData.size() > 0))
+        else if((wtx.vin.size() == 0) && (wtx.vout.size() == 0) && ((wtx.mapSproutNoteData.size() > 0) || (wtx.mapSaplingNoteData.size() > 0)))
         {
             // Received Z<-Z
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::RecvWithAddress, address,
                             -(nDebit - nChange), nCredit - nChange));
         }
-        else if((wtx.vin.size() > 0) && (wtx.vout.size() == 0) && (wtx.mapNoteData.size() > 0))
+        else if((wtx.vin.size() > 0) && (wtx.vout.size() == 0) && ((wtx.mapSproutNoteData.size() > 0) || (wtx.mapSaplingNoteData.size() > 0)))
         {
             // Shielding transaction
             nDebit = wtx.GetDebit(ISMINE_ALL);
@@ -152,7 +152,7 @@ QList<TransactionRecord> TransactionRecord::decomposeZTransaction(const CWallet 
     else
     {
         // Sent or Received on T-Address
-        if((wtx.vin.size() > 0) && (wtx.vout.size() > 0) && (wtx.mapNoteData.size() == 0))
+        if((wtx.vin.size() > 0) && (wtx.vout.size() > 0) && ((wtx.mapSproutNoteData.size() == 0) && (wtx.mapSaplingNoteData.size() == 0)))
         {
             // Sent T->Z
             address = "Z Address not listed by wallet!";
@@ -168,7 +168,7 @@ QList<TransactionRecord> TransactionRecord::decomposeZTransaction(const CWallet 
             parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToAddress, address,
                             (nDebit - nTxFee - nChange), nCredit));
         }
-        else if((wtx.vin.size() == 0) && (wtx.vout.size() > 0) && (wtx.mapNoteData.size() == 0))
+        else if((wtx.vin.size() == 0) && (wtx.vout.size() > 0) && ((wtx.mapSproutNoteData.size() > 0) && (wtx.mapSaplingNoteData.size() > 0)))
         {
             // Received T<-Z
             BOOST_FOREACH(const CTxOut& txout, wtx.vout)
@@ -178,7 +178,7 @@ QList<TransactionRecord> TransactionRecord::decomposeZTransaction(const CWallet 
                 if (ExtractDestination(txout.scriptPubKey, tAddress))
                 {
                     // Received by LitecoinZ Address
-                    address = CBitcoinAddress(tAddress).ToString();
+                    address = EncodeDestination(tAddress);
                 }
             }
             nDebit = 0;
@@ -227,7 +227,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTTransaction(const CWallet 
                 {
                     // Received by LitecoinZ Address
                     sub.type = TransactionRecord::RecvWithAddress;
-                    sub.address = CBitcoinAddress(address).ToString();
+                    sub.address = EncodeDestination(address);
                 }
                 else
                 {
@@ -299,7 +299,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTTransaction(const CWallet 
                 {
                     // Sent to LitecoinZ Address
                     sub.type = TransactionRecord::SendToAddress;
-                    sub.address = CBitcoinAddress(address).ToString();
+                    sub.address = EncodeDestination(address);
                 }
                 else
                 {

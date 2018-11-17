@@ -4,7 +4,7 @@
 
 #include "litecoinzaddressvalidator.h"
 
-#include "base58.h"
+#include "key_io.h"
 
 /* Base58 characters are:
      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -91,12 +91,9 @@ QValidator::State LitecoinZAddressCheckValidator::validate(QString &input, int &
     bool isZaddr = false;
 
     // Validate the passed LitecoinZ z-address
-    try {
-        CZCPaymentAddress zaddr(input.toStdString());
-        zaddr.Get();
+    libzcash::PaymentAddress address = DecodePaymentAddress(input.toStdString());
+    if (IsValidPaymentAddress(address)) {
         isZaddr = true;
-    } catch (const std::runtime_error&) {
-        isZaddr = false;
     }
  
     if (isZaddr)

@@ -4,7 +4,7 @@
 
 #include "bitcoinaddressvalidator.h"
 
-#include "base58.h"
+#include <key_io.h>
 
 /* Base58 characters are:
      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -89,9 +89,9 @@ QValidator::State BitcoinAddressCheckValidator::validate(QString &input, int &po
 {
     Q_UNUSED(pos);
     // Validate the passed LitecoinZ address
-    CBitcoinAddress addr(input.toStdString());
-    if (addr.IsValid())
+    if (IsValidDestinationString(input.toStdString())) {
         return QValidator::Acceptable;
+    }
 
     return QValidator::Invalid;
 }

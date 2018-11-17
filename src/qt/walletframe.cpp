@@ -122,13 +122,6 @@ void WalletFrame::gotoAddressBookPage()
         i.value()->gotoAddressBookPage();
 }
 
-void WalletFrame::gotoUnspentPage()
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoUnspentPage();
-}
-
 void WalletFrame::gotoHistoryPage()
 {
     QMap<QString, WalletView*>::const_iterator i;

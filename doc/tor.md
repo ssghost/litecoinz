@@ -138,7 +138,7 @@ Now use litecoinz-cli to verify there is only a single peer connection.
 	        "id" : 1,
 	        "addr" : "zctestseie6wxgio.onion:39333",
 	        ...
-	        "version" : 170002,
+	        "version" : 170004,
 	        "subver" : "/MagicBean:1.0.0/",
 	        ...
 	    }

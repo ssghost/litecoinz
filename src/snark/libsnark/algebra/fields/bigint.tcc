@@ -124,14 +124,15 @@ size_t bigint<n>::num_bits() const
         }
         else
         {
-            return ((i+1) * GMP_NUMB_BITS) - __builtin_clzl(x);
+            static_assert(GMP_NUMB_MAX <= ULLONG_MAX, "coercing limb to unsigned long long might truncate");
+            return ((i+1) * GMP_NUMB_BITS) - __builtin_clzll(x);
         }
     }
     return 0;
 }
 
 template<mp_size_t n>
-uint64_t bigint<n>::as_ulong() const
+uint64_t bigint<n>::as_uint64() const
 {
     return this->data[0];
 }

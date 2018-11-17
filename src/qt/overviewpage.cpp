@@ -13,7 +13,6 @@
 #include "platformstyle.h"
 #include "transactionfilterproxy.h"
 #include "transactiontablemodel.h"
-#include "unspentpage.h"
 #include "walletmodel.h"
 #include "shieldcoinsdialog.h"
 

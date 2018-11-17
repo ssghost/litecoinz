@@ -1,5 +1,5 @@
 ---
-name: "litecoinz-1.0.17"
+name: "litecoinz-2.0.0-rc1"
 enable_cache: true
 distro: "debian"
 suites:
@@ -86,7 +86,7 @@ script: |
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do
-    NO_PROTON="x" make ${MAKEOPTS} -C ${BASEPREFIX} HOST="${i}"
+    make ${MAKEOPTS} -C ${BASEPREFIX} HOST="${i}"
   done
 
   # Faketime for binaries
@@ -125,7 +125,8 @@ script: |
     find . -name "lib*.a" -delete
     rm -rf ${DISTNAME}/lib/pkgconfig
     find ${DISTNAME}/bin -type f -executable -exec objcopy --only-keep-debug {} {}.dbg \; -exec strip -s {} \; -exec objcopy --add-gnu-debuglink={}.dbg {} \;
-    find ${DISTNAME}/lib -type f -exec objcopy --only-keep-debug {} {}.dbg \; -exec strip -s {} \; -exec objcopy --add-gnu-debuglink={}.dbg {} \;
+    # Commented out while we don't build any libraries
+    #find ${DISTNAME}/lib -type f -exec objcopy --only-keep-debug {} {}.dbg \; -exec strip -s {} \; -exec objcopy --add-gnu-debuglink={}.dbg {} \;
     find ${DISTNAME} -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${OUTDIR}/${DISTNAME}-${i}.tar.gz
     find ${DISTNAME} -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${OUTDIR}/${DISTNAME}-${i}-debug.tar.gz
     cd ../../

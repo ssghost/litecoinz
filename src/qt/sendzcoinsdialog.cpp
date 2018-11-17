@@ -148,7 +148,7 @@ void SendZCoinsDialog::on_sendButton_clicked()
         }
     }
 
-    if(!valid || recipients.isEmpty())
+    if(!valid || recipients.isEmpty() || inputAddress.isEmpty())
     {
         return;
     }

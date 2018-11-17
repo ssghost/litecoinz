@@ -55,7 +55,6 @@
         <file alias="tx_mined">res/images/tx_mined.png</file>
         <file alias="verify">res/images/verify.png</file>
         <file alias="edit">res/images/edit.png</file>
-        <file alias="unspent">res/images/unspent.png</file>
         <file alias="locked">res/images/locked.png</file>
         <file alias="send2">res/images/send2.png</file>
         <file alias="show">res/images/show.png</file>

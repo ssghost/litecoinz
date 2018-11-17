@@ -1,6 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin Core developers
-// Copyright (c) 2017-2018 The LitecoinZ developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -72,6 +71,7 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
         }
         break;
     }
+
     case TX_MULTISIG:
     {
         // Only consider transactions "mine" if we own ALL the
