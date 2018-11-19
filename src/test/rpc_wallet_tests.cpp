@@ -1686,6 +1686,9 @@ BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
 
     LOCK(pwalletMain->cs_wallet);
 
+    CheckRPCThrows("z_mergetoaddress 1 2",
+        "Error: z_mergetoaddress is disabled.");
+
     // Set global state required for z_mergetoaddress
     fExperimentalMode = true;
     mapArgs["-zmergetoaddress"] = "1";
@@ -1697,6 +1700,9 @@ BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
     std::string taddr1 = "T1SvzJ7oUaq4X5YTyuZeJxUjLizMxUMHQEu";
     std::string taddr2 = "T18dkMN1JVMjpzRNTkFtnwhPz8CUQhwfuaH";
     std::string aSproutAddr = "ztNf8K1yDvrZVU3j76pbxrN9TvzGksZ4jvr3HMn4B2AMkLs4MDspVdj6tZsqYyXa9DZa1as2vbjbuGoDjGeq6AzEziUYrkE";
+    std::string aSaplingAddr = "ztestsapling19rnyu293v44f0kvtmszhx35lpdug574twc0lwyf4s7w0umtkrdq5nfcauxrxcyfmh3m7slemqsj";
+     CheckRPCThrows("z_mergetoaddress [] " + taddr1,
+        "Invalid parameter, fromaddresses array is empty.");
 
     // bad from address
     CheckRPCThrows("z_mergetoaddress [\"INVALID" + taddr1 + "\"] " + taddr2,
@@ -1741,6 +1747,15 @@ BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
     // invalid shielded limit, must be at least 0
     CheckRPCThrows("z_mergetoaddress [\"" + taddr1 + "\"] " + taddr2 + " 0.0001 100 -1",
         "Limit on maximum number of notes cannot be negative");
+
+    CheckRPCThrows("z_mergetoaddress [\"ANY_TADDR\",\"" + taddr1 + "\"] " + taddr2,
+        "Cannot specify specific t-addrs when using \"ANY_TADDR\"");
+
+    CheckRPCThrows("z_mergetoaddress [\"ANY_SPROUT\",\"" + aSproutAddr + "\"] " + taddr2,
+        "Cannot specify specific z-addrs when using \"ANY_SPROUT\" or \"ANY_SAPLING\"");
+
+    CheckRPCThrows("z_mergetoaddress [\"ANY_SAPLING\",\"" + aSaplingAddr + "\"] " + taddr2,
+        "Cannot specify specific z-addrs when using \"ANY_SPROUT\" or \"ANY_SAPLING\"");
 
     // memo bigger than allowed length of ZC_MEMO_SIZE
     std::vector<char> v (2 * (ZC_MEMO_SIZE+1));     // x2 for hexadecimal string format
