@@ -4817,6 +4817,8 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 
 void static ProcessGetData(CNode* pfrom)
 {
+    int currentHeight = GetHeight();
+
     std::deque<CInv>::iterator it = pfrom->vRecvGetData.begin();
 
     vector<CInv> vNotFound;
@@ -4901,26 +4903,38 @@ void static ProcessGetData(CNode* pfrom)
             }
             else if (inv.IsKnownType())
             {
-                // Send stream from relay memory
+                // Check the mempool to see if a transaction is expiring soon.  If so, do not send to peer.
+                // Note that a transaction enters the mempool first, before the serialized form is cached
+                // in mapRelay after a successful relay.
+                bool isExpiringSoon = false;
                 bool pushed = false;
-                {
-                    LOCK(cs_mapRelay);
-                    map<CInv, CDataStream>::iterator mi = mapRelay.find(inv);
-                    if (mi != mapRelay.end()) {
-                        pfrom->PushMessage(inv.GetCommand(), (*mi).second);
-                        pushed = true;
+                CTransaction tx;
+                bool isInMempool = mempool.lookup(inv.hash, tx);
+                if (isInMempool) {
+                    isExpiringSoon = IsExpiringSoonTx(tx, currentHeight + 1);
+                }
+
+                if (!isExpiringSoon) {
+                    // Send stream from relay memory
+                    {
+                        LOCK(cs_mapRelay);
+                        map<CInv, CDataStream>::iterator mi = mapRelay.find(inv);
+                        if (mi != mapRelay.end()) {
+                            pfrom->PushMessage(inv.GetCommand(), (*mi).second);
+                            pushed = true;
+                        }
+                    }
+                    if (!pushed && inv.type == MSG_TX) {
+                        if (isInMempool) {
+                            CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                            ss.reserve(1000);
+                            ss << tx;
+                            pfrom->PushMessage("tx", ss);
+                            pushed = true;
+                        }
                     }
                 }
-                if (!pushed && inv.type == MSG_TX) {
-                    CTransaction tx;
-                    if (mempool.lookup(inv.hash, tx)) {
-                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-                        ss.reserve(1000);
-                        ss << tx;
-                        pfrom->PushMessage("tx", ss);
-                        pushed = true;
-                    }
-                }
+
                 if (!pushed) {
                     vNotFound.push_back(inv);
                 }
@@ -5612,6 +5626,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
     else if (strCommand == "mempool")
     {
+        int currentHeight = GetHeight();
+
         if (!(pfrom->nServices & NODE_BLOOM) && !pfrom->fWhitelisted)
         {
             LogPrint("net", "mempool request with bloom filters disabled, disconnect peer=%d\n", pfrom->GetId());
@@ -5625,10 +5641,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         mempool.queryHashes(vtxid);
         vector<CInv> vInv;
         BOOST_FOREACH(uint256& hash, vtxid) {
+            CTransaction tx;
+            bool fInMemPool = mempool.lookup(hash, tx);
+            if (fInMemPool && IsExpiringSoonTx(tx, currentHeight + 1)) {
+                continue;
+            }
+
             CInv inv(MSG_TX, hash);
             if (pfrom->pfilter) {
-                CTransaction tx;
-                bool fInMemPool = mempool.lookup(hash, tx);
                 if (!fInMemPool) continue; // another thread removed since queryHashes, maybe...
                 if (!pfrom->pfilter->IsRelevantAndUpdate(tx)) continue;
             }
