@@ -44,7 +44,7 @@ cp $SRC_PATH/src/litecoinz-tx $DEB_BIN
 cp $SRC_PATH/src/qt/litecoinz-qt $DEB_BIN
 cp $SRC_PATH/zcutil/fetch-params.sh $DEB_BIN/litecoinz-fetch-params
 # Copy docs
-cp $SRC_PATH/doc/release-notes/release-notes-2.0.0.md $DEB_DOC/changelog
+cp $SRC_PATH/doc/release-notes/release-notes-2.0.1-rc1.md $DEB_DOC/changelog
 cp $SRC_DEB/changelog $DEB_DOC/changelog.Debian
 cp $SRC_DEB/copyright $DEB_DOC
 cp -r $SRC_DEB/examples $DEB_DOC
