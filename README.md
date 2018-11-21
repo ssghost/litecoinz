@@ -1,5 +1,9 @@
-LitecoinZ 1.0.17
+LitecoinZ 2.0.0
 ================
+<p align="left">
+  <img src="doc/litecoinz-logo-git.png">
+</p>
+
 
 What is LitecoinZ?
 ------------------
@@ -13,6 +17,7 @@ This software is the LitecoinZ client. It downloads and stores the entire histor
 of LitecoinZ transactions; depending on the speed of your computer and network
 connection, the synchronization process could take a day or more once the
 blockchain has reached a significant size.
+
 
 License
 -------
@@ -33,21 +38,21 @@ On Ubuntu/Debian-based systems:
 $ sudo apt-get install \
       build-essential pkg-config libc6-dev m4 g++-multilib \
       autoconf libtool ncurses-dev unzip git python \
-      zlib1g-dev wget bsdmainutils automake
+      zlib1g-dev wget bsdmainutils automake curl
 ```
 
 On Fedora-based systems:
 ```{r, engine='bash'}
 $ sudo dnf install \
       git pkgconfig automake autoconf ncurses-devel python \
-      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2
+      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2 glibc-static libstdc++-static curl
 ```
 
 On Redhat/Centos-based systems:
 ```{r, engine='bash'}
 $ sudo yum install \
       git pkgconfig automake autoconf ncurses-devel python \
-      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2
+      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2 glibc-static libstdc++-static curl
 ```
 
 ### Build

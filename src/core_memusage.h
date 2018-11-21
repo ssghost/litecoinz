@@ -1,5 +1,4 @@
 // Copyright (c) 2015 The Bitcoin Core developers
-// Copyright (c) 2017-2018 The LitecoinZ developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,7 +10,7 @@
 #include "memusage.h"
 
 static inline size_t RecursiveDynamicUsage(const CScript& script) {
-    return memusage::DynamicUsage(*static_cast<const std::vector<unsigned char>*>(&script));
+    return memusage::DynamicUsage(*static_cast<const CScriptBase*>(&script));
 }
 
 static inline size_t RecursiveDynamicUsage(const COutPoint& out) {

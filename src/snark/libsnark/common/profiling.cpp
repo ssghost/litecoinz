@@ -15,6 +15,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <chrono>
+#include <cinttypes>
 #include <cstdio>
 #include <list>
 #include <vector>
@@ -66,8 +67,8 @@ std::map<std::string, int64_t> cumulative_times;
 static std::map<std::string, int64_t> enter_cpu_times;
 static std::map<std::string, int64_t> last_cpu_times;
 static std::map<std::pair<std::string, std::string>, int64_t> op_counts;
-static std::map<std::pair<std::string, std::string>, int64_t> cumulative_op_counts; // ((msg, data_point), value) 
-// TODO: Convert op_counts and cumulative_op_counts from pair to structs
+static std::map<std::pair<std::string, std::string>, int64_t> cumulative_op_counts; // ((msg, data_point), value)
+    // TODO: Convert op_counts and cumulative_op_counts from pair to structs
 static size_t indentation = 0;
 
 static std::vector<std::string> block_names;
@@ -89,7 +90,7 @@ static std::list<std::pair<std::string, int64_t*> > op_data_points = {
 #endif
 };
 
-bool inhibit_profiling_info = false;
+bool inhibit_profiling_info = true;
 bool inhibit_profiling_counters = false;
 
 void clear_profiling_counters()
@@ -105,7 +106,7 @@ void print_cumulative_time_entry(const std::string &key, const int64_t factor)
     const double total_ms = (cumulative_times.at(key) * 1e-6);
     const size_t cnt = invocation_counts.at(key);
     const double avg_ms = total_ms / cnt;
-    printf("   %-45s: %12.5fms = %lld * %0.5fms (%zu invocations, %0.5fms = %lld * %0.5fms per invocation)\n", key.c_str(), total_ms, factor, total_ms/factor, cnt, avg_ms, factor, avg_ms/factor);
+    printf("   %-45s: %12.5fms = %" PRId64 " * %0.5fms (%zu invocations, %0.5fms = %" PRId64 " * %0.5fms per invocation)\n", key.c_str(), total_ms, factor, total_ms/factor, cnt, avg_ms, factor, avg_ms/factor);
 }
 
 void print_cumulative_times(const int64_t factor)

@@ -6,7 +6,6 @@
 
 #include "addresstablemodel.h"
 #include "coinselectiontablemodel.h"
-#include "unspenttablemodel.h"
 #include "recentrequeststablemodel.h"
 #include "transactiontablemodel.h"
 
@@ -14,8 +13,8 @@
 #include "guiutil.h"
 #include "paymentserver.h"
 
-#include "base58.h"
 #include "keystore.h"
+#include "key_io.h"
 #include "main.h"
 #include "sync.h"
 #include "ui_interface.h"
@@ -31,7 +30,7 @@
 #include <boost/foreach.hpp>
 
 WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, OptionsModel *optionsModel, QObject *parent) :
-    QObject(parent), wallet(wallet), optionsModel(optionsModel), addressTableModel(0), coinSelectionTableModel(0), unspentTableModel(0),
+    QObject(parent), wallet(wallet), optionsModel(optionsModel), addressTableModel(0), coinSelectionTableModel(0),
     transactionTableModel(0),
     recentRequestsTableModel(0),
     cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
@@ -44,7 +43,6 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, Op
 
     addressTableModel = new AddressTableModel(wallet, this);
     coinSelectionTableModel = new CoinSelectionTableModel(wallet, this);
-    unspentTableModel = new UnspentTableModel(wallet, this);
     transactionTableModel = new TransactionTableModel(platformStyle, wallet, this);
     recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
 
@@ -63,18 +61,18 @@ WalletModel::~WalletModel()
 
 CAmount WalletModel::getZBalance(bool showUnconfirmed) const
 {
-    CAmount nBalance = 0;
-    std::vector<CNotePlaintextEntry> entries;
-    if(showUnconfirmed)
-        wallet->GetFilteredNotes(entries, "", 0, true);
-    else
-        wallet->GetFilteredNotes(entries, "", 1, true);
-        
-    for (auto & entry : entries) {
-        nBalance += CAmount(entry.plaintext.value);
+    CAmount balance = 0;
+    std::vector<CSproutNotePlaintextEntry> sproutEntries;
+    std::vector<SaplingNoteEntry> saplingEntries;
+    LOCK2(cs_main, wallet->cs_wallet);
+    wallet->GetFilteredNotes(sproutEntries, saplingEntries, "", 1, true, showUnconfirmed);
+    for (auto & entry : sproutEntries) {
+        balance += CAmount(entry.plaintext.value());
     }
-
-    return nBalance;
+    for (auto & entry : saplingEntries) {
+        balance += CAmount(entry.note.value());
+    }
+    return balance;
 }
 
 CAmount WalletModel::getTBalance(const CCoinControl *coinControl) const
@@ -244,8 +242,7 @@ void WalletModel::updateWatchOnlyFlag(bool fHaveWatchonly)
 
 bool WalletModel::validateAddress(const QString &address)
 {
-    CBitcoinAddress addressParsed(address.toStdString());
-    return addressParsed.IsValid();
+    return IsValidDestinationString(address.toStdString());
 }
 
 bool WalletModel::validateZAddress(const QString &address)
@@ -253,12 +250,9 @@ bool WalletModel::validateZAddress(const QString &address)
     bool isZaddr = false;
 
     // Validate the passed LitecoinZ z-address
-    try {
-        CZCPaymentAddress zaddr(address.toStdString());
-        zaddr.Get();
+    libzcash::PaymentAddress dest = DecodePaymentAddress(address.toStdString());
+    if (IsValidPaymentAddress(dest)) {
         isZaddr = true;
-    } catch (const std::runtime_error&) {
-        isZaddr = false;
     }
 
     if (isZaddr)
@@ -322,7 +316,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             setAddress.insert(rcp.address);
             ++nAddresses;
 
-            CScript scriptPubKey = GetScriptForDestination(CBitcoinAddress(rcp.address.toStdString()).Get());
+            CScript scriptPubKey = GetScriptForDestination(DecodeDestination(rcp.address.toStdString()));
             CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
             vecSend.push_back(recipient);
 
@@ -500,7 +494,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
         if (!rcp.paymentRequest.IsInitialized())
         {
             std::string strAddress = rcp.address.toStdString();
-            CTxDestination dest = CBitcoinAddress(strAddress).Get();
+            CTxDestination dest = DecodeDestination(strAddress);
             std::string strLabel = rcp.label.toStdString();
             {
                 LOCK(wallet->cs_wallet);
@@ -528,11 +522,6 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
 OptionsModel *WalletModel::getOptionsModel()
 {
     return optionsModel;
-}
-
-UnspentTableModel *WalletModel::getUnspentTableModel()
-{
-    return unspentTableModel;
 }
 
 CoinSelectionTableModel *WalletModel::getCoinSelectionTableModel()
@@ -623,10 +612,10 @@ static void NotifyKeyStoreStatusChanged(WalletModel *walletmodel, CCryptoKeyStor
 }
 
 static void NotifyZAddressBookChanged(WalletModel *walletmodel, CWallet *wallet,
-        const CZCPaymentAddress &address, const std::string &label, bool isMine,
+        const std::string &address, const std::string &label, bool isMine,
         const std::string &purpose, ChangeType status)
 {
-    QString strAddress = QString::fromStdString(CZCPaymentAddress(address).ToString());
+    QString strAddress = QString::fromStdString(address);
     QString strLabel = QString::fromStdString(label);
     QString strPurpose = QString::fromStdString(purpose);
 
@@ -643,7 +632,7 @@ static void NotifyAddressBookChanged(WalletModel *walletmodel, CWallet *wallet,
         const CTxDestination &address, const std::string &label, bool isMine,
         const std::string &purpose, ChangeType status)
 {
-    QString strAddress = QString::fromStdString(CBitcoinAddress(address).ToString());
+    QString strAddress = QString::fromStdString(EncodeDestination(address));
     QString strLabel = QString::fromStdString(label);
     QString strPurpose = QString::fromStdString(purpose);
 
@@ -742,9 +731,14 @@ bool WalletModel::getPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const
     return wallet->GetPubKey(address, vchPubKeyOut);
 }
 
-bool WalletModel::havePrivKey(const CKeyID &address) const
+bool WalletModel::IsSpendable(const CTxDestination& dest) const
 {
-    return wallet->HaveKey(address);
+    return IsMine(*wallet, dest) & ISMINE_SPENDABLE;
+}
+
+bool WalletModel::getPrivKey(const CKeyID &address, CKey& vchPrivKeyOut) const
+{
+    return wallet->GetKey(address, vchPrivKeyOut);
 }
 
 // returns a list of COutputs from COutPoints
@@ -804,7 +798,7 @@ void WalletModel::listCoins(std::map<QString, std::vector<COutput> >& mapCoins) 
         if (out.tx->IsCoinBase())
             continue;
 
-        mapCoins[QString::fromStdString(CBitcoinAddress(address).ToString())].push_back(out);
+        mapCoins[QString::fromStdString(EncodeDestination(address))].push_back(out);
     }
 }
 
@@ -843,7 +837,7 @@ void WalletModel::loadReceiveRequests(std::vector<std::string>& vReceiveRequests
 
 bool WalletModel::saveReceiveRequest(const std::string &sAddress, const int64_t nId, const std::string &sRequest)
 {
-    CTxDestination dest = CBitcoinAddress(sAddress).Get();
+    CTxDestination dest = DecodeDestination(sAddress);
 
     std::stringstream ss;
     ss << nId;

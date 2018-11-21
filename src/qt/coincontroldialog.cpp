@@ -15,6 +15,7 @@
 
 #include "coincontrol.h"
 #include "init.h"
+#include "key_io.h"
 #include "main.h" // For minRelayTxFee
 #include "wallet/wallet.h"
 
@@ -728,7 +729,7 @@ void CoinControlDialog::updateView()
             QString sAddress = "";
             if(ExtractDestination(out.tx->vout[out.i].scriptPubKey, outputAddress))
             {
-                sAddress = QString::fromStdString(CBitcoinAddress(outputAddress).ToString());
+                sAddress = QString::fromStdString(EncodeDestination(outputAddress));
 
                 // if listMode or change => show bitcoin address. In tree mode, address is not shown again for direct wallet address outputs
                 if (!treeMode || (!(sAddress == sWalletAddress)))

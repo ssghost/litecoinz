@@ -8,7 +8,7 @@
 #include "guiutil.h"
 #include "walletmodel.h"
 
-#include "base58.h"
+#include "key_io.h"
 #include "wallet/wallet.h"
 
 #include <boost/foreach.hpp>
@@ -90,27 +90,27 @@ public:
             // Transparent address
             BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, wallet->mapAddressBook)
             {
-                const CBitcoinAddress& address = item.first;
-                bool fMine = IsMine(*wallet, address.Get());
+                const CTxDestination& address = item.first;
+                bool fMine = IsMine(*wallet, address);
                 AddressTableEntry::Type addressType = translateTransactionType(
                         QString::fromStdString(item.second.purpose), fMine);
                 const std::string& strName = item.second.name;
                 cachedAddressTable.append(AddressTableEntry(addressType,
                                   QString::fromStdString(strName),
-                                  QString::fromStdString(address.ToString())));
+                                  QString::fromStdString(EncodeDestination(address))));
             }
 
             // Shielded address
-            std::set<libzcash::PaymentAddress> addresses;
-            wallet->GetPaymentAddresses(addresses);
+            std::set<libzcash::SproutPaymentAddress> addresses;
+            wallet->GetSproutPaymentAddresses(addresses);
             for (auto addr : addresses ) {
                 AddressTableEntry::Type addressType = translateTransactionType(
                         QString::fromStdString("zreceive"), true);
                 const std::string& strName = "";
-                if (wallet->HaveSpendingKey(addr)) {
+                if (wallet->HaveSproutSpendingKey(addr)) {
                     cachedAddressTable.append(AddressTableEntry(addressType,
                                       QString::fromStdString(strName),
-                                      QString::fromStdString(CZCPaymentAddress(addr).ToString())));
+                                      QString::fromStdString(EncodePaymentAddress(addr))));
                }
             }
         }
@@ -270,7 +270,7 @@ bool AddressTableModel::setData(const QModelIndex &index, const QVariant &value,
     if(role == Qt::EditRole)
     {
         LOCK(wallet->cs_wallet); /* For SetAddressBook / DelAddressBook */
-        CTxDestination curAddress = CBitcoinAddress(rec->address.toStdString()).Get();
+        CTxDestination curAddress = DecodeDestination(rec->address.toStdString());
         if(index.column() == Label)
         {
             // Do nothing, if old label == new label
@@ -281,7 +281,7 @@ bool AddressTableModel::setData(const QModelIndex &index, const QVariant &value,
             }
             wallet->SetAddressBook(curAddress, value.toString().toStdString(), strPurpose);
         } else if(index.column() == Address) {
-            CTxDestination newAddress = CBitcoinAddress(value.toString().toStdString()).Get();
+            CTxDestination newAddress = DecodeDestination(value.toString().toStdString());
             // Refuse to set invalid address, set error status and return false
             if(boost::get<CNoDestination>(&newAddress))
             {
@@ -382,7 +382,7 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
         // Check for duplicate addresses
         {
             LOCK(wallet->cs_wallet);
-            if(wallet->mapAddressBook.count(CBitcoinAddress(strAddress).Get()))
+            if(wallet->mapAddressBook.count(DecodeDestination(strAddress)))
             {
                 editStatus = DUPLICATE_ADDRESS;
                 return QString();
@@ -408,15 +408,15 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
                 return QString();
             }
         }
-        strAddress = CBitcoinAddress(newKey.GetID()).ToString();
+        strAddress = EncodeDestination(newKey.GetID());
     }
     else if(type == ZReceive)
     {
         // Generate a new z-address
         LOCK(wallet->cs_wallet);
 
-        CZCPaymentAddress pubaddr = wallet->GenerateNewZKey();
-        strAddress = pubaddr.ToString();
+        libzcash::SproutPaymentAddress pubaddr = wallet->GenerateNewSproutZKey();
+        strAddress = EncodePaymentAddress(pubaddr);
     }
     else
     {
@@ -427,13 +427,13 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
     if ((type == Send) || (type == Receive))
     {
         LOCK(wallet->cs_wallet);
-        wallet->SetAddressBook(CBitcoinAddress(strAddress).Get(), strLabel,
+        wallet->SetAddressBook(DecodeDestination(strAddress), strLabel,
                                (type == Send ? "send" : "receive"));
     }
     else if (type == ZReceive)
     {
         LOCK(wallet->cs_wallet);
-        wallet->SetZAddressBook(CZCPaymentAddress(strAddress).Get(), strLabel, "zreceive");
+        wallet->SetZAddressBook(strAddress, strLabel, "zreceive");
     }
 
     return QString::fromStdString(strAddress);
@@ -451,7 +451,7 @@ bool AddressTableModel::removeRows(int row, int count, const QModelIndex &parent
     }
     {
         LOCK(wallet->cs_wallet);
-        wallet->DelAddressBook(CBitcoinAddress(rec->address.toStdString()).Get());
+        wallet->DelAddressBook(DecodeDestination(rec->address.toStdString()));
     }
     return true;
 }
@@ -462,8 +462,8 @@ QString AddressTableModel::labelForAddress(const QString &address) const
 {
     {
         LOCK(wallet->cs_wallet);
-        CBitcoinAddress address_parsed(address.toStdString());
-        std::map<CTxDestination, CAddressBookData>::iterator mi = wallet->mapAddressBook.find(address_parsed.Get());
+        CTxDestination destination = DecodeDestination(address.toStdString());
+        std::map<CTxDestination, CAddressBookData>::iterator mi = wallet->mapAddressBook.find(destination);
         if (mi != wallet->mapAddressBook.end())
         {
             return QString::fromStdString(mi->second.name);

@@ -1,4 +1,5 @@
 // Copyright (c) 2016 The Zcash developers
+// Copyright (c) 2017-2018 The LitecoinZ developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,14 +18,11 @@
 #include <boost/thread.hpp>
 #include <boost/thread/synchronized_value.hpp>
 #include <string>
-
 #ifdef WIN32
 #include <io.h>
-#include <windows.h>
 #else
 #include <sys/ioctl.h>
 #endif
-
 #include <unistd.h>
 
 void AtomicTimer::start()
@@ -420,10 +418,6 @@ int printInitMessage()
         std::cout << ANSI_COLOR_LYELLOW << msg << ANSI_COLOR_RESET;
     }
     std::cout << std::endl;
-    std::cout << std::endl;
-
-    if (msg == _("Done loading")) {
-    }
 
     return 2;
 }
@@ -465,9 +459,10 @@ void ThreadShowMetricsScreen()
     if (isScreen) {
 #ifdef WIN32
         enableVTMode();
-#endif 
+#endif
+
         // Clear screen
-        std::cout << "\e[1;1H\e[2J";
+        std::cout << "\e[2J";
 
         // Thank you text
         std::cout << ANSI_COLOR_LGREEN << _("Thank you for running a LitecoinZ node!") << ANSI_COLOR_RESET << std::endl;
@@ -483,8 +478,9 @@ void ThreadShowMetricsScreen()
         if (isTTY) {
 #ifdef WIN32
             CONSOLE_SCREEN_BUFFER_INFO csbi;
-            GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-            cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+            if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) != 0) {
+                cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+            }
 #else
             struct winsize w;
             w.ws_col = 0;

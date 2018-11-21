@@ -116,8 +116,7 @@ QT_FORMS_UI = \
   qt/forms/sendzcoinsentry.ui \
   qt/forms/signverifymessagedialog.ui \
   qt/forms/shieldcoinsdialog.ui \
-  qt/forms/transactiondescdialog.ui \
-  qt/forms/unspentpage.ui
+  qt/forms/transactiondescdialog.ui
 
 QT_MOC_CPP = \
   qt/moc_addressbookpage.cpp \
@@ -169,8 +168,6 @@ QT_MOC_CPP = \
   qt/moc_transactiontablemodel.cpp \
   qt/moc_transactionview.cpp \
   qt/moc_utilitydialog.cpp \
-  qt/moc_unspentpage.cpp \
-  qt/moc_unspenttablemodel.cpp \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
   qt/moc_walletview.cpp
@@ -250,8 +247,6 @@ BITCOIN_QT_H = \
   qt/transactiontablemodel.h \
   qt/transactionview.h \
   qt/utilitydialog.h \
-  qt/unspentpage.h \
-  qt/unspenttablemodel.h \
   qt/walletframe.h \
   qt/walletmodel.h \
   qt/walletmodeltransaction.h \
@@ -369,7 +364,6 @@ RES_ICONS = \
   qt/res/images/tx_in.png \
   qt/res/images/tx_mined.png \
   qt/res/images/tx_out.png \
-  qt/res/images/unspent.png \
   qt/res/images/verify.png \
   qt/res/images/warning.png
 
@@ -429,8 +423,6 @@ BITCOIN_QT_WALLET_CPP = \
   qt/transactionrecord.cpp \
   qt/transactiontablemodel.cpp \
   qt/transactionview.cpp \
-  qt/unspentpage.cpp \
-  qt/unspenttablemodel.cpp \
   qt/walletframe.cpp \
   qt/walletmodel.cpp \
   qt/walletmodeltransaction.cpp \
@@ -494,9 +486,6 @@ qt_litecoinz_qt_LDADD += $(LIBBITCOIN_WALLET)
 endif
 if ENABLE_ZMQ
 qt_litecoinz_qt_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
-endif
-if ENABLE_PROTON
-qt_litecoinz_qt_LDADD += $(LIBBITCOIN_PROTON) $(PROTON_LIBS)
 endif
 qt_litecoinz_qt_LDADD += $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBZCASH_CONSENSUS) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
   $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(LIBZCASH) $(LIBSNARK) $(LIBZCASH_LIBS) $(LIBSECP256K1) \

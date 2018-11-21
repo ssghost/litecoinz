@@ -195,7 +195,7 @@ case "$1" in
                 litecoinz_rpc zcbenchmark verifyequihash 1000
                 ;;
             validatelargetx)
-                litecoinz_rpc zcbenchmark validatelargetx 5
+                litecoinz_rpc zcbenchmark validatelargetx 10 "${@:3}"
                 ;;
             trydecryptnotes)
                 litecoinz_rpc zcbenchmark trydecryptnotes 1000 "${@:3}"

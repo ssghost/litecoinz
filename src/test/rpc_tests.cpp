@@ -6,8 +6,9 @@
 #include "rpc/server.h"
 #include "rpc/client.h"
 
-#include "base58.h"
+#include "key_io.h"
 #include "netbase.h"
+#include "utilstrencodings.h"
 
 #include "test/test_bitcoin.h"
 
@@ -43,7 +44,7 @@ UniValue CallRPC(string args)
         }
     }
     UniValue params = RPCConvertValues(strMethod, vArgs);
-
+    BOOST_CHECK(tableRPC[strMethod]);
     rpcfn_type method = tableRPC[strMethod]->actor;
     try {
         UniValue result = (*method)(params, false);
@@ -73,6 +74,8 @@ BOOST_AUTO_TEST_CASE(rpc_rawparams)
     BOOST_CHECK_THROW(CallRPC("createrawtransaction {} {}"), runtime_error);
     BOOST_CHECK_NO_THROW(CallRPC("createrawtransaction [] {}"));
     BOOST_CHECK_THROW(CallRPC("createrawtransaction [] {} extra"), runtime_error);
+    BOOST_CHECK_NO_THROW(CallRPC("createrawtransaction [] {} 0"));
+    BOOST_CHECK_THROW(CallRPC("createrawtransaction [] {} 0 0"), runtime_error); // Overwinter is not active
 
     BOOST_CHECK_THROW(CallRPC("decoderawtransaction"), runtime_error);
     BOOST_CHECK_THROW(CallRPC("decoderawtransaction null"), runtime_error);
@@ -90,6 +93,8 @@ BOOST_AUTO_TEST_CASE(rpc_rawparams)
     BOOST_CHECK_NO_THROW(CallRPC(string("signrawtransaction ")+rawtx+" null null NONE|ANYONECANPAY"));
     BOOST_CHECK_NO_THROW(CallRPC(string("signrawtransaction ")+rawtx+" [] [] NONE|ANYONECANPAY"));
     BOOST_CHECK_THROW(CallRPC(string("signrawtransaction ")+rawtx+" null null badenum"), runtime_error);
+    BOOST_CHECK_NO_THROW(CallRPC(string("signrawtransaction ")+rawtx+" [] [] NONE|ANYONECANPAY 5ba81b19"));
+    BOOST_CHECK_THROW(CallRPC(string("signrawtransaction ")+rawtx+" [] [] ALL NONE|ANYONECANPAY 123abc"), runtime_error);
 
     // Only check failure cases for sendrawtransaction, there's no network to send to...
     BOOST_CHECK_THROW(CallRPC("sendrawtransaction"), runtime_error);
@@ -107,7 +112,7 @@ BOOST_AUTO_TEST_CASE(rpc_rawsign)
       "\"vout\":1,\"scriptPubKey\":\"a914b10c9df5f7edf436c697f02f1efdba4cf399615187\","
       "\"redeemScript\":\"512103debedc17b3df2badbcdd86d5feb4562b86fe182e5998abd8bcd4f122c6155b1b21027e940bb73ab8732bfdf7f9216ecefca5b94d6df834e77e108f68e66f126044c052ae\"}]";
     r = CallRPC(string("createrawtransaction ")+prevout+" "+
-      "{\"L3RAyuhHMxEVs5zEwKx83R93m2UXBsybiBM\":11}");
+      "{\"t3ahmeUm2LWXPUJPx9QMheGtqTEfdDdgr7p\":11}");
     string notsigned = r.get_str();
     string privkey1 = "\"KzsXybp9jX64P5ekX1KUxRQ79Jht9uzW7LorgwE65i5rWACL6LQe\"";
     string privkey2 = "\"Kyhdf5LuKTRx4ge69ybABsiUAWjVRK4XGxAKk2FQLp2HjGMy87Z4\"";
@@ -248,7 +253,7 @@ BOOST_AUTO_TEST_CASE(rpc_ban)
     adr = find_value(o1, "address");
     banned_until = find_value(o1, "banned_until");
     BOOST_CHECK_EQUAL(adr.get_str(), "127.0.0.0/24");
-    int64_t now = GetTime();    
+    int64_t now = GetTime();
     BOOST_CHECK(banned_until.get_int64() > now);
     BOOST_CHECK(banned_until.get_int64()-now <= 200);
 
@@ -260,7 +265,7 @@ BOOST_AUTO_TEST_CASE(rpc_ban)
     ar = r.get_array();
     BOOST_CHECK_EQUAL(ar.size(), 0);
 
-    BOOST_CHECK_NO_THROW(r = CallRPC(string("setban 127.0.0.0/255.255.0.0 add")));
+    BOOST_CHECK_NO_THROW(r = CallRPC(string("setban 127.0.0.0/16 add")));
     BOOST_CHECK_THROW(r = CallRPC(string("setban 127.0.1.1 add")), runtime_error);
 
     BOOST_CHECK_NO_THROW(CallRPC(string("clearbanned")));
@@ -280,7 +285,7 @@ BOOST_AUTO_TEST_CASE(rpc_ban)
     BOOST_CHECK_EQUAL(adr.get_str(), "fe80::202:b3ff:fe1e:8329/128");
 
     BOOST_CHECK_NO_THROW(CallRPC(string("clearbanned")));
-    BOOST_CHECK_NO_THROW(r = CallRPC(string("setban 2001:db8::/ffff:fffc:0:0:0:0:0:0 add")));
+    BOOST_CHECK_NO_THROW(r = CallRPC(string("setban 2001:db8::/30 add")));
     BOOST_CHECK_NO_THROW(r = CallRPC(string("listbanned")));
     ar = r.get_array();
     o1 = ar[0].get_obj();
@@ -294,6 +299,45 @@ BOOST_AUTO_TEST_CASE(rpc_ban)
     o1 = ar[0].get_obj();
     adr = find_value(o1, "address");
     BOOST_CHECK_EQUAL(adr.get_str(), "2001:4d48:ac57:400:cacf:e9ff:fe1d:9c63/128");
+}
+
+
+BOOST_AUTO_TEST_CASE(rpc_raw_create_overwinter_v3)
+{
+    SelectParams(CBaseChainParams::REGTEST);
+    UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
+
+    // Sample regtest address:
+    // public: tmHU5HLMu3yS8eoNvbrU1NWeJaGf6jxehru
+    // private: cW1G4SxEm5rui2RQtBcSUZrERTVYPtyZXKbSi5MCwBqzbn5kqwbN
+
+    UniValue r;
+    std::string prevout =
+      "[{\"txid\":\"b4cc287e58f87cdae59417329f710f3ecd75a4ee1d2872b7248f50977c8493f3\","
+      "\"vout\":1}]";
+    r = CallRPC(string("createrawtransaction ") + prevout + " " +
+      "{\"tmHU5HLMu3yS8eoNvbrU1NWeJaGf6jxehru\":11}");
+    std::string rawhex = r.get_str();
+    BOOST_CHECK_NO_THROW(r = CallRPC(string("decoderawtransaction ") + rawhex));
+    BOOST_CHECK_EQUAL(find_value(r.get_obj(), "overwintered").get_bool(), true);
+    BOOST_CHECK_EQUAL(find_value(r.get_obj(), "version").get_int(), 3);
+    BOOST_CHECK_EQUAL(find_value(r.get_obj(), "expiryheight").get_int(), 21);
+    BOOST_CHECK_EQUAL(
+        ParseHexToUInt32(find_value(r.get_obj(), "versiongroupid").get_str()),
+        OVERWINTER_VERSION_GROUP_ID);
+
+    // Sanity check we can deserialize the raw hex
+    // 030000807082c40301f393847c97508f24b772281deea475cd3e0f719f321794e5da7cf8587e28ccb40100000000ffffffff0100ab9041000000001976a914550dc92d3ff8d1f0cb6499fddf2fe43b745330cd88ac000000000000000000
+    CDataStream ss(ParseHex(rawhex), SER_DISK, PROTOCOL_VERSION);
+    CTransaction tx;
+    ss >> tx;
+    CDataStream ss2(ParseHex(rawhex), SER_DISK, PROTOCOL_VERSION);
+    CMutableTransaction mtx;
+    ss2 >> mtx;
+    BOOST_CHECK_EQUAL(tx.GetHash().GetHex(), CTransaction(mtx).GetHash().GetHex());
+
+    // Revert to default
+    UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT);
 }
 
 BOOST_AUTO_TEST_CASE(rpc_getnetworksolps)

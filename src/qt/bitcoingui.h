@@ -107,8 +107,6 @@ private:
     QAction *optionsAction;
     QAction *toggleHideAction;
     QAction *encryptWalletAction;
-    QAction *UnspentAction;
-    QAction *UnspentMenuAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
     QAction *aboutQtAction;
@@ -185,8 +183,6 @@ private Q_SLOTS:
     void gotoOverviewPage();
     /** Switch to address book page */
     void gotoAddressBookPage();
-    /** Switch to unspent page */
-    void gotoUnspentPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
     /** Switch to receive coins page */

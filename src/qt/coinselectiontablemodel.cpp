@@ -5,11 +5,11 @@
 #include "coinselectiontablemodel.h"
 
 #include "bitcoinunits.h"
+#include "key_io.h"
 #include "guiutil.h"
 #include "walletmodel.h"
 #include "optionsmodel.h"
 
-#include "base58.h"
 #include "wallet/wallet.h"
 
 #include <boost/foreach.hpp>
@@ -102,7 +102,7 @@ public:
 
                 CTxDestination address;
                 if (ExtractDestination(out.tx->vout[out.i].scriptPubKey, address)) {
-                    mapCoins[QString::fromStdString(CBitcoinAddress(address).ToString())].push_back(out);
+                    mapCoins[QString::fromStdString(EncodeDestination(address))].push_back(out);
                 }
             }
             BOOST_FOREACH(const PAIRTYPE(QString, std::vector<COutput>)& coins, mapCoins) {
@@ -119,33 +119,39 @@ public:
 
             // Z-CoinSelection
             std::set<libzcash::PaymentAddress> zaddrs = {};
-            std::map<QString, std::vector<CUnspentNotePlaintextEntry> > mapZCoins;
             int nMinDepth = 1;
             int nMaxDepth = 9999999;
+            CAmount nSum = 0;
 
-            std::set<libzcash::PaymentAddress> addresses;
-            wallet->GetPaymentAddresses(addresses);
-            for (auto addr : addresses ) {
-                if (wallet->HaveSpendingKey(addr)) {
-                    zaddrs.insert(addr);
-                }
-            }
+            std::set<libzcash::SproutPaymentAddress> sproutzaddrs = {};
+            wallet->GetSproutPaymentAddresses(sproutzaddrs);
+
+            // Sapling support
+            std::set<libzcash::SaplingPaymentAddress> saplingzaddrs = {};
+            wallet->GetSaplingPaymentAddresses(saplingzaddrs);
+
+            zaddrs.insert(sproutzaddrs.begin(), sproutzaddrs.end());
+            zaddrs.insert(saplingzaddrs.begin(), saplingzaddrs.end());
 
             if (zaddrs.size() > 0) {
-                std::vector<CUnspentNotePlaintextEntry> entries;
-                wallet->GetUnspentFilteredNotes(entries, zaddrs, nMinDepth, nMaxDepth);
-                for (CUnspentNotePlaintextEntry & entry : entries) {
-                    mapZCoins[QString::fromStdString(CZCPaymentAddress(entry.address).ToString())].push_back(entry);
-                }
-                BOOST_FOREACH(const PAIRTYPE(QString, std::vector<CUnspentNotePlaintextEntry>)& coins, mapZCoins) {
-                    QString sWalletAddress = coins.first;
-                    CAmount nSum = 0;
-                    for (const CUnspentNotePlaintextEntry& entry : coins.second)
-                        nSum += CAmount(entry.plaintext.value);
+                std::vector<CSproutNotePlaintextEntry> sproutEntries;
+                std::vector<SaplingNoteEntry> saplingEntries;
+                wallet->GetFilteredNotes(sproutEntries, saplingEntries, zaddrs, nMinDepth, nMaxDepth, true, false, false);
+                std::set<std::pair<libzcash::PaymentAddress, uint256>> nullifierSet = wallet->GetNullifiersForAddresses(zaddrs);
+                for (auto & entry : sproutEntries) {
+                    nSum = CAmount(entry.plaintext.value());
                     if (nSum > 0)
                     {
                         CoinSelectionTableEntry::Type unspentType = translateCoinSelectionType(QString::fromStdString("zcoinselection"));
-                        cachedCoinSelectionTable.append(CoinSelectionTableEntry(unspentType, sWalletAddress, nSum));
+                        cachedCoinSelectionTable.append(CoinSelectionTableEntry(unspentType, QString::fromStdString(EncodePaymentAddress(entry.address)), nSum));
+                    }
+                }
+                for (auto & entry : saplingEntries) {
+                    nSum = CAmount(entry.note.value());
+                    if (nSum > 0)
+                    {
+                        CoinSelectionTableEntry::Type unspentType = translateCoinSelectionType(QString::fromStdString("zcoinselection"));
+                        cachedCoinSelectionTable.append(CoinSelectionTableEntry(unspentType, QString::fromStdString(EncodePaymentAddress(entry.address)), nSum));
                     }
                 }
             }

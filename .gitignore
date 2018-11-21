@@ -11,10 +11,6 @@ src/test/test_bitcoin
 src/test/test_bitcoin_fuzzy
 src/qt/test/test_litecoinz-qt
 
-# Zcash utilities
-src/zcash/GenerateParams
-src/zcash/CreateJoinSplit
-
 *zcashTest.pk
 *zcashTest.vk
 

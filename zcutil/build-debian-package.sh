@@ -41,11 +41,10 @@ chmod 0755 -R $BUILD_DIR/*
 cp $SRC_PATH/src/litecoinzd $DEB_BIN
 cp $SRC_PATH/src/litecoinz-cli $DEB_BIN
 cp $SRC_PATH/src/litecoinz-tx $DEB_BIN
-cp $SRC_PATH/src/litecoinz-addrgen $DEB_BIN
 cp $SRC_PATH/src/qt/litecoinz-qt $DEB_BIN
 cp $SRC_PATH/zcutil/fetch-params.sh $DEB_BIN/litecoinz-fetch-params
 # Copy docs
-cp $SRC_PATH/doc/release-notes/release-notes-1.0.17.md $DEB_DOC/changelog
+cp $SRC_PATH/doc/release-notes/release-notes-2.0.0.md $DEB_DOC/changelog
 cp $SRC_DEB/changelog $DEB_DOC/changelog.Debian
 cp $SRC_DEB/copyright $DEB_DOC
 cp -r $SRC_DEB/examples $DEB_DOC
@@ -71,8 +70,8 @@ gzip --best -n $DEB_MAN/litecoinz-fetch-params.1
 cd $SRC_PATH/contrib
 
 # Create the control file
-strip $DEB_BIN/litecoinzd $DEB_BIN/litecoinz-cli $DEB_BIN/litecoinz-tx $DEB_BIN/litecoinz-addrgen $DEB_BIN/litecoinz-qt
-dpkg-shlibdeps $DEB_BIN/litecoinzd $DEB_BIN/litecoinz-cli $DEB_BIN/litecoinz-tx $DEB_BIN/litecoinz-addrgen $DEB_BIN/litecoinz-qt
+strip $DEB_BIN/litecoinzd $DEB_BIN/litecoinz-cli $DEB_BIN/litecoinz-tx $DEB_BIN/litecoinz-qt
+dpkg-shlibdeps $DEB_BIN/litecoinzd $DEB_BIN/litecoinz-cli $DEB_BIN/litecoinz-tx $DEB_BIN/litecoinz-qt
 dpkg-gencontrol -P$BUILD_DIR -v$DEBVERSION
 
 # Create the Debian package

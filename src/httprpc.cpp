@@ -1,8 +1,8 @@
 #include "httprpc.h"
 
-#include "base58.h"
 #include "chainparams.h"
 #include "httpserver.h"
+#include "key_io.h"
 #include "rpc/protocol.h"
 #include "rpc/server.h"
 #include "random.h"

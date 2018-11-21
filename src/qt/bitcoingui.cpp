@@ -104,8 +104,6 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     optionsAction(0),
     toggleHideAction(0),
     encryptWalletAction(0),
-    UnspentAction(0),
-    UnspentMenuAction(0),
     backupWalletAction(0),
     changePassphraseAction(0),
     aboutQtAction(0),
@@ -318,17 +316,6 @@ void BitcoinGUI::createActions()
     receiveCoinsMenuAction->setStatusTip(receiveCoinsAction->statusTip());
     receiveCoinsMenuAction->setToolTip(receiveCoinsMenuAction->statusTip());
 
-    UnspentAction = new QAction(platformStyle->MultiColorIcon(":/images/unspent"), tr("&Unspent"), this);
-    UnspentAction->setStatusTip(tr("List unspent from transactions"));
-    UnspentAction->setToolTip(UnspentAction->statusTip());
-    UnspentAction->setCheckable(true);
-    UnspentAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
-    tabGroup->addAction(UnspentAction);
-
-    UnspentMenuAction = new QAction(platformStyle->MultiColorIcon(":/images/unspent"), UnspentAction->text(), this);
-    UnspentMenuAction->setStatusTip(UnspentAction->statusTip());
-    UnspentMenuAction->setToolTip(UnspentMenuAction->statusTip());
-
     historyAction = new QAction(platformStyle->MultiColorIcon(":/images/transactions"), tr("&Transactions"), this);
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
@@ -357,10 +344,6 @@ void BitcoinGUI::createActions()
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
     connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
-    connect(UnspentAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(UnspentAction, SIGNAL(triggered()), this, SLOT(gotoUnspentPage()));
-    connect(UnspentMenuAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(UnspentMenuAction, SIGNAL(triggered()), this, SLOT(gotoUnspentPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
 #endif // ENABLE_WALLET
@@ -495,7 +478,6 @@ void BitcoinGUI::createToolBars()
         toolbar->addAction(sendCoinsAction);
         toolbar->addAction(sendZCoinsAction);
         toolbar->addAction(receiveCoinsAction);
-        toolbar->addAction(UnspentAction);
         toolbar->addAction(historyAction);
         toolbar->addSeparator();
         toolbar->addAction(backupWalletAction);
@@ -607,8 +589,6 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     receiveCoinsMenuAction->setEnabled(enabled);
     historyAction->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
-    UnspentAction->setEnabled(enabled);
-    UnspentMenuAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
     changePassphraseAction->setEnabled(enabled);
     signMessageAction->setEnabled(enabled);
@@ -749,12 +729,6 @@ void BitcoinGUI::gotoAddressBookPage()
 {
     addressBookAction->setChecked(true);
     if (walletFrame) walletFrame->gotoAddressBookPage();
-}
-
-void BitcoinGUI::gotoUnspentPage()
-{
-    UnspentAction->setChecked(true);
-    if (walletFrame) walletFrame->gotoUnspentPage();
 }
 
 void BitcoinGUI::gotoSendCoinsDialog(QString addr)

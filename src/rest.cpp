@@ -1,6 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin Core developers
-// Copyright (c) 2017-2018 The LitecoinZ developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -49,7 +48,7 @@ struct CCoin {
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(nTxVer);
         READWRITE(nHeight);
@@ -263,6 +262,9 @@ static bool rest_block_notxdetails(HTTPRequest* req, const std::string& strURIPa
 {
     return rest_block(req, strURIPart, false);
 }
+
+// A bit of a hack - dependency on a function defined in rpc/blockchain.cpp
+UniValue getblockchaininfo(const UniValue& params, bool fHelp);
 
 static bool rest_chaininfo(HTTPRequest* req, const std::string& strURIPart)
 {
