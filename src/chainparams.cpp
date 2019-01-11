@@ -147,7 +147,7 @@ public:
         base58Prefixes[SECRET_KEY]         = {0x80};
         // do not rely on these BIP32 prefixes; they are not specified and may change
         base58Prefixes[EXT_PUBLIC_KEY]     = {0x04,0x88,0xB2,0x1E};	// xpub
-        base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x88,0xAD,0xE3};	// xprv
+        base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x88,0xAD,0xE4};	// xprv
         // guarantees the first 2 characters, when base58 encoded, are "zm"
         base58Prefixes[ZCPAYMENT_ADDRESS]  = {0x16,0xAA};
         // guarantees the first 4 characters, when base58 encoded, are "ZiVK"
