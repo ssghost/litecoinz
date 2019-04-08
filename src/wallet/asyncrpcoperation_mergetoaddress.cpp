@@ -23,14 +23,13 @@
 #include "utiltime.h"
 #include "wallet.h"
 #include "walletdb.h"
+#include "wallet/paymentdisclosuredb.h"
 #include "zcash/IncrementalMerkleTree.hpp"
 
 #include <chrono>
 #include <iostream>
 #include <string>
 #include <thread>
-
-#include "paymentdisclosuredb.h"
 
 using namespace libzcash;
 
@@ -139,11 +138,7 @@ void AsyncRPCOperation_mergetoaddress::main()
     bool success = false;
 
 #ifdef ENABLE_MINING
-#ifdef ENABLE_WALLET
-    GenerateBitcoins(false, NULL, 0);
-#else
-    GenerateBitcoins(false, 0);
-#endif
+    GenerateBitcoins(false, 0, Params());
 #endif
 
     try {
@@ -168,11 +163,7 @@ void AsyncRPCOperation_mergetoaddress::main()
     }
 
 #ifdef ENABLE_MINING
-#ifdef ENABLE_WALLET
-    GenerateBitcoins(GetBoolArg("-gen", false), pwalletMain, GetArg("-genproclimit", 1));
-#else
-    GenerateBitcoins(GetBoolArg("-gen", false), GetArg("-genproclimit", 1));
-#endif
+    GenerateBitcoins(GetBoolArg("-gen", false), GetArg("-genproclimit", 1), Params());
 #endif
 
     stop_execution_clock();
@@ -338,13 +329,11 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
             if (!witnesses[i]) {
                 throw JSONRPCError(RPC_WALLET_ERROR, "Missing witness for Sapling note");
             }
-            assert(builder_.AddSaplingSpend(expsks[i], saplingNotes[i], anchor, witnesses[i].get()));
+            builder_.AddSaplingSpend(expsks[i], saplingNotes[i], anchor, witnesses[i].get());
         }
 
         if (isToTaddr_) {
-            if (!builder_.AddTransparentOutput(toTaddr_, sendAmount)) {
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid output address, not a valid taddr.");
-            }
+            builder_.AddTransparentOutput(toTaddr_, sendAmount);
         } else {
             std::string zaddr = std::get<0>(recipient_);
             std::string memo = std::get<1>(recipient_);
@@ -355,7 +344,7 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Could not get Sapling payment address.");
             }
             if (saplingNoteInputs_.size() == 0 && utxoInputs_.size() > 0) {
-                // Sending from t-addresses, which we don't have ovks for. Instead,
+                // Sending from taddresses, which we don't have ovks for. Instead,
                 // generate a common one from the HD seed. This ensures the data is
                 // recoverable, while keeping it logically separate from the ZIP 32
                 // Sapling key hierarchy, which the user might not be using.
@@ -375,11 +364,7 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
 
 
         // Build the transaction
-        auto maybe_tx = builder_.Build();
-        if (!maybe_tx) {
-            throw JSONRPCError(RPC_WALLET_ERROR, "Failed to build transaction.");
-        }
-        tx_ = maybe_tx.get();
+        tx_ = builder_.Build().GetTxOrThrow();
 
         // Send the transaction
         // TODO: Use CWallet::CommitTransaction instead of sendrawtransaction
@@ -447,7 +432,7 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
      * We only need a single JoinSplit.
      */
     if (sproutNoteInputs_.empty() && isToZaddr_) {
-        // Create JoinSplit to target z-addr.
+        // Create JoinSplit to target zaddr.
         MergeToAddressJSInfo info;
         info.vpub_old = sendAmount;
         info.vpub_new = 0;
@@ -721,7 +706,7 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
             info.vpub_new += vpubNewTarget; // funds flowing back to public pool
             vpubNewProcessed = true;
             jsChange -= vpubNewTarget;
-            // If we are merging to a t-addr, there should be no change
+            // If we are merging to a taddr, there should be no change
             if (isToTaddr_) assert(jsChange == 0);
         }
 

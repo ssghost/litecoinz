@@ -91,7 +91,7 @@ QList<TransactionRecord> TransactionRecord::decomposeZTransaction(const CWallet 
 
     if(found)
     {
-        // Received on Z-Addeess or Sent to T-Address or ?Sent to T-Address?
+        // Received on Z-Addeess or Sent to Taddress or ?Sent to Taddress?
         if((wtx.vin.size() > 0) && (wtx.vout.size() > 0) && ((wtx.mapSproutNoteData.size() > 0) || (wtx.mapSaplingNoteData.size() > 0)))
         {
             // Received Z<-T
@@ -151,7 +151,7 @@ QList<TransactionRecord> TransactionRecord::decomposeZTransaction(const CWallet 
     }
     else
     {
-        // Sent or Received on T-Address
+        // Sent or Received on Taddress
         if((wtx.vin.size() > 0) && (wtx.vout.size() > 0) && ((wtx.mapSproutNoteData.size() == 0) && (wtx.mapSaplingNoteData.size() == 0)))
         {
             // Sent T->Z

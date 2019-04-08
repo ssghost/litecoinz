@@ -412,7 +412,7 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
     }
     else if(type == ZReceive)
     {
-        // Generate a new z-address
+        // Generate a new zaddress
         LOCK(wallet->cs_wallet);
 
         libzcash::SproutPaymentAddress pubaddr = wallet->GenerateNewSproutZKey();

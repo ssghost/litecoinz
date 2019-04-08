@@ -22,6 +22,9 @@ static const int MIN_PEER_PROTO_VERSION = 170004;
 //! the older encoding that omits nTime is only used in "version" messages.
 static const int CADDR_TIME_VERSION = 31402;
 
+//! BIP 0031, pong message, is enabled for all versions AFTER this one
+static const int BIP0031_VERSION = 60000;
+
 //! "filter*" commands are disabled without NODE_BLOOM after and including this version
 static const int NO_BLOOM_VERSION = 170004;
 

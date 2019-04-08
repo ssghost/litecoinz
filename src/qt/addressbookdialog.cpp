@@ -53,8 +53,8 @@ AddressBookDialog::AddressBookDialog(const PlatformStyle *platformStyle, Mode mo
     case ForZSelection:
         switch(tab)
         {
-        case SendingTab: setWindowTitle(tr("Sending z-addresses")); break;
-        case ReceivingTab: setWindowTitle(tr("Receiving z-addresses")); break;
+        case SendingTab: setWindowTitle(tr("Sending zaddresses")); break;
+        case ReceivingTab: setWindowTitle(tr("Receiving zaddresses")); break;
         }
         break;
     }
@@ -183,7 +183,7 @@ void AddressBookDialog::setModel(AddressTableModel *model)
             ui->newSendingTAddress->setVisible(false);
             break;
         case ReceivingTab:
-            // Receive filter (z-addresses)
+            // Receive filter (zaddresses)
             proxyModel->setFilterRole(AddressTableModel::TypeRole);
             proxyModel->setFilterFixedString(AddressTableModel::ZReceive);
             ui->newReceivingZAddress->setVisible(true);
