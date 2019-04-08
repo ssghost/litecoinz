@@ -6,7 +6,7 @@ src/litecoinzd
 src/litecoinz-cli
 src/litecoinz-gtest
 src/litecoinz-tx
-src/test/test_bitcoin
+src/test/test_litecoinz
 src/qt/test/test_litecoinz-qt
 
 # autoreconf
@@ -104,7 +104,7 @@ build
 *.gcno
 *.gcda
 /*.info
-test_bitcoin.coverage/
+test_litecoinz.coverage/
 litecoinz-gtest.coverage/
 total.coverage/
 coverage_percent.txt

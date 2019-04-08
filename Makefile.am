@@ -1,3 +1,7 @@
+# Copyright (c) 2013-2016 The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 ACLOCAL_AMFLAGS = -I build-aux/m4
 SUBDIRS = src
 if ENABLE_MAN
@@ -5,29 +9,43 @@ SUBDIRS += doc/man
 endif
 .PHONY: deploy FORCE
 
-override GZIP_ENV="-9n"
+export PYTHONPATH
 
 if BUILD_BITCOIN_LIBS
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libzcashconsensus.pc
+pkgconfig_DATA = libbitcoinconsensus.pc
 endif
 
 BITCOIND_BIN=$(top_builddir)/src/$(BITCOIN_DAEMON_NAME)$(EXEEXT)
 BITCOIN_QT_BIN=$(top_builddir)/src/qt/$(BITCOIN_GUI_NAME)$(EXEEXT)
 BITCOIN_CLI_BIN=$(top_builddir)/src/$(BITCOIN_CLI_NAME)$(EXEEXT)
-BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win64-setup$(EXEEXT)
+BITCOIN_TX_BIN=$(top_builddir)/src/$(BITCOIN_TX_NAME)$(EXEEXT)
+BITCOIN_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win$(WINDOWS_BITS)-setup$(EXEEXT)
+
+empty :=
+space := $(empty) $(empty)
 
 OSX_APP=LitecoinZ-Qt.app
-OSX_DMG=LitecoinZ.dmg
+OSX_VOLNAME = $(subst $(space),-,$(PACKAGE_NAME))
+OSX_DMG = $(OSX_VOLNAME).dmg
+OSX_BACKGROUND_SVG=background.svg
 OSX_BACKGROUND_IMAGE=background.tiff
+OSX_BACKGROUND_IMAGE_DPIS=36 72
+OSX_DSSTORE_GEN=$(top_srcdir)/contrib/macdeploy/custom_dsstore.py
 OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
 OSX_FANCY_PLIST=$(top_srcdir)/contrib/macdeploy/fancy.plist
-OSX_BASE_LPROJ_DIR=$(top_srcdir)/contrib/macdeploy/Base.lproj/InfoPlist.strings
 OSX_INSTALLER_ICONS=$(top_srcdir)/src/qt/res/icons/litecoinz.icns
-OSX_PLIST=$(top_srcdir)/share/qt/Info.plist #not installed
+OSX_PLIST=$(top_builddir)/share/qt/Info.plist #not installed
 OSX_QT_TRANSLATIONS = da,de,es,hu,ru,uk,zh_CN,zh_TW
 
 DIST_DOCS = $(wildcard doc/*.md) $(wildcard doc/release-notes/*.md)
+DIST_CONTRIB = $(top_srcdir)/contrib/litecoinz-cli.bash-completion \
+	       $(top_srcdir)/contrib/litecoinz-tx.bash-completion \
+	       $(top_srcdir)/contrib/litecoinzd.bash-completion \
+	       $(top_srcdir)/contrib/debian \
+	       $(top_srcdir)/contrib/init
+DIST_SHARE = \
+  $(top_srcdir)/share/genbuild.sh
 
 BIN_CHECKS=$(top_srcdir)/contrib/devtools/symbol-check.py \
            $(top_srcdir)/contrib/devtools/security-check.py
@@ -37,17 +55,15 @@ WINDOWS_PACKAGING = $(top_srcdir)/share/pixmaps/litecoinz.ico \
   $(top_srcdir)/share/pixmaps/nsis-wizard.bmp \
   $(top_srcdir)/doc/README_windows.txt
 
-OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_FANCY_PLIST) $(OSX_INSTALLER_ICONS) $(OSX_BASE_LPROJ_DIR) \
-  $(top_srcdir)/contrib/macdeploy/$(OSX_BACKGROUND_IMAGE) \
-  $(top_srcdir)/contrib/macdeploy/DS_Store \
+OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_FANCY_PLIST) $(OSX_INSTALLER_ICONS) \
+  $(top_srcdir)/contrib/macdeploy/$(OSX_BACKGROUND_SVG) \
+  $(OSX_DSSTORE_GEN) \
   $(top_srcdir)/contrib/macdeploy/detached-sig-apply.sh \
   $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
 
-COVERAGE_INFO = baseline_filtered_combined.info baseline.info block_test.info \
-  test_bitcoin_filtered.info total_coverage.info \
-  baseline_filtered.info block_test_filtered.info \
-  test_bitcoin_coverage.info test_bitcoin.info \
-  litecoinz-gtest.info litecoinz-gtest_filtered.info litecoinz-gtest_coverage.info
+COVERAGE_INFO = baseline.info \
+  test_litecoinz_filtered.info total_coverage.info \
+  baseline_filtered.info test_litecoinz_coverage.info test_litecoinz.info
 
 dist-hook:
 	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
@@ -57,12 +73,10 @@ $(BITCOIN_WIN_INSTALLER): all-recursive
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIND_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_QT_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_CLI_BIN) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BITCOIN_TX_BIN) $(top_builddir)/release
 	@test -f $(MAKENSIS) && $(MAKENSIS) -V2 $(top_builddir)/share/setup.nsi || \
 	  echo error: could not build $@
 	@echo built $@
-
-$(if $(findstring src/,$(MAKECMDGOALS)),$(MAKECMDGOALS), none): FORCE
-	$(MAKE) -C src $(patsubst src/%,%,$@)
 
 $(OSX_APP)/Contents/PkgInfo:
 	$(MKDIR_P) $(@D)
@@ -80,21 +94,31 @@ $(OSX_APP)/Contents/Resources/litecoinz.icns: $(OSX_INSTALLER_ICONS)
 	$(MKDIR_P) $(@D)
 	$(INSTALL_DATA) $< $@
 
-$(OSX_APP)/Contents/MacOS/LitecoinZ-Qt: $(BITCOIN_QT_BIN)
+$(OSX_APP)/Contents/MacOS/LitecoinZ-Qt: all-recursive
 	$(MKDIR_P) $(@D)
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $< $@
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $(BITCOIN_QT_BIN) $@
 
-$(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings: $(OSX_BASE_LPROJ_DIR)
+$(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings:
 	$(MKDIR_P) $(@D)
-	$(INSTALL_DATA) $< $@
+	echo '{	CFBundleDisplayName = "$(PACKAGE_NAME)"; CFBundleName = "$(PACKAGE_NAME)"; }' > $@
 
 OSX_APP_BUILT=$(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lproj \
   $(OSX_APP)/Contents/Resources/litecoinz.icns $(OSX_APP)/Contents/Info.plist \
   $(OSX_APP)/Contents/MacOS/LitecoinZ-Qt $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings
 
+osx_volname:
+	echo $(OSX_VOLNAME) >$@
+
 if BUILD_DARWIN
-$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING)
-	$(OSX_DEPLOY_SCRIPT) $(OSX_APP) -add-qt-tr $(OSX_QT_TRANSLATIONS) -translations-dir=$(QT_TRANSLATION_DIR) -dmg -fancy $(OSX_FANCY_PLIST) -verbose 2
+$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING) $(OSX_BACKGROUND_IMAGE)
+	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) -add-qt-tr $(OSX_QT_TRANSLATIONS) -translations-dir=$(QT_TRANSLATION_DIR) -dmg -fancy $(OSX_FANCY_PLIST) -verbose 2 -volname $(OSX_VOLNAME)
+
+$(OSX_BACKGROUND_IMAGE).png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
+	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 36 -p 36 -o $@
+$(OSX_BACKGROUND_IMAGE)@2x.png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
+	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 72 -p 72 -o $@
+$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE).png $(OSX_BACKGROUND_IMAGE)@2x.png
+	tiffutil -cathidpicheck $^ -out $@
 
 deploydir: $(OSX_DMG)
 else
@@ -108,16 +132,20 @@ $(APP_DIST_DIR)/Applications:
 $(APP_DIST_EXTRAS): $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/LitecoinZ-Qt
 
 $(OSX_DMG): $(APP_DIST_EXTRAS)
-	$(GENISOIMAGE) -no-cache-inodes -D -l -probe -V "LitecoinZ" -no-pad -r -dir-mode 0755 -apple -o $@ dist
+	$(GENISOIMAGE) -no-cache-inodes -D -l -probe -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -apple -o $@ dist
 
-$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE): contrib/macdeploy/$(OSX_BACKGROUND_IMAGE)
+dpi%.$(OSX_BACKGROUND_IMAGE): contrib/macdeploy/$(OSX_BACKGROUND_SVG)
+	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d $* -p $* | $(IMAGEMAGICK_CONVERT) - $@
+OSX_BACKGROUND_IMAGE_DPIFILES := $(foreach dpi,$(OSX_BACKGROUND_IMAGE_DPIS),dpi$(dpi).$(OSX_BACKGROUND_IMAGE))
+$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE_DPIFILES)
 	$(MKDIR_P) $(@D)
-	$(INSTALL) $< $@
-$(APP_DIST_DIR)/.DS_Store: contrib/macdeploy/DS_Store
-	$(INSTALL) $< $@
+	$(TIFFCP) -c none $(OSX_BACKGROUND_IMAGE_DPIFILES) $@
+
+$(APP_DIST_DIR)/.DS_Store: $(OSX_DSSTORE_GEN)
+	$(PYTHON) $< "$@" "$(OSX_VOLNAME)"
 
 $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/LitecoinZ-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGING)
-	INSTALLNAMETOOL=$(INSTALLNAMETOOL)  OTOOL=$(OTOOL) STRIP=$(STRIP) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) -translations-dir=$(QT_TRANSLATION_DIR) -add-qt-tr $(OSX_QT_TRANSLATIONS) -verbose 2
+	INSTALLNAMETOOL=$(INSTALLNAMETOOL)  OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) -translations-dir=$(QT_TRANSLATION_DIR) -add-qt-tr $(OSX_QT_TRANSLATIONS) -verbose 2
 
 deploydir: $(APP_DIST_EXTRAS)
 endif
@@ -139,109 +167,56 @@ $(BITCOIND_BIN): FORCE
 $(BITCOIN_CLI_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
+$(BITCOIN_TX_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
 if USE_LCOV
+LCOV_FILTER_PATTERN=-p "/usr/include/" -p "src/leveldb/" -p "src/univalue" -p "src/secp256k1"
 
 baseline.info:
 	$(LCOV) -c -i -d $(abs_builddir)/src -o $@
 
 baseline_filtered.info: baseline.info
-	$(LCOV) -r $< "/usr/include/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/*.h" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/boost/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/gmock/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/gtest/*" \
-                      "$(abs_builddir)/src/gtest/*" \
-                      "$(abs_builddir)/src/test/*" \
-                      "$(abs_builddir)/src/wallet/gtest/*" \
-                      "$(abs_builddir)/src/wallet/test/*" \
-                      -o $@
+	$(abs_builddir)/contrib/filter-lcov.py $(LCOV_FILTER_PATTERN) $< $@
+	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
-test_bitcoin.info: baseline_filtered_combined.info
-	$(MAKE) -C src/ bitcoin_test_check
-	$(LCOV) -c -d $(abs_builddir)/src -t test_bitcoin -o $@
-	$(LCOV) -z -d $(abs_builddir)/src
+test_litecoinz.info: baseline_filtered.info
+	$(MAKE) -C src/ check
+	$(LCOV) -c $(LCOV_OPTS) -d $(abs_builddir)/src -t test_litecoinz -o $@
+	$(LCOV) -z $(LCOV_OPTS) -d $(abs_builddir)/src
 
-test_bitcoin_filtered.info: test_bitcoin.info
-	$(LCOV) -r $< "/usr/include/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/*.h" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/boost/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/gmock/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/gtest/*" \
-                      "$(abs_builddir)/src/gtest/*" \
-                      "$(abs_builddir)/src/test/*" \
-                      "$(abs_builddir)/src/wallet/gtest/*" \
-                      "$(abs_builddir)/src/wallet/test/*" \
-                      -o $@
+test_litecoinz_filtered.info: test_litecoinz.info
+	$(abs_builddir)/contrib/filter-lcov.py $(LCOV_FILTER_PATTERN) $< $@
+	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
-litecoinz-gtest.info: baseline_filtered_combined.info
-	$(MAKE) -C src/ litecoinz-gtest_check
-	$(LCOV) -c -d $(abs_builddir)/src -t litecoinz-gtest -o $@
-	$(LCOV) -z -d $(abs_builddir)/src
+test_litecoinz_coverage.info: baseline_filtered.info test_litecoinz_filtered.info
+	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a test_litecoinz_filtered.info -o $@
 
-litecoinz-gtest_filtered.info: litecoinz-gtest.info
-	$(LCOV) -r $< "/usr/include/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/*.h" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/boost/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/gmock/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/gtest/*" \
-                      "$(abs_builddir)/src/gtest/*" \
-                      "$(abs_builddir)/src/test/*" \
-                      "$(abs_builddir)/src/wallet/gtest/*" \
-                      "$(abs_builddir)/src/wallet/test/*" \
-                      -o $@
+total_coverage.info: test_litecoinz_filtered.info
+	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a test_litecoinz_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
 
-block_test.info: test_bitcoin_filtered.info
-	$(MKDIR_P) qa/tmp
-	-@TIMEOUT=15 qa/pull-tester/run-litecoinzd-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool 0
-	$(LCOV) -c -d $(abs_builddir)/src --t BitcoinJBlockTest -o $@
-	$(LCOV) -z -d $(abs_builddir)/src
-
-block_test_filtered.info: block_test.info
-	$(LCOV) -r $< "/usr/include/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/*.h" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/boost/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/gmock/*" \
-                      "$(abs_builddir)/depends/x86_64-unknown-linux-gnu/include/gtest/*" \
-                      "$(abs_builddir)/src/gtest/*" \
-                      "$(abs_builddir)/src/test/*" \
-                      "$(abs_builddir)/src/wallet/gtest/*" \
-                      "$(abs_builddir)/src/wallet/test/*" \
-                      -o $@
-
-test_bitcoin_coverage.info: baseline_filtered_combined.info test_bitcoin_filtered.info
-	$(LCOV) -a baseline_filtered.info -a test_bitcoin_filtered.info -o $@
-
-litecoinz-gtest_coverage.info: baseline_filtered_combined.info litecoinz-gtest_filtered.info
-	$(LCOV) -a baseline_filtered.info -a litecoinz-gtest_filtered.info -o $@
-
-total_coverage.info:  baseline_filtered_combined.info test_bitcoin_filtered.info litecoinz-gtest_filtered.info block_test_filtered.info
-	$(LCOV) -a baseline_filtered.info -a test_bitcoin_filtered.info -a litecoinz-gtest_filtered.info -a block_test_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
-
-test_bitcoin.coverage/.dirstamp:  test_bitcoin_coverage.info
-	$(GENHTML) -s $< -o $(@D)
+test_litecoinz.coverage/.dirstamp:  test_litecoinz_coverage.info
+	$(GENHTML) -s $(LCOV_OPTS) $< -o $(@D)
 	@touch $@
-
-litecoinz-gtest.coverage/.dirstamp:  litecoinz-gtest_coverage.info
-	$(GENHTML) -s $< -o $(@D)
-	@touch $@
-
-cov-litecoinz: litecoinz-gtest.coverage/.dirstamp
 
 total.coverage/.dirstamp: total_coverage.info
-	$(GENHTML) -s $< -o $(@D)
+	$(GENHTML) -s $(LCOV_OPTS) $< -o $(@D)
 	@touch $@
 
-cov: test_bitcoin.coverage/.dirstamp cov-litecoinz total.coverage/.dirstamp
+cov: test_litecoinz.coverage/.dirstamp total.coverage/.dirstamp
 
 endif
 
-dist_bin_SCRIPTS = zcutil/fetch-params.sh
-dist_noinst_SCRIPTS = autogen.sh zcutil/build-debian-package.sh zcutil/build.sh
+dist_noinst_SCRIPTS = autogen.sh
 
-EXTRA_DIST = $(top_srcdir)/share/genbuild.sh qa/pull-tester/rpc-tests.sh qa/pull-tester/run-litecoinz-cli qa/rpc-tests qa/litecoinz $(DIST_DOCS) $(BIN_CHECKS)
+EXTRA_DIST = $(DIST_SHARE) $(DIST_CONTRIB) $(DIST_DOCS) $(WINDOWS_PACKAGING) $(OSX_PACKAGING) $(BIN_CHECKS)
 
-install-exec-hook:
-	mv $(DESTDIR)$(bindir)/fetch-params.sh $(DESTDIR)$(bindir)/litecoinz-fetch-params
+EXTRA_DIST += \
+    share/genbuild.sh \
+    qa/pull-tester/rpc-tests.sh \
+    qa/pull-tester/run-litecoinz-cli \
+    qa/rpc-tests \
+    qa/litecoinz
 
 CLEANFILES = $(OSX_DMG) $(BITCOIN_WIN_INSTALLER)
 
@@ -249,5 +224,21 @@ CLEANFILES = $(OSX_DMG) $(BITCOIN_WIN_INSTALLER)
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-man
 
-clean-local:
-	rm -rf test_bitcoin.coverage/ litecoinz-gtest.coverage/ total.coverage/ qa/tmp/ cache/ $(OSX_APP)
+doc/doxygen/.stamp: doc/Doxyfile FORCE
+	$(MKDIR_P) $(@D)
+	$(DOXYGEN) $^
+	$(AM_V_at) touch $@
+
+if HAVE_DOXYGEN
+docs: doc/doxygen/.stamp
+else
+docs:
+	@echo "error: doxygen not found"
+endif
+
+clean-docs:
+	rm -rf doc/doxygen
+
+clean-local: clean-docs
+	rm -rf coverage_percent.txt test_litecoinz.coverage/ total.coverage/ test/tmp/ cache/ $(OSX_APP)
+
