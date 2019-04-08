@@ -10,13 +10,22 @@ AM_CXXFLAGS = $(SAN_CXXFLAGS) $(HARDENED_CXXFLAGS) $(ERROR_CXXFLAGS)
 AM_CPPFLAGS = $(HARDENED_CPPFLAGS)
 EXTRA_LIBRARIES =
 
+if EMBEDDED_UNIVALUE
+LIBUNIVALUE = univalue/libunivalue.la
+
+$(LIBUNIVALUE): $(wildcard univalue/lib/*) $(wildcard univalue/include/*)
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
+else
+LIBUNIVALUE = $(UNIVALUE_LIBS)
+endif
+
 BITCOIN_CONFIG_INCLUDES=-I$(builddir)/config
 BITCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS) $(CURL_CFLAGS)
 
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 BITCOIN_INCLUDES += -I$(srcdir)/snark
 BITCOIN_INCLUDES += -I$(srcdir)/snark/libsnark
-BITCOIN_INCLUDES += -I$(srcdir)/univalue/include
+BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
 LIBBITCOIN_COMMON=libbitcoin_common.a
@@ -25,7 +34,6 @@ LIBBITCOIN_UTIL=libbitcoin_util.a
 LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBSNARK=snark/libsnark.a
-LIBUNIVALUE=univalue/libunivalue.la
 LIBZCASH=libzcash.a
 LIBBITCOINQT=qt/libbitcoinqt.a
 
@@ -62,9 +70,6 @@ $(LIBSNARK): $(wildcard snark/src/*)
 
 libsnark-tests: $(wildcard snark/src/*)
 	$(AM_V_at) CC="$(CC)" CXX="$(CXX)" AR="$(AR)" CXXFLAGS="$(LIBSNARK_CXXFLAGS)" $(MAKE) $(AM_MAKEFLAGS) -C snark/ check DEPINST="$(LIBSNARK_DEPINST)" $(LIBSNARK_CONFIG_FLAGS) OPTFLAGS="$(LIBSNARK_OPTFLAGS)"
-
-$(LIBUNIVALUE): $(wildcard univalue/lib/*) $(wildcard univalue/include/*)
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
@@ -551,7 +556,7 @@ libzcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 endif
 #
 
-CLEANFILES = *.gcda *.gcno */*.gcno wallet/*/*.gcno
+CLEANFILES = *.gcda *.gcno */*.gcno univalue/*.gcda univalue/*.gcno wallet/*/*.gcno
 
 DISTCLEANFILES = obj/build.h
 
@@ -559,8 +564,8 @@ EXTRA_DIST = snark
 
 clean-local:
 	-$(MAKE) -C secp256k1 clean
-	-$(MAKE) -C snark clean
 	-$(MAKE) -C univalue clean
+	-$(MAKE) -C snark clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
 	-rm -rf test/__pycache__
