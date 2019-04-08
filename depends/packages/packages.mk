@@ -36,7 +36,6 @@ rust_packages := rust $(rust_crates) librustzcash
 zcash_packages := libgmp libsodium
 
 packages:=boost openssl libevent zeromq $(zcash_packages) googletest curl
-native_packages := native_ccache
 
 qt_native_packages = native_protobuf
 qt_packages = qrencode protobuf zlib
