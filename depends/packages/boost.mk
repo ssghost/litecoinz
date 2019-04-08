@@ -1,8 +1,9 @@
 package=boost
-$(package)_version=1_66_0
-$(package)_download_path=https://dl.bintray.com/boostorg/release/1.66.0/source/
+$(package)_version=1_69_0
+$(package)_download_path=https://dl.bintray.com/boostorg/release/1.69.0/source/
 $(package)_file_name=$(package)_$($(package)_version).tar.bz2
-$(package)_sha256_hash=5721818253e6a0989583192f96782c4a98eb6204965316df9f5ad75819225ca9
+$(package)_sha256_hash=8f32d4617390d1c2d16f26a27ab60d97807b35440d45891fa340fc2648b04406
+$(package)_patches=fix_deprecated_header.patch
 
 define $(package)_set_vars
 $(package)_config_opts_release=variant=release
@@ -20,11 +21,12 @@ $(package)_archiver_$(host_os)=$($(package)_ar)
 $(package)_toolset_darwin=darwin
 $(package)_archiver_darwin=$($(package)_libtool)
 $(package)_config_libraries=chrono,filesystem,program_options,system,thread,test
-$(package)_cxxflags=-std=c++11 -fvisibility=hidden -Wno-deprecated-declarations
+$(package)_cxxflags=-std=c++11 -fvisibility=hidden
 $(package)_cxxflags_linux=-fPIC
 endef
 
 define $(package)_preprocess_cmds
+  patch -p1 < $($(package)_patch_dir)/fix_deprecated_header.patch && \
   echo "using $(boost_toolset_$(host_os)) : : $($(package)_cxx) : <cxxflags>\"$($(package)_cxxflags) $($(package)_cppflags)\" <linkflags>\"$($(package)_ldflags)\" <archiver>\"$(boost_archiver_$(host_os))\" <striper>\"$(host_STRIP)\"  <ranlib>\"$(host_RANLIB)\" <rc>\"$(host_WINDRES)\" : ;" > user-config.jam
 endef
 
