@@ -6,13 +6,8 @@ src/litecoinzd
 src/litecoinz-cli
 src/litecoinz-gtest
 src/litecoinz-tx
-src/litecoinz-addrgen
 src/test/test_bitcoin
-src/test/test_bitcoin_fuzzy
 src/qt/test/test_litecoinz-qt
-
-*zcashTest.pk
-*zcashTest.vk
 
 # autoreconf
 Makefile.in
@@ -68,7 +63,7 @@ src/qt/bitcoin-qt.includes
 *.pyc
 *.o
 *.o-*
-.zcash
+*.patch
 *.a
 *.pb.cc
 *.pb.h
@@ -110,7 +105,7 @@ build
 *.gcda
 /*.info
 test_bitcoin.coverage/
-zcash-gtest.coverage/
+litecoinz-gtest.coverage/
 total.coverage/
 coverage_percent.txt
 
@@ -128,8 +123,10 @@ qa/pull-tester/test.*/*
 !src/leveldb*/Makefile
 
 /doc/doxygen/
+doc/Doxyfile
 
 libzcashconsensus.pc
+contrib/devtools/split-debug.sh
 
 contrib/debian/files
 contrib/debian/substvars
