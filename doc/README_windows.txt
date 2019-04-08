@@ -1,5 +1,5 @@
-LitecoinZ
-=========
+LitecoinZ Core
+=============
 
 Intro
 -----
@@ -13,7 +13,11 @@ Setup
 -----
 Unpack the files into a directory and run litecoinz-qt.exe.
 
-LitecoinZ is the original LitecoinZ client and it builds the backbone of the network.
+LitecoinZ Core is the original LitecoinZ client and it builds the backbone of the network.
 However, it downloads and stores the entire history of LitecoinZ transactions;
 depending on the speed of your computer and network connection, the synchronization
 process can take anywhere from a few hours to a day or more.
+
+See the litecoinz wiki at:
+  https://litecoinz.info/
+for more help and information.

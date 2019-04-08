@@ -1,14 +1,14 @@
 Expectations for DNS Seed operators
 ====================================
 
-LitecoinZ attempts to minimize the level of trust in DNS seeds,
+LitecoinZ Core attempts to minimize the level of trust in DNS seeds,
 but DNS seeds still pose a small amount of risk for the network.
 As such, DNS seeds must be run by entities which have some minimum
 level of trust within the LitecoinZ community.
 
 Other implementations of LitecoinZ software may also use the same
 seeds and may be more exposed. In light of this exposure, this
-document establishes some basic expectations for operating DNS seeds.
+document establishes some basic expectations for operating dnsseeds.
 
 0. A DNS seed operating organization or person is expected to follow good
 host security practices, maintain control of applicable infrastructure,
@@ -20,7 +20,7 @@ functioning LitecoinZ nodes from the public network to the best of the
 operator's understanding and capability.
 
 2. For the avoidance of doubt, the results may be randomized but must not
-single out any group of hosts to receive different results unless due to an
+single-out any group of hosts to receive different results unless due to an
 urgent technical necessity and disclosed.
 
 3. The results may not be served with a DNS TTL of less than one minute.
@@ -41,14 +41,14 @@ details of their operating practices.
 7. A reachable email contact address must be published for inquiries
 related to the DNS seed operation.
 
-If these expectations cannot be satisfied the operator should discontinue
-providing services and contact the active LitecoinZ development team as well as
-creating an issue in the [LitecoinZ repository](https://github.com/litecoinz-project/litecoinz).
+If these expectations cannot be satisfied the operator should
+discontinue providing services and contact the active LitecoinZ
+Core development team as well as posting on
+[LitecoinZ Discord](https://discord.gg/QNcS4Pm).
 
 Behavior outside of these expectations may be reasonable in some
 situations but should be discussed in public in advance.
 
 See also
 ----------
-- [Litecoinz-seeder](https://github.com/litecoinz-project/litecoinz-seeder) is a reference
-  implementation of a DNS seed.
+- [litecoinz-seeder](https://github.com/litecoinz-project/litecoinz-seeder) is a reference implementation of a DNS seed.
