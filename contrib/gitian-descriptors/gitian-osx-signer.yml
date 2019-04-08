@@ -7,11 +7,13 @@ architectures:
 packages:
 - "faketime"
 remotes:
-- "url": "https://github.com/litecoinz-project/litecoinz-detached-sigs.git"
+- "url": "https://github.com/litecoinz-core/litecoinz-detached-sigs.git"
   "dir": "signature"
 files:
 - "litecoinz-osx-unsigned.tar.gz"
 script: |
+  set -e -o pipefail
+
   WRAP_DIR=$HOME/wrapped
   mkdir -p ${WRAP_DIR}
   export PATH=`pwd`:$PATH
@@ -23,7 +25,7 @@ script: |
     echo "REAL=\`which -a ${prog} | grep -v ${WRAP_DIR}/${prog} | head -1\`" >> ${WRAP_DIR}/${prog}
     echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1' >> ${WRAP_DIR}/${prog}
     echo "export FAKETIME=\"${REFERENCE_DATETIME}\"" >> ${WRAP_DIR}/${prog}
-    echo "\$REAL \$@" >> $WRAP_DIR/${prog}
+    echo "\$REAL \"\$@\"" >> $WRAP_DIR/${prog}
     chmod +x ${WRAP_DIR}/${prog}
   done
 
