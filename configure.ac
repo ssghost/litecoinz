@@ -855,6 +855,9 @@ AX_CHECK_COMPILE_FLAG([-fwrapv],[CXXFLAGS="$CXXFLAGS -fwrapv"])
 AX_CHECK_COMPILE_FLAG([-fno-strict-aliasing],[CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"])
 AX_CHECK_COMPILE_FLAG([-Wno-builtin-declaration-mismatch],[CXXFLAGS="$CXXFLAGS -Wno-builtin-declaration-mismatch"],,[[$CXXFLAG_WERROR]])
 
+# Set optimization flags for libsnark
+AX_GCC_ARCHFLAG([no], [LIBSNARK_OPTFLAGS="-O2 $ax_cv_gcc_archflag"], [LIBSNARK_OPTFLAGS="-O2"])
+
 LIBZCASH_LIBS="$GMP_LIBS $GMPXX_LIBS $BOOST_SYSTEM_LIB $CRYPTO_LIBS -lsodium $RUST_LIBS"
 
 AC_MSG_CHECKING([whether to build litecoinzd])
@@ -1039,6 +1042,7 @@ AC_SUBST(ZMQ_LIBS)
 AC_SUBST(GMP_LIBS)
 AC_SUBST(GMPXX_LIBS)
 AC_SUBST(LIBSNARK_DEPINST)
+AC_SUBST(LIBSNARK_OPTFLAGS)
 AC_SUBST(LIBZCASH_LIBS)
 AC_SUBST(PROTOBUF_LIBS)
 AC_SUBST(QR_LIBS)
