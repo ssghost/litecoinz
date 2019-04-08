@@ -64,6 +64,17 @@ TransactionBuilder::TransactionBuilder(
     mtx = CreateNewContextualCMutableTransaction(consensusParams, nHeight);
 }
 
+// This exception is thrown in certain scenarios when building JoinSplits fails.
+struct JSDescException : public std::exception
+{
+    JSDescException (const std::string msg_) : msg(msg_) {}
+
+    const char* what() { return msg.c_str(); }
+
+private:
+    std::string msg;
+};
+
 void TransactionBuilder::AddSaplingSpend(
     libzcash::SaplingExpandedSpendingKey expsk,
     libzcash::SaplingNote note,
@@ -213,9 +224,9 @@ TransactionBuilderResult TransactionBuilder::Build()
     //
 
     if (change > 0) {
-        // Send change to the specified change address. If no change address
-        // was set, send change to the first Sapling address given as input,
-        // or the first Sprout address given as input.
+        // was set, send change to the first Sapling address given as input
+        // if any; otherwise the first Sprout address given as input.
+        // (A t-address can only be used as the change address if explicitly set.)
         if (saplingChangeAddr) {
             AddSaplingOutput(saplingChangeAddr->first, saplingChangeAddr->second, change);
         } else if (sproutChangeAddr) {
@@ -333,10 +344,14 @@ TransactionBuilderResult TransactionBuilder::Build()
 
     // Create Sprout JSDescriptions
     if (!jsInputs.empty() || !jsOutputs.empty()) {
-        auto result = CreateJSDescriptions();
-        if (result) {
+        try {
+            CreateJSDescriptions();
+        } catch (JSDescException e) {
             librustzcash_sapling_proving_ctx_free(ctx);
-            return result.get();
+            return TransactionBuilderResult(e.what());
+        } catch (std::runtime_error e) {
+            librustzcash_sapling_proving_ctx_free(ctx);
+            throw e;
         }
     }
 
@@ -411,7 +426,7 @@ TransactionBuilderResult TransactionBuilder::Build()
 }
 
 
-boost::optional<TransactionBuilderResult> TransactionBuilder::CreateJSDescriptions()
+void TransactionBuilder::CreateJSDescriptions()
 {
     // Copy jsInputs and jsOutputs to more flexible containers
     std::deque<libzcash::JSInput> jsInputsDeque;
@@ -446,7 +461,7 @@ boost::optional<TransactionBuilderResult> TransactionBuilder::CreateJSDescriptio
             std::array<size_t, ZC_NUM_JS_OUTPUTS> outputMap;
             CreateJSDescription(vpub_old, 0, vjsin, vjsout, inputMap, outputMap);
         }
-        return boost::none;
+        return;
     }
 
     // At this point, we are guaranteed to have at least one input note.
@@ -514,7 +529,7 @@ boost::optional<TransactionBuilderResult> TransactionBuilder::CreateJSDescriptio
                 if (it != intermediates.end()) {
                     tree = it->second;
                 } else if (!coinsView->GetSproutAnchorAt(prevJoinSplit.anchor, tree)) {
-                    return TransactionBuilderResult("Could not find previous JoinSplit anchor");
+                    throw JSDescException("Could not find previous JoinSplit anchor");
                 }
             }
 
@@ -554,7 +569,7 @@ boost::optional<TransactionBuilderResult> TransactionBuilder::CreateJSDescriptio
                 LogPrint("zrpcunsafe", "spending change (amount=%s)\n", FormatMoney(plaintext.value()));
 
             } catch (const std::exception& e) {
-                return TransactionBuilderResult("Error decrypting output note of previous JoinSplit");
+                throw JSDescException("Error decrypting output note of previous JoinSplit");
             }
         }
 
@@ -571,7 +586,7 @@ boost::optional<TransactionBuilderResult> TransactionBuilder::CreateJSDescriptio
                     jsInput.witness.append(commitment);
                 }
                 if (jsAnchor != jsInput.witness.root()) {
-                    return TransactionBuilderResult("Witness for spendable note does not have same anchor as change input");
+                    throw JSDescException("Witness for spendable note does not have same anchor as change input");
                 }
             }
 
@@ -600,9 +615,7 @@ boost::optional<TransactionBuilderResult> TransactionBuilder::CreateJSDescriptio
         if (jsOutputsDeque.empty() && jsInputsDeque.empty()) {
             assert(!vpubNewProcessed);
             if (jsInputValue < vpubNewTarget) {
-                return TransactionBuilderResult(
-                    strprintf("Insufficient funds for vpub_new %s", FormatMoney(vpubNewTarget))
-                );
+                throw JSDescException(strprintf("Insufficient funds for vpub_new %s", FormatMoney(vpubNewTarget)));
             }
             outAmount += vpubNewTarget;
             vpub_new += vpubNewTarget; // funds flowing back to public pool
@@ -650,8 +663,6 @@ boost::optional<TransactionBuilderResult> TransactionBuilder::CreateJSDescriptio
             assert(changeOutputIndex != -1);
         }
     }
-
-    return boost::none;
 }
 
 void TransactionBuilder::CreateJSDescription(
