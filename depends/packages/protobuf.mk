@@ -4,19 +4,20 @@ $(package)_download_path=$(native_$(package)_download_path)
 $(package)_file_name=$(native_$(package)_file_name)
 $(package)_sha256_hash=$(native_$(package)_sha256_hash)
 $(package)_dependencies=native_$(package)
-$(package)_cxxflags=-std=c++11 -Wno-unused-local-typedefs -Wno-return-type -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-unused-function
-
-define $(package)_preprocess_cmds
-  ./autogen.sh
-endef
+$(package)_cxxflags=-std=c++11
 
 define $(package)_set_vars
   $(package)_config_opts=--disable-shared --with-protoc=$(build_prefix)/bin/protoc
   $(package)_config_opts_linux=--with-pic
 endef
 
+define $(package)_preprocess_cmds
+   cp -f $(BASEDIR)/config.guess $(BASEDIR)/config.sub . &&\
+   cp -f $(BASEDIR)/config.guess $(BASEDIR)/config.sub gtest/build-aux
+endef
+
 define $(package)_config_cmds
-  $($(package)_autoconf) --disable-dependency-tracking
+  $($(package)_autoconf)
 endef
 
 define $(package)_build_cmds
