@@ -47,7 +47,7 @@ static const int MAX_URI_LENGTH = 255;
 #define SPINNER_FRAMES 36
 
 #define QAPP_ORG_NAME "LitecoinZ"
-#define QAPP_ORG_DOMAIN "litecoinz.info"
+#define QAPP_ORG_DOMAIN "litecoinz.org"
 #define QAPP_APP_NAME_DEFAULT "Litecoinz-Qt"
 #define QAPP_APP_NAME_TESTNET "Litecoinz-Qt-testnet"
 

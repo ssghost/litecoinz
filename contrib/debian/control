@@ -2,7 +2,7 @@ Source: litecoinz
 Section: utils
 Priority: optional
 Maintainer: The LitecoinZ Developers <developers@litecoinz.info>
-Homepage: https://litecoinz.info
+Homepage: https://litecoinz.org
 Build-Depends: autoconf, automake, bsdmainutils, build-essential,
  git, g++-multilib, libc6-dev, libtool,
  m4, ncurses-dev, pkg-config, python,

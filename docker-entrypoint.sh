@@ -9,7 +9,7 @@ if [ "$1" = 'litecoinz-cli' -o "$1" = 'litecoinzd' ]; then
 		rpcpassword=${LITECOINZ_RPC_PASSWORD:-`head -c 32 /dev/urandom | base64`}
 		rpcuser=${LITECOINZ_RPC_USER:-litecoinz}
 		mainnet=1
-		addnode=mainnet.litecoinz.info
+		addnode=mainnet.litecoinz.org
 		EOF
 	fi
 
