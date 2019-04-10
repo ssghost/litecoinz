@@ -45,7 +45,8 @@ DIST_CONTRIB = $(top_srcdir)/contrib/litecoinz-cli.bash-completion \
 	       $(top_srcdir)/contrib/debian \
 	       $(top_srcdir)/contrib/init
 DIST_SHARE = \
-  $(top_srcdir)/share/genbuild.sh
+  $(top_srcdir)/share/genbuild.sh \
+  $(top_srcdir)/share/rpcauth
 
 BIN_CHECKS=$(top_srcdir)/contrib/devtools/symbol-check.py \
            $(top_srcdir)/contrib/devtools/security-check.py
@@ -212,7 +213,6 @@ dist_noinst_SCRIPTS = autogen.sh
 EXTRA_DIST = $(DIST_SHARE) $(DIST_CONTRIB) $(DIST_DOCS) $(WINDOWS_PACKAGING) $(OSX_PACKAGING) $(BIN_CHECKS)
 
 EXTRA_DIST += \
-    share/genbuild.sh \
     qa/pull-tester/rpc-tests.sh \
     qa/pull-tester/run-litecoinz-cli \
     qa/rpc-tests \
