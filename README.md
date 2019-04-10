@@ -1,129 +1,77 @@
-LitecoinZ 2.0.0
-================
-<p align="left">
-  <img src="doc/litecoinz-logo-git.png">
-</p>
+LitecoinZ Core integration/staging tree
+=====================================
 
+https://litecoinz.org
 
 What is LitecoinZ?
-------------------
+----------------
+
+LitecoinZ is an experimental digital currency that enables instant payments to
+anyone, anywhere in the world. LitecoinZ uses peer-to-peer technology to operate
+with no central authority: managing transactions and issuing money are carried
+out collectively by the network. LitecoinZ Core is the name of open source
+software which enables the use of this currency.
 
 [LitecoinZ](https://litecoinz.org/) is an implementation of the "[Zerocash](https://github.com/zcash/zips/raw/master/protocol/protocol.pdf)" protocol forked from [ZCash](https://z.cash/).
 Based on Bitcoin's code, it intends to offer a far higher standard of privacy
 through a sophisticated zero-knowledge proving scheme that preserves
 confidentiality of transaction metadata. 
 
-This software is the LitecoinZ client. It downloads and stores the entire history
-of LitecoinZ transactions; depending on the speed of your computer and network
-connection, the synchronization process could take a day or more once the
-blockchain has reached a significant size.
-
+For more information, as well as an immediately useable, binary version of
+the LitecoinZ Core software, see [https://litecoinz.org](https://litecoinz.org).
 
 License
 -------
 
-LitecoinZ is released under the terms of the MIT license.
+LitecoinZ Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
+information or see https://opensource.org/licenses/MIT.
 
-See [LICENSE](LICENSE) for more information or see [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT).
+Development Process
+-------------------
 
-Get started
------------
+The `master` branch is regularly built and tested, but is not guaranteed to be
+completely stable. [Tags](https://github.com/litecoinz-project/litecoinz/tags) are created
+regularly to indicate new official, stable release versions of LitecoinZ Core.
 
-## Linux 64-bit
+The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-### Install dependencies
+Testing
+-------
 
-On Ubuntu/Debian-based systems:
-```{r, engine='bash'}
-$ sudo apt-get install \
-      build-essential pkg-config libc6-dev m4 g++-multilib \
-      autoconf libtool ncurses-dev unzip git python \
-      zlib1g-dev wget bsdmainutils automake curl
-```
+Testing and code review is the bottleneck for development; we get more pull
+requests than we can review and test on short notice. Please be patient and help out by testing
+other people's pull requests, and remember this is a security-critical project where any mistake might cost people
+lots of money.
 
-On Fedora-based systems:
-```{r, engine='bash'}
-$ sudo dnf install \
-      git pkgconfig automake autoconf ncurses-devel python \
-      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2 glibc-static libstdc++-static curl
-```
+### Automated Testing
 
-On Redhat/Centos-based systems:
-```{r, engine='bash'}
-$ sudo yum install \
-      git pkgconfig automake autoconf ncurses-devel python \
-      python-zmq wget gtest-devel gcc gcc-c++ libtool patch bzip2 glibc-static libstdc++-static curl
-```
+Developers are strongly encouraged to write [unit tests](src/test/README.md) for new code, and to
+submit new unit tests for old code. Unit tests can be compiled and run
+(assuming they weren't disabled in configure) with: `make check`. Further details on running
+and extending unit tests can be found in [/src/test/README.md](/src/test/README.md).
 
-### Build
+The Travis CI system makes sure that every pull request is built for Windows, Linux, and macOS, and that unit/sanity tests are run automatically.
 
-Ensure you have successfully installed all system package dependencies as described above. Then run the build, e.g.:
-```{r, engine='bash'}
-$ ./zcutil/build.sh -j$(nproc)
-```
+### Manual Quality Assurance (QA) Testing
 
-This should compile our dependencies and build ```litecoinzd```. (Note: if you don't have ```nproc```, then substitute the number of cores on your system. If the build runs out of memory, try again without the ```-j``` argument, i.e. just ```./zcutil/build.sh```. )
+Changes should be tested by somebody other than the developer who wrote the
+code. This is especially important for large or high-risk changes. It is useful
+to add a test plan to the pull request description if testing the changes is
+not straightforward.
 
-### Configuration
+Translations
+------------
 
-Create the ```~/.litecoinz``` directory and place a configuration file at ```~/.litecoinz/litecoinz.conf``` using the following commands:
-```{r, engine='bash'}
-$ mkdir -p ~/.litecoinz
-$ echo "addnode=88.86.186.158" > ~/.litecoinz/litecoinz.conf
-$ echo "rpcuser=username" >> ~/.litecoinz/litecoinz.conf
-$ echo "rpcpassword=`head -c 32 /dev/urandom | base64`" >> ~/.litecoinz/litecoinz.conf
-```
+We only accept translation fixes that are submitted through [Bitcoin Core's Transifex page](https://www.transifex.com/projects/p/bitcoin/).
+Translations are converted to LitecoinZ periodically.
 
-### Enabling CPU mining:
+Translations are periodically pulled from Transifex and merged into the git repository. See the
+[translation process](doc/translation_process.md) for details on how this works.
 
-If you want to enable CPU mining, run these commands:
+**Important**: We do not accept translation changes as GitHub pull requests because the next
+pull from Transifex would automatically overwrite them again.
 
-```{r, engine='bash'}
-$ echo 'gen=1' >> ~/.litecoinz/litecoinz.conf
-$ echo "genproclimit=-1" >> ~/.litecoinz/litecoinz.conf
-```
-
-Setting ```genproclimit=-1``` mines on the maximum number of threads possible on your CPU. If you want to mine with a lower number of threads, set ```genproclimit``` equal to the number of threads you would like to mine on.
-
-### Running LitecoinZ:
-
-Now, run litecoinzd!
-
-```{r, engine='bash'}
-$ ./src/litecoinzd
-```
-
-To run it in the background (without the node metrics screen that is normally displayed) use ```./src/litecoinzd --daemon```.
-
-You should be able to use the RPC after it finishes loading. Here's a quick way to test:
-
-```{r, engine='bash'}
-$ ./src/litecoinz-cli getinfo
-```
-
-To see the peers you are connected to:
-```{r, engine='bash'}
-$ ./src/litecoinz-cli getpeerinfo
-```
-
-### Additional operations for litecoinz-cli
-
-As LitecoinZ is an extension of bitcoin, litecoinz-cli supports all commands that are part of the Bitcoin Core API (as of version 0.11.2), [https://en.bitcoin.it/wiki/Original_Bitcoin_client/API_calls_list](https://en.bitcoin.it/wiki/Original_Bitcoin_client/API_calls_list)
-
-To list all LitecoinZ commands, use ```./src/litecoinz-cli help```.
-
-To get help with a particular command, use ```./src/litecoinz-cli help <command>```.
-
-## Windows 64-bit
-
-See [build-windows.md](doc/build-windows.md) for instructions on building LitecoinZ Core on Windows 64-bit.
-
-## Mac OS X
-
-See [build-osx.md](doc/build-osx.md) for instructions on building LitecoinZ Core on Mac OS X.
-
-
-DONATIONS
+Donations
 ---------
 
 Donations for supporting developers are welcome: 
@@ -135,12 +83,3 @@ Donations for supporting developers are welcome:
 - BTCZ: t1cmr2QUMCEBRhUVrZHsgC6DnrdzC2FyHz7
 
 Thanks
-
-
-Security Warnings
------------------
-
-**LitecoinZ is experimental and a work-in-progress.** Use at your own risk.
-
-Participation in the LitecoinZ project is subject to a
-[Code of Conduct](code_of_conduct.md).
