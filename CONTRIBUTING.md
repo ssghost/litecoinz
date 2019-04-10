@@ -1,8 +1,31 @@
-Contributing to LitecoinZ
-=========================
+Contributing to LitecoinZ Core
+============================
 
-If you find a bug or have a feature request, please send a Github Pull Request
-based on the `master` branch or create a Github Issue using our issue template.
+The LitecoinZ Core project operates an open contributor model where anyone is
+welcome to contribute towards development in the form of peer review, testing
+and patches. This document explains the practical process and guidelines for
+contributing.
+
+Firstly in terms of structure, there is no particular concept of "Core
+developers" in the sense of privileged people. Open source often naturally
+revolves around meritocracy where longer term contributors gain more trust from
+the developer community. However, some hierarchy is necessary for practical
+purposes. As such there are repository "maintainers" who are responsible for
+merging pull requests as well as a "lead maintainer" who is responsible for the
+release cycle, overall merging, moderation and appointment of maintainers.
+
+If you're looking for somewhere to start contributing, check out the
+[good first issue](https://github.com/litecoinz-project/litecoinz/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+list.
+
+Communication Channels
+----------------------
+
+Most communication about LitecoinZ Core development happens on [Discord](https://discord.gg/QNcS4Pm), in the
+#litecoinz-core-dev.
+
+Discussion about code base improvements happens in GitHub issues and on pull
+requests.
 
 
 Contributor Workflow
@@ -42,6 +65,39 @@ about Git.
   - Push changes to your fork
   - Create pull request
 
+The title of the pull request should be prefixed by the component or area that
+the pull request affects. Valid areas as:
+
+  - *Consensus* for changes to consensus critical code
+  - *Docs* for changes to the documentation
+  - *Qt* for changes to litecoinz-qt
+  - *Mining* for changes to the mining code
+  - *Net* or *P2P* for changes to the peer-to-peer network code
+  - *RPC/REST/ZMQ* for changes to the RPC, REST or ZMQ APIs
+  - *Scripts and tools* for changes to the scripts and tools
+  - *Tests* for changes to the litecoinz unit tests or QA tests
+  - *Trivial* should **only** be used for PRs that do not change generated
+    executable code. Notably, refactors (change of function arguments and code
+    reorganization) and changes in behavior should **not** be marked as trivial.
+    Examples of trivial PRs are changes to:
+    - comments
+    - whitespace
+    - variable names
+    - logging and messages
+  - *Utils and libraries* for changes to the utils and libraries
+  - *Wallet* for changes to the wallet code
+
+Examples:
+
+    Consensus: Add new opcode for BIP-XXXX OP_CHECKAWESOMESIG
+    Net: Automatically create hidden service, listen on Tor
+    Qt: Add feed bump button
+    Trivial: Fix typo in init.cpp
+
+Note that translations should not be submitted as pull requests, please see
+[Translation Process](https://github.com/litecoinz-project/litecoinz/blob/master/doc/translation_process.md)
+for more information on helping with translations.
+
 If a pull request is not to be considered for merging (yet), please
 prefix the title with [WIP] or use [Tasks Lists](https://help.github.com/articles/basic-writing-and-formatting-syntax/#task-lists)
 in the body of the pull request to indicate tasks are pending.
@@ -54,6 +110,34 @@ discussions).
 At this stage one should expect comments and review from other contributors. You
 can add more commits to your pull request by committing them locally and pushing
 to your fork until you have satisfied all feedback.
+
+Note: Code review is a burdensome but important part of the development process, and as such, certain types of pull requests are rejected. In general, if the **improvements** do not warrant the **review effort** required, the PR has a high chance of being rejected. It is up to the PR author to convince the reviewers that the changes warrant the review effort, and if reviewers are "Concept NAK'ing" the PR, the author may need to present arguments and/or do research backing their suggested changes.
+
+Squashing Commits
+---------------------------
+If your pull request is accepted for merging, you may be asked by a maintainer
+to squash and or [rebase](https://git-scm.com/docs/git-rebase) your commits
+before it will be merged. The basic squashing workflow is shown below.
+
+    git checkout your_branch_name
+    git rebase -i HEAD~n
+    # n is normally the number of commits in the pull request.
+    # Set commits (except the one in the first line) from 'pick' to 'squash', save and quit.
+    # On the next screen, edit/refine commit messages.
+    # Save and quit.
+    git push -f # (force push to GitHub)
+
+If you have problems with squashing (or other workflows with `git`), you can
+alternatively enable "Allow edits from maintainers" in the right GitHub
+sidebar and ask for help in the pull request.
+
+Please refrain from creating several pull requests for the same change.
+Use the pull request that is already open (or was created earlier) to amend
+changes. This preserves the discussion and review that happened earlier for
+the respective change set.
+
+The length of time required for peer review is unpredictable and will vary from
+pull request to pull request.
 
 
 Pull Request Philosophy
@@ -97,6 +181,39 @@ benefits may be immediately closed by the maintainers to reduce unnecessary
 workload on reviewing.
 
 
+"Decision Making" Process
+-------------------------
+
+The following applies to code changes to the LitecoinZ Core project (and related
+projects such as libsecp256k1), and is not to be confused with overall LitecoinZ
+Network Protocol consensus changes.
+
+Whether a pull request is merged into LitecoinZ Core rests with the project merge
+maintainers and ultimately the project lead.
+
+Maintainers will take into consideration if a patch is in line with the general
+principles of the project; meets the minimum standards for inclusion; and will
+judge the general consensus of contributors.
+
+In general, all pull requests must:
+
+  - Have a clear use case, fix a demonstrable bug or serve the greater good of
+    the project (for example refactoring for modularisation);
+  - Be well peer reviewed;
+  - Have unit tests and functional tests where appropriate;
+  - Follow code style guidelines ([C++](doc/developer-notes.md), [functional tests](test/functional/README.md));
+  - Not break the existing test suite;
+  - Where bugs are fixed, where possible, there should be unit tests
+    demonstrating the bug and also proving the fix. This helps prevent regression.
+
+Patches that change LitecoinZ consensus rules are considerably more involved than
+normal because they affect the entire ecosystem and so must be preceded by
+extensive mailing list discussions and have a numbered BIP. While each case will
+be different, one should be prepared to expend more time and effort than for
+other kinds of patches because of increased peer review and consensus building
+requirements.
+
+
 ### Peer Review
 
 Anyone may participate in peer review which is expressed by comments in the pull
@@ -135,7 +252,6 @@ discussed extensively on the mailing list and IRC, be accompanied by a widely
 discussed BIP and have a generally widely perceived technical consensus of being
 a worthwhile change based on the judgement of the maintainers.
 
-
 ### Finding Reviewers
 
 As most reviewers are themselves developers with their own projects, the review
@@ -168,10 +284,15 @@ about:
     when someone else is asking for feedback on their code, and universe balances out.
 
 
+Release Policy
+--------------
+
+The project leader is the release manager for each LitecoinZ Core release.
+
 Copyright
 ---------
 
-By contributing to this repository, you agree to license your work under the 
-MIT license unless specified otherwise in `contrib/debian/copyright` or at 
-the top of the file itself. Any work contributed where you are not the original 
-author must contain its license header with the original author(s) and source.    
+By contributing to this repository, you agree to license your work under the
+MIT license unless specified otherwise in `contrib/debian/copyright` or at
+the top of the file itself. Any work contributed where you are not the original
+author must contain its license header with the original author(s) and source.
