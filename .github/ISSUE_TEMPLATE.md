@@ -1,38 +1,19 @@
-<!--- Remove text and sections that do not apply -->
+<!-- This issue tracker is only for technical issues related to LitecoinZ Core.
 
-This issue tracker is only for technical issues related to LitecoinZ.
+General LitecoinZ questions and/or support requests are best directed to the LitecoinZ Discord Server at https://discord.gg/QNcS4Pm.
 
-### Describe the issue
-Please provide a general summary of the issue you're experiencing
+If the node is "stuck" during sync or giving "block checksum mismatch" errors, please ensure your hardware is stable by running memtest and observe CPU temperature with a load-test tool such as linpack before creating an issue! -->
 
-### Can you reliably reproduce the issue?
-#### If so, please list the steps to reproduce below:
-1. 
-2. 
-3. 
+<!-- Describe the issue -->
+<!--- What behavior did you expect? -->
 
-### Expected behaviour
-Tell us what should happen
+<!--- What was the actual behavior (provide screenshots if the issue is GUI-related)? -->
 
-### Actual behaviour + errors
-Tell us what happens instead including any noticable error output (any messages displayed on-screen when e.g. a crash occurred)
+<!--- How reliably can you reproduce the issue, what are the steps to do so? -->
 
-### The version of LitecoinZ you were using:
-Run `litecoinzd --version` to find out
+<!-- What version of LitecoinZ Core are you using, where did you get it (website, self-compiled, etc)? -->
 
-### Machine specs:
-- OS name + version:
-- CPU:
-- RAM:
-- Disk size:
-- Disk Type (HD/SDD):
-- Linux kernel version (uname -a):
-- Compiler version (gcc -version):
+<!-- What type of machine are you observing the error on (OS/CPU and disk type)? -->
 
-### Any extra information that might be useful in the debugging process.
-This includes the relevant contents of `~/.litecoinz/debug.log`. You can paste raw text, attach the file directly in the issue or link to the text via a pastebin type site.
-Please also include any non-standard things you did during compilation (extra flags, dependency version changes etc.) if applicable.
-
-### Do you have a backup of `~/.litecoinz` directory and/or take a VM snapshot?
-- Backing up / making a copy of the `~/.litecoinz` directory might help make the problem reproducible. Please redact appropriately.
-- Taking a VM snapshot is really helpful for interactively testing fixes
+<!-- Any extra information that might be useful in the debugging process. -->
+<!--- This is normally the contents of a `debug.log` or `config.log` file. Raw text or a link to a pastebin type site are preferred. -->
