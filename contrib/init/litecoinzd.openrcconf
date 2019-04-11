@@ -1,7 +1,7 @@
 # /etc/conf.d/litecoinzd: config file for /etc/init.d/litecoinzd
 
 # Config file location
-#LITECOINZD_CONFIGFILE="/etc/bitcoin/bitcoin.conf"
+#LITECOINZD_CONFIGFILE="/etc/litecoinz/litecoinz.conf"
 
 # What directory to write pidfile to?  (created and owned by $LITECOINZD_USER)
 #LITECOINZD_PIDDIR="/var/run/litecoinzd"
@@ -13,8 +13,8 @@
 #LITECOINZD_DATADIR="/var/lib/litecoinzd"
 
 # User and group to own litecoinzd process
-#LITECOINZD_USER="bitcoin"
-#LITECOINZD_GROUP="bitcoin"
+#LITECOINZD_USER="litecoinz"
+#LITECOINZD_GROUP="litecoinz"
 
 # Path to litecoinzd executable
 #LITECOINZD_BIN="/usr/bin/litecoinzd"
@@ -23,7 +23,7 @@
 #LITECOINZD_NICE=0
 
 # Additional options (avoid -conf and -datadir, use flags above)
-LITECOINZD_OPTS="-disablewallet"
+#LITECOINZD_OPTS=""
 
 # The timeout in seconds OpenRC will wait for litecoinzd to terminate
 # after a SIGTERM has been raised.

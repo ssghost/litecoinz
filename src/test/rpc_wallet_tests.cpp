@@ -21,6 +21,7 @@
 #include "wallet/asyncrpcoperation_shieldcoinbase.h"
 
 #include "init.h"
+#include "utiltest.h"
 
 #include <array>
 #include <chrono>
@@ -560,9 +561,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_z_importexport)
     pwalletMain->GetSaplingPaymentAddresses(saplingAddrs);
     BOOST_CHECK(saplingAddrs.empty());
 
-    std::vector<unsigned char, secure_allocator<unsigned char>> rawSeed(32);
-    HDSeed seed(rawSeed);
-    auto m = libzcash::SaplingExtendedSpendingKey::Master(seed);
+    auto m = GetTestMasterSaplingSpendingKey();
 
     // verify import and export key
     for (int i = 0; i < n1; i++) {
@@ -1248,9 +1247,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_internals)
 
 BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling)
 {
-    SelectParams(CBaseChainParams::REGTEST);
-    UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
-    UpdateNetworkUpgradeParameters(Consensus::UPGRADE_SAPLING, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
+    RegtestActivateSapling();
 
     LOCK(pwalletMain->cs_wallet);
 
@@ -1343,8 +1340,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling)
     mapArgs.erase("-experimentalfeatures");
 
     // Revert to default
-    UpdateNetworkUpgradeParameters(Consensus::UPGRADE_SAPLING, Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT);
-    UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT);
+    RegtestDeactivateSapling();
 }
 
 
@@ -1610,7 +1606,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_shieldcoinbase_internals)
     if (mtx.nVersion == 1) {
         mtx.nVersion = 2;
     }
-    
+
     // Test that option -mempooltxinputlimit is respected.
     mapArgs["-mempooltxinputlimit"] = "1";
 
@@ -1687,7 +1683,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
     LOCK(pwalletMain->cs_wallet);
 
     CheckRPCThrows("z_mergetoaddress 1 2",
-        "Error: z_mergetoaddress is disabled.");
+        "Error: z_mergetoaddress is disabled. Run './litecoinz-cli help z_mergetoaddress' for instructions on how to enable this feature.");
 
     // Set global state required for z_mergetoaddress
     fExperimentalMode = true;
@@ -1697,11 +1693,12 @@ BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress toofewargs"), runtime_error);
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress just too many args present for this method"), runtime_error);
 
-    std::string taddr1 = "T1SvzJ7oUaq4X5YTyuZeJxUjLizMxUMHQEu";
-    std::string taddr2 = "T18dkMN1JVMjpzRNTkFtnwhPz8CUQhwfuaH";
-    std::string aSproutAddr = "ztNf8K1yDvrZVU3j76pbxrN9TvzGksZ4jvr3HMn4B2AMkLs4MDspVdj6tZsqYyXa9DZa1as2vbjbuGoDjGeq6AzEziUYrkE";
+    std::string taddr1 = "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ";
+    std::string taddr2 = "tmYmhvdKqEte49iohoB9utgL1kPbGgWSdNc";
+    std::string aSproutAddr = "ztVtBC7vJFXPsZC8S3hXRu51rZysoJkSe6r1t9wk56bELrV9xTK6dx5TgSCH6RTw1dRD7HuApmcY1nhuQW9QfvE4MQXRRYU";
     std::string aSaplingAddr = "ztestsapling19rnyu293v44f0kvtmszhx35lpdug574twc0lwyf4s7w0umtkrdq5nfcauxrxcyfmh3m7slemqsj";
-     CheckRPCThrows("z_mergetoaddress [] " + taddr1,
+
+    CheckRPCThrows("z_mergetoaddress [] " + taddr1,
         "Invalid parameter, fromaddresses array is empty.");
 
     // bad from address
@@ -1749,13 +1746,13 @@ BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
         "Limit on maximum number of notes cannot be negative");
 
     CheckRPCThrows("z_mergetoaddress [\"ANY_TADDR\",\"" + taddr1 + "\"] " + taddr2,
-        "Cannot specify specific t-addrs when using \"ANY_TADDR\"");
+        "Cannot specify specific taddrs when using \"ANY_TADDR\"");
 
     CheckRPCThrows("z_mergetoaddress [\"ANY_SPROUT\",\"" + aSproutAddr + "\"] " + taddr2,
-        "Cannot specify specific z-addrs when using \"ANY_SPROUT\" or \"ANY_SAPLING\"");
+        "Cannot specify specific zaddrs when using \"ANY_SPROUT\" or \"ANY_SAPLING\"");
 
     CheckRPCThrows("z_mergetoaddress [\"ANY_SAPLING\",\"" + aSaplingAddr + "\"] " + taddr2,
-        "Cannot specify specific z-addrs when using \"ANY_SPROUT\" or \"ANY_SAPLING\"");
+        "Cannot specify specific zaddrs when using \"ANY_SPROUT\" or \"ANY_SAPLING\"");
 
     // memo bigger than allowed length of ZC_MEMO_SIZE
     std::vector<char> v (2 * (ZC_MEMO_SIZE+1));     // x2 for hexadecimal string format

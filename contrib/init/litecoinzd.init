@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-#  litecoinzd The bitcoin core server.
+#  litecoinzd The litecoinz core server.
 #
 #
 # chkconfig: 345 80 20

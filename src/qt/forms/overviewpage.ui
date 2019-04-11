@@ -495,7 +495,7 @@
             <item row="1" column="0">
              <widget class="QLabel" name="labelZBalanceText">
               <property name="text">
-               <string>Z-Address:</string>
+               <string>Zaddress:</string>
               </property>
              </widget>
             </item>
@@ -536,7 +536,7 @@
                <cursorShape>IBeamCursor</cursorShape>
               </property>
               <property name="toolTip">
-               <string>Unshielded balance that must be tranfer to z-addr before could be spent</string>
+               <string>Unshielded balance that must be tranfer to zaddr before could be spent</string>
               </property>
               <property name="text">
                <string notr="true">0.000 000 00 LTZ</string>
@@ -552,7 +552,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="labelTBalanceText">
               <property name="text">
-               <string>T-Address:</string>
+               <string>Taddress:</string>
               </property>
              </widget>
             </item>
@@ -613,7 +613,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Shield coinbase into z-address</string>
+               <string>Shield coinbase into zaddress</string>
               </property>
               <property name="text">
                <string>&amp;Shield coinbase</string>

@@ -90,7 +90,7 @@ QValidator::State LitecoinZAddressCheckValidator::validate(QString &input, int &
     Q_UNUSED(pos);
     bool isZaddr = false;
 
-    // Validate the passed LitecoinZ z-address
+    // Validate the passed LitecoinZ zaddress
     libzcash::PaymentAddress address = DecodePaymentAddress(input.toStdString());
     if (IsValidPaymentAddress(address)) {
         isZaddr = true;

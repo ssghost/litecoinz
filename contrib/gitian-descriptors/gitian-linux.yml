@@ -1,5 +1,5 @@
 ---
-name: "litecoinz-linux-2.0"
+name: "litecoinz-core-linux-2.0.0"
 enable_cache: true
 suites:
 - "bionic"
@@ -30,17 +30,18 @@ packages:
 - "faketime"
 - "bsdmainutils"
 - "ca-certificates"
-- "python"
+- "python3"
+- "cmake"
 remotes:
 - "url": "https://github.com/litecoinz-project/litecoinz.git"
   "dir": "litecoinz"
 files: []
 script: |
+  set -e -o pipefail
 
   WRAP_DIR=$HOME/wrapped
-  #HOSTS="x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu riscv64-linux-gnu"
   HOSTS="x86_64-linux-gnu"
-  CONFIGFLAGS="--enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests"
+  CONFIGFLAGS="--enable-glibc-back-compat --enable-reduce-exports --disable-gui-tests --disable-tests"
   FAKETIME_HOST_PROGS="gcc g++"
   FAKETIME_PROGS="date ar ranlib nm"
   HOST_CFLAGS="-O2 -g"
@@ -66,7 +67,7 @@ script: |
     echo "REAL=\`which -a ${prog} | grep -v ${WRAP_DIR}/${prog} | head -1\`" >> ${WRAP_DIR}/${prog}
     echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1' >> ${WRAP_DIR}/${prog}
     echo "export FAKETIME=\"$1\"" >> ${WRAP_DIR}/${prog}
-    echo "\$REAL \$@" >> $WRAP_DIR/${prog}
+    echo "\$REAL \"\$@\"" >> $WRAP_DIR/${prog}
     chmod +x ${WRAP_DIR}/${prog}
   done
   }
@@ -80,7 +81,7 @@ script: |
             echo "REAL=\`which -a ${i}-${prog}-8 | grep -v ${WRAP_DIR}/${i}-${prog} | head -1\`" >> ${WRAP_DIR}/${i}-${prog}
             echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1' >> ${WRAP_DIR}/${i}-${prog}
             echo "export FAKETIME=\"$1\"" >> ${WRAP_DIR}/${i}-${prog}
-            echo "\$REAL \$@" >> $WRAP_DIR/${i}-${prog}
+            echo "\$REAL \"\$@\"" >> $WRAP_DIR/${i}-${prog}
             chmod +x ${WRAP_DIR}/${i}-${prog}
         fi
     done
@@ -96,12 +97,28 @@ script: |
   EXTRA_INCLUDES_BASE=$WRAP_DIR/extra_includes
   mkdir -p $EXTRA_INCLUDES_BASE
 
+  # x86 needs /usr/include/i386-linux-gnu/asm pointed to /usr/include/x86_64-linux-gnu/asm,
+  # but we can't write there. Instead, create a link here and force it to be included in the
+  # search paths by wrapping gcc/g++.
+
+  mkdir -p $EXTRA_INCLUDES_BASE/i686-pc-linux-gnu
+  rm -f $WRAP_DIR/extra_includes/i686-pc-linux-gnu/asm
+  ln -s /usr/include/x86_64-linux-gnu/asm $EXTRA_INCLUDES_BASE/i686-pc-linux-gnu/asm
+
   for prog in gcc g++; do
   rm -f ${WRAP_DIR}/${prog}
   cat << EOF > ${WRAP_DIR}/${prog}
   #!/usr/bin/env bash
   REAL="`which -a ${prog}-8 | grep -v ${WRAP_DIR}/${prog} | head -1`"
-  \$REAL \$@
+  for var in "\$@"
+  do
+    if [ "\$var" = "-m32" ]; then
+      export C_INCLUDE_PATH="$EXTRA_INCLUDES_BASE/i686-pc-linux-gnu"
+      export CPLUS_INCLUDE_PATH="$EXTRA_INCLUDES_BASE/i686-pc-linux-gnu"
+      break
+    fi
+  done
+  \$REAL "\$@"
   EOF
   chmod +x ${WRAP_DIR}/${prog}
   done
@@ -114,7 +131,7 @@ script: |
     if [ -d "$EXTRA_INCLUDES" ]; then
       export HOST_ID_SALT="$EXTRA_INCLUDES"
     fi
-    make ${MAKEOPTS} -C ${BASEPREFIX} HOST="${i}"
+    make ${MAKEOPTS} -C ${BASEPREFIX} HOST="${i}" NO_GTEST=1
     unset HOST_ID_SALT
   done
 
@@ -164,8 +181,14 @@ script: |
     find . -name "lib*.la" -delete
     find . -name "lib*.a" -delete
     rm -rf ${DISTNAME}/lib/pkgconfig
-    find ${DISTNAME}/bin -type f -executable -exec ../contrib/devtools/split-debug.sh {} {} {}.dbg \;
-    find ${DISTNAME}/lib -type f -exec ../contrib/devtools/split-debug.sh {} {} {}.dbg \;
+
+    # LitecoinZ: Delete libbitcoin from binary distribution for now, see https://github.com/litecoin-project/litecoin/issues/192
+    rm -rf ${DISTNAME}/lib/
+    rm -rf ${DISTNAME}/include/
+    # LitecoinZ: ends
+
+    find ${DISTNAME}/bin -type f -executable -print0 | xargs -0 -n1 -I{} ../contrib/devtools/split-debug.sh {} {} {}.dbg
+    #find ${DISTNAME}/lib -type f -print0 | xargs -0 -n1 -I{} ../contrib/devtools/split-debug.sh {} {} {}.dbg # LitecoinZ: see issue https://github.com/litecoin-project/litecoin/issues/192
     cp ../doc/README.md ${DISTNAME}/
     find ${DISTNAME} -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${OUTDIR}/${DISTNAME}-${i}.tar.gz
     find ${DISTNAME} -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${OUTDIR}/${DISTNAME}-${i}-debug.tar.gz

@@ -42,9 +42,9 @@ public Q_SLOTS:
 private Q_SLOTS:
     /** Create a new address for receiving coins and / or add a new address book entry */
     void on_AddressBookButton_clicked();
-    /** Clear z-address field */
+    /** Clear zaddress field */
     void on_deleteButton_clicked();
-    /** Shield coins in coinbase from t-address to z-address */
+    /** Shield coins in coinbase from taddress to zaddress */
     void on_shieldButton_clicked();
 
     void updateDisplayUnit();

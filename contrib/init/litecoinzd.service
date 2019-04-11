@@ -1,22 +1,44 @@
+# It is not recommended to modify this file in-place, because it will
+# be overwritten during package upgrades. If you want to add further
+# options or overwrite existing ones then use
+# $ systemctl edit litecoinzd.service
+# See "man systemd.service" for details.
+
+# Note that almost all daemon options could be specified in
+# /etc/litecoinz/litecoinz.conf
+
 [Unit]
-Description=Bitcoin's distributed currency daemon
+Description=LitecoinZ daemon
 After=network.target
 
 [Service]
-User=bitcoin
-Group=bitcoin
-
+ExecStart=/usr/bin/litecoinzd -daemon -conf=/etc/litecoinz/litecoinz.conf -pid=/run/litecoinzd/litecoinzd.pid
+# Creates /run/litecoinzd owned by litecoinz
+RuntimeDirectory=litecoinzd
+User=litecoinz
 Type=forking
-PIDFile=/var/lib/litecoinzd/litecoinzd.pid
-ExecStart=/usr/bin/litecoinzd -daemon -pid=/var/lib/litecoinzd/litecoinzd.pid \
--conf=/etc/bitcoin/bitcoin.conf -datadir=/var/lib/litecoinzd -disablewallet
+PIDFile=/run/litecoinzd/litecoinzd.pid
+Restart=on-failure
 
-Restart=always
+# Hardening measures
+####################
+
+# Provide a private /tmp and /var/tmp.
 PrivateTmp=true
-TimeoutStopSec=60s
-TimeoutStartSec=2s
-StartLimitInterval=120s
-StartLimitBurst=5
+
+# Mount /usr, /boot/ and /etc read-only for the process.
+ProtectSystem=full
+
+# Disallow the process and all of its children to gain
+# new privileges through execve().
+NoNewPrivileges=true
+
+# Use a new /dev namespace only populated with API pseudo devices
+# such as /dev/null, /dev/zero and /dev/random.
+PrivateDevices=true
+
+# Deny the creation of writable and executable memory mappings.
+MemoryDenyWriteExecute=true
 
 [Install]
 WantedBy=multi-user.target

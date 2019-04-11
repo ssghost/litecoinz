@@ -223,13 +223,13 @@ void AddressBookPage::setModel(AddressTableModel *model)
     proxyModelSendingT->setSortCaseSensitivity(Qt::CaseInsensitive);
     proxyModelSendingT->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    // Receive filter (z-addresses)
+    // Receive filter (zaddresses)
     proxyModelReceivingZ->setFilterRole(AddressTableModel::TypeRole);
     proxyModelReceivingZ->setFilterFixedString(AddressTableModel::ZReceive);
     ui->tableViewReceivingZ->setModel(proxyModelReceivingZ);
     ui->tableViewReceivingZ->sortByColumn(0, Qt::AscendingOrder);
 
-    // Receive filter (t-addresses)
+    // Receive filter (taddresses)
     proxyModelReceivingT->setFilterRole(AddressTableModel::TypeRole);
     proxyModelReceivingT->setFilterFixedString(AddressTableModel::Receive);
     ui->tableViewReceivingT->setModel(proxyModelReceivingT);

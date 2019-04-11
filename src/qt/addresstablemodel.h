@@ -46,7 +46,7 @@ public:
 
     static const QString Send;      /**< Specifies send address */
     static const QString Receive;   /**< Specifies receive address */
-    static const QString ZReceive;   /**< Specifies receive z-address */
+    static const QString ZReceive;   /**< Specifies receive zaddress */
 
     /** @name Methods overridden from QAbstractTableModel
         @{*/

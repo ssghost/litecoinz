@@ -498,9 +498,6 @@ struct CMutableTransaction;
 
 /** The basic transaction that is broadcasted on the network and contained in
  * blocks.  A transaction can contain multiple inputs and outputs.
- *
- * This version has a cached hash value, and requires calling UpdateHash
- * after any modifications are made.
  */
 class CTransaction
 {
@@ -544,9 +541,11 @@ public:
                     SAPLING_MAX_CURRENT_VERSION >= SAPLING_MIN_CURRENT_VERSION),
                   "standard rule for tx version should be consistent with network rule");
 
-    // Modification of any of the fields below requires a call to
-    // UpdateHash() before further use. Consider using CMutableTransaction
-    // instead if frequent modification is needed.
+    // The local variables are made const to prevent unintended modification
+    // without updating the cached hash value. However, CTransaction is not
+    // actually immutable; deserialization and assignment are implemented,
+    // and bypass the constness. This is safe, as they update the entire
+    // structure, including the hash.
     const bool fOverwintered;
     const int32_t nVersion;
     const uint32_t nVersionGroupId;
@@ -691,7 +690,7 @@ public:
     std::string ToString() const;
 };
 
-/** A version of CTransaction without cached hash. */
+/** A mutable version of CTransaction. */
 struct CMutableTransaction
 {
     bool fOverwintered;

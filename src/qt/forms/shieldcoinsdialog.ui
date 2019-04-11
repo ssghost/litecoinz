@@ -33,7 +33,7 @@
              <string>An optional label to associate with the new receiving address.</string>
             </property>
             <property name="text">
-             <string>Z-Address:</string>
+             <string>Zaddress:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -101,7 +101,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>Use this form to shield transparent coinbase funds by sending to a shielded z-address.</string>
+           <string>Use this form to shield transparent coinbase funds by sending to a shielded zaddress.</string>
           </property>
          </widget>
         </item>

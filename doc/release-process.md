@@ -1,151 +1,285 @@
 Release Process
 ====================
-Meta: There should always be a single release engineer to disambiguate responsibility.
 
-If this is a hotfix release, please see `./hotfix-process.md` before proceeding.
+Before every release candidate:
 
-## Pre-release
+* Update translations (ping wumpus on IRC) see [translation_process.md](https://github.com/bitcoin/bitcoin/blob/master/doc/translation_process.md#synchronising-translations).
 
-### Github Milestone
+* Update manpages, see [gen-manpages.sh](https://github.com/litecoinz-core/litecoinz/blob/master/contrib/devtools/README.md#gen-manpagessh).
 
-Ensure all goals for the github milestone are met. If not, remove tickets
-or PRs with a comment as to why it is not included. (Running out of time
-is a common reason.)
+Before every minor and major release:
 
-### Pre-release checklist:
+* Update [bips.md](bips.md) to account for changes since the last release.
+* Update version in `configure.ac` (don't forget to set `CLIENT_VERSION_IS_RELEASE` to `true`)
+* Write release notes (see below)
+* Update `src/chainparams.cpp` nMinimumChainWork with information from the getblockchaininfo rpc.
+* Update `src/chainparams.cpp` defaultAssumeValid with information from the getblockhash rpc.
+  - The selected value must not be orphaned so it may be useful to set the value two blocks back from the tip.
+  - Testnet should be set some tens of thousands back from the tip due to reorgs there.
+  - This update should be reviewed with a reindex-chainstate with assumevalid=0 to catch any defect
+     that causes rejection of blocks in the past history.
 
-Check that dependencies are properly hosted by looking at the `check-depends` builder:
+Before every major release:
 
-  https://ci.z.cash/#/builders/1
+* Update hardcoded [seeds](/contrib/seeds/README.md), see [this pull request](https://github.com/bitcoin/bitcoin/pull/7415) for an example.
+* Update [`BLOCK_CHAIN_SIZE`](/src/qt/intro.cpp) to the current size plus some overhead.
+* Update `src/chainparams.cpp` chainTxData with statistics about the transaction count and rate. Use the output of the RPC `getchaintxstats`, see
+  [this pull request](https://github.com/bitcoin/bitcoin/pull/12270) for an example. Reviewers can verify the results by running `getchaintxstats <window_block_count> <window_last_block_hash>` with the `window_block_count` and `window_last_block_hash` from your output.
+* Update version of `contrib/gitian-descriptors/*.yml`: usually one'd want to do this on master after branching off the release - but be sure to at least do it before a new major release
 
-Check that there are no surprising performance regressions:
+### First time / New builders
 
-  https://speed.z.cash
+If you're using the automated script (found in [contrib/gitian-build.py](/contrib/gitian-build.py)), then at this point you should run it with the "--setup" command. Otherwise ignore this.
 
-Ensure that new performance metrics appear on that site.
+Check out the source code in the following directory hierarchy.
 
-Update `src/chainparams.cpp` nMinimumChainWork with information from the getblockchaininfo rpc.
+    cd /path/to/your/toplevel/build
+    git clone https://github.com/litecoinz-core/gitian.sigs.ltz.git
+    git clone https://github.com/litecoinz-core/litecoinz-detached-sigs.git
+    git clone https://github.com/devrandom/gitian-builder.git
+    git clone https://github.com/litecoinz-core/litecoinz.git
 
-### Protocol Safety Checks:
+### LitecoinZ maintainers/release engineers, suggestion for writing release notes
 
-If this release changes the behavior of the protocol or fixes a serious
-bug, verify that a pre-release PR merge updated `PROTOCOL_VERSION` in
-`version.h` correctly.
+Write release notes. git shortlog helps a lot, for example:
 
-If this release breaks backwards compatibility or needs to prevent
-interaction with software forked projects, change the network magic
-numbers. Set the four `pchMessageStart` in `CTestNetParams` in
-`chainparams.cpp` to random values.
+    git shortlog --no-merges v(current version, e.g. 0.7.2)..v(new version, e.g. 0.8.0)
 
-Both of these should be done in standard PRs ahead of the release
-process. If these were not anticipated correctly, this could block the
-release, so if you suspect this is necessary, double check with the
-whole engineering team.
+(or ping @wumpus on IRC, he has specific tooling to generate the list of merged pulls
+and sort them into categories based on labels)
 
-## Release dependencies
+Generate list of authors:
 
-The release script has the following dependencies:
+    git log --format='- %aN' v(current version, e.g. 0.16.0)..v(new version, e.g. 0.16.1) | sort -fiu
 
-- `help2man`
-- `debchange` (part of the devscripts Debian package)
+Tag version (or release candidate) in git
 
-You can optionally install the `progressbar2` Python module with pip to have a
-progress bar displayed during the build process.
+    git tag -s v(new version, e.g. 0.8.0)
 
-## Release process
+### Setup and perform Gitian builds
 
-In the commands below, <RELEASE> and <RELEASE_PREV> are prefixed with a v, ie.
-v1.0.9 (not 1.0.9).
+If you're using the automated script (found in [contrib/gitian-build.py](/contrib/gitian-build.py)), then at this point you should run it with the "--build" command. Otherwise ignore this.
 
-### Create the release branch
+Setup Gitian descriptors:
 
-Run the release script, which will verify you are on the latest clean
-checkout of master, create a branch, then commit standard automated
-changes to that branch locally:
+    pushd ./litecoinz
+    export SIGNER="(your Gitian key, ie bluematt, sipa, etc)"
+    export VERSION=(new version, e.g. 0.8.0)
+    git fetch
+    git checkout v${VERSION}
+    popd
 
-    $ ./zcutil/make-release.py <RELEASE> <RELEASE_PREV> <RELEASE_FROM> <APPROX_RELEASE_HEIGHT>
+Ensure your gitian.sigs.ltz are up-to-date if you wish to gverify your builds against other Gitian signatures.
 
-Examples:
+    pushd ./gitian.sigs.ltz
+    git pull
+    popd
 
-    $ ./zcutil/make-release.py v1.0.9 v1.0.8-1 v1.0.8-1 120000
-    $ ./zcutil/make-release.py v1.0.13 v1.0.13-rc1 v1.0.12 222900
+Ensure gitian-builder is up-to-date:
 
-### Create, Review, and Merge the release branch pull request
+    pushd ./gitian-builder
+    git pull
+    popd
 
-Review the automated changes in git:
+### Fetch and create inputs: (first time, or when dependency versions change)
 
-    $ git log master..HEAD
+    pushd ./gitian-builder
+    mkdir -p inputs
+    wget -P inputs https://bitcoincore.org/cfields/osslsigncode-Backports-to-1.7.1.patch
+    echo 'a8c4e9cafba922f89de0df1f2152e7be286aba73f78505169bc351a7938dd911 inputs/osslsigncode-Backports-to-1.7.1.patch' | sha256sum -c
+    wget -P inputs http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz
+    echo 'f9a8cdb38b9c309326764ebc937cba1523a3a751a7ab05df3ecc99d18ae466c9 inputs/osslsigncode-1.7.1.tar.gz' | sha256sum -c
+    popd
 
-Push the resulting branch to github:
+Create the macOS SDK tarball, see the [macOS readme](README_osx.md) for details, and copy it into the inputs directory.
 
-    $ git push 'git@github.com:$YOUR_GITHUB_NAME/zcash' $(git rev-parse --abbrev-ref HEAD)
+### Optional: Seed the Gitian sources cache and offline git repositories
 
-Then create the PR on github. Complete the standard review process,
-then merge, then wait for CI to complete.
+NOTE: Gitian is sometimes unable to download files. If you have errors, try the step below.
 
-## Make tag for the newly merged result
+By default, Gitian will fetch source files as needed. To cache them ahead of time, make sure you have checked out the tag you want to build in litecoinz, then:
 
-Checkout master and pull the latest version to ensure master is up to date with the release PR which was merged in before.
+    pushd ./gitian-builder
+    make -C ../litecoinz/depends download SOURCES_PATH=`pwd`/cache/common
+    popd
 
-    $ git checkout master
-    $ git pull --ff-only
+Only missing files will be fetched, so this is safe to re-run for each build.
 
-Check the last commit on the local and remote versions of master to make sure they are the same:
+NOTE: Offline builds must use the --url flag to ensure Gitian fetches only from local URLs. For example:
 
-    $ git log -1
+    pushd ./gitian-builder
+    ./bin/gbuild --url litecoinz=/path/to/litecoinz,signature=/path/to/sigs {rest of arguments}
+    popd
 
-The output should include something like, which is created by Homu:
+The gbuild invocations below <b>DO NOT DO THIS</b> by default.
 
-    Auto merge of #4242 - nathan-at-least:release-v1.0.9, r=nathan-at-least
+### Build and sign LitecoinZ Core for Linux, Windows, and macOS:
 
-Then create the git tag. The `-s` means the release tag will be
-signed. **CAUTION:** Remember the `v` at the beginning here:
+    pushd ./gitian-builder
+    ./bin/gbuild --num-make 2 --memory 3000 --commit litecoinz=v${VERSION} ../litecoinz/contrib/gitian-descriptors/gitian-linux.yml
+    ./bin/gsign --signer "$SIGNER" --release ${VERSION}-linux --destination ../gitian.sigs.ltz/ ../litecoinz/contrib/gitian-descriptors/gitian-linux.yml
+    mv build/out/litecoinz-*.tar.gz build/out/src/litecoinz-*.tar.gz ../
 
-    $ git tag -s v1.0.9
-    $ git push origin v1.0.9
+    ./bin/gbuild --num-make 2 --memory 3000 --commit litecoinz=v${VERSION} ../litecoinz/contrib/gitian-descriptors/gitian-win.yml
+    ./bin/gsign --signer "$SIGNER" --release ${VERSION}-win-unsigned --destination ../gitian.sigs.ltz/ ../litecoinz/contrib/gitian-descriptors/gitian-win.yml
+    mv build/out/litecoinz-*-win-unsigned.tar.gz inputs/litecoinz-win-unsigned.tar.gz
+    mv build/out/litecoinz-*.zip build/out/litecoinz-*.exe ../
 
-## Make and deploy deterministic builds
+    ./bin/gbuild --num-make 2 --memory 3000 --commit litecoinz=v${VERSION} ../litecoinz/contrib/gitian-descriptors/gitian-osx.yml
+    ./bin/gsign --signer "$SIGNER" --release ${VERSION}-osx-unsigned --destination ../gitian.sigs.ltz/ ../litecoinz/contrib/gitian-descriptors/gitian-osx.yml
+    mv build/out/litecoinz-*-osx-unsigned.tar.gz inputs/litecoinz-osx-unsigned.tar.gz
+    mv build/out/litecoinz-*.tar.gz build/out/litecoinz-*.dmg ../
+    popd
 
-- Run the [Gitian deterministic build environment](https://github.com/zcash/zcash-gitian)
-- Compare the uploaded [build manifests on gitian.sigs](https://github.com/zcash/gitian.sigs)
-- If all is well, the DevOps engineer will build the Debian packages and update the
-  [apt.z.cash package repository](https://apt.z.cash).
+Build output expected:
 
-## Add release notes to GitHub
+  1. source tarball (`litecoinz-${VERSION}.tar.gz`)
+  2. linux 32-bit and 64-bit dist tarballs (`litecoinz-${VERSION}-linux[32|64].tar.gz`)
+  3. windows 32-bit and 64-bit unsigned installers and dist zips (`litecoinz-${VERSION}-win[32|64]-setup-unsigned.exe`, `litecoinz-${VERSION}-win[32|64].zip`)
+  4. macOS unsigned installer and dist tarball (`litecoinz-${VERSION}-osx-unsigned.dmg`, `litecoinz-${VERSION}-osx64.tar.gz`)
+  5. Gitian signatures (in `gitian.sigs.ltz/${VERSION}-<linux|{win,osx}-unsigned>/(your Gitian key)/`)
 
-- Go to the [GitHub tags page](https://github.com/zcash/zcash/tags).
-- Click "Add release notes" beside the tag for this release.
-- Copy the release blog post into the release description, and edit to suit
-  publication on GitHub. See previous release notes for examples.
-- Click "Publish release" if publishing the release blog post now, or
-  "Save draft" to store the notes internally (and then return later to publish
-  once the blog post is up).
+### Verify other gitian builders signatures to your own. (Optional)
 
-Note that some GitHub releases are marked as "Verified", and others as
-"Unverified". This is related to the GPG signature on the release tag - in
-particular, GitHub needs the corresponding public key to be uploaded to a
-corresponding GitHub account. If this release is marked as "Unverified", click
-the marking to see what GitHub wants to be done.
+Add other gitian builders keys to your gpg keyring, and/or refresh keys: See `../litecoinz/contrib/gitian-keys/README.md`.
 
-## Post Release Task List
+Verify the signatures
 
-### Deploy testnet
+    pushd ./gitian-builder
+    ./bin/gverify -v -d ../gitian.sigs.ltz/ -r ${VERSION}-linux ../litecoinz/contrib/gitian-descriptors/gitian-linux.yml
+    ./bin/gverify -v -d ../gitian.sigs.ltz/ -r ${VERSION}-win-unsigned ../litecoinz/contrib/gitian-descriptors/gitian-win.yml
+    ./bin/gverify -v -d ../gitian.sigs.ltz/ -r ${VERSION}-osx-unsigned ../litecoinz/contrib/gitian-descriptors/gitian-osx.yml
+    popd
 
-Notify the Zcash DevOps engineer/sysadmin that the release has been tagged. They update some variables in the company's automation code and then run an Ansible playbook, which:
+### Next steps:
 
-* builds Zcash based on the specified branch
-* deploys it as a public service (e.g. betatestnet.z.cash, mainnet.z.cash)
-* often the same server can be re-used, and the role idempotently handles upgrades, but if not then they also need to update DNS records
-* possible manual steps: blowing away the `testnet3` dir, deleting old parameters, restarting DNS seeder
+Commit your signature to gitian.sigs.ltz:
 
-Then, verify that nodes can connect to the testnet server, and update the guide on the wiki to ensure the correct hostname is listed in the recommended litecoinz.conf.
+    pushd gitian.sigs.ltz
+    git add ${VERSION}-linux/"${SIGNER}"
+    git add ${VERSION}-win-unsigned/"${SIGNER}"
+    git add ${VERSION}-osx-unsigned/"${SIGNER}"
+    git commit -m "Add ${VERSION} unsigned sigs for ${SIGNER}"
+    git push  # Assuming you can push to the gitian.sigs tree
+    popd
 
-### Update the 1.0 User Guide
+Codesigner only: Create Windows/macOS detached signatures:
+- Only one person handles codesigning. Everyone else should skip to the next step.
+- Only once the Windows/macOS builds each have 3 matching signatures may they be signed with their respective release keys.
 
-This also means updating [the translations](https://github.com/zcash/zcash-docs).
-Coordinate with the translation team for now. Suggestions for improving this
-part of the process should be added to #2596.
+Codesigner only: Sign the macOS binary:
 
-### Publish the release announcement (blog, github, zcash-dev, slack)
+    transfer litecoinz-osx-unsigned.tar.gz to macOS for signing
+    tar xf litecoinz-osx-unsigned.tar.gz
+    ./detached-sig-create.sh -s "Key ID"
+    Enter the keychain password and authorize the signature
+    Move signature-osx.tar.gz back to the gitian host
 
-## Celebrate
+Codesigner only: Sign the windows binaries:
+
+    tar xf litecoinz-win-unsigned.tar.gz
+    ./detached-sig-create.sh -key /path/to/codesign.key
+    Enter the passphrase for the key when prompted
+    signature-win.tar.gz will be created
+
+Codesigner only: Commit the detached codesign payloads:
+
+    cd ~/litecoinz-detached-sigs
+    checkout the appropriate branch for this release series
+    rm -rf *
+    tar xf signature-osx.tar.gz
+    tar xf signature-win.tar.gz
+    git add -a
+    git commit -m "point to ${VERSION}"
+    git tag -s v${VERSION} HEAD
+    git push the current branch and new tag
+
+Non-codesigners: wait for Windows/macOS detached signatures:
+
+- Once the Windows/macOS builds each have 3 matching signatures, they will be signed with their respective release keys.
+- Detached signatures will then be committed to the [litecoinz-detached-sigs](https://github.com/litecoinz-core/litecoinz-detached-sigs) repository, which can be combined with the unsigned apps to create signed binaries.
+
+Create (and optionally verify) the signed macOS binary:
+
+    pushd ./gitian-builder
+    ./bin/gbuild -i --commit signature=v${VERSION} ../litecoinz/contrib/gitian-descriptors/gitian-osx-signer.yml
+    ./bin/gsign --signer "$SIGNER" --release ${VERSION}-osx-signed --destination ../gitian.sigs.ltz/ ../litecoinz/contrib/gitian-descriptors/gitian-osx-signer.yml
+    ./bin/gverify -v -d ../gitian.sigs.ltz/ -r ${VERSION}-osx-signed ../litecoinz/contrib/gitian-descriptors/gitian-osx-signer.yml
+    mv build/out/litecoinz-osx-signed.dmg ../litecoinz-${VERSION}-osx.dmg
+    popd
+
+Create (and optionally verify) the signed Windows binaries:
+
+    pushd ./gitian-builder
+    ./bin/gbuild -i --commit signature=v${VERSION} ../litecoinz/contrib/gitian-descriptors/gitian-win-signer.yml
+    ./bin/gsign --signer "$SIGNER" --release ${VERSION}-win-signed --destination ../gitian.sigs.ltz/ ../litecoinz/contrib/gitian-descriptors/gitian-win-signer.yml
+    ./bin/gverify -v -d ../gitian.sigs.ltz/ -r ${VERSION}-win-signed ../litecoinz/contrib/gitian-descriptors/gitian-win-signer.yml
+    mv build/out/litecoinz-*win64-setup.exe ../litecoinz-${VERSION}-win64-setup.exe
+    mv build/out/litecoinz-*win32-setup.exe ../litecoinz-${VERSION}-win32-setup.exe
+    popd
+
+Commit your signature for the signed macOS/Windows binaries:
+
+    pushd gitian.sigs.ltz
+    git add ${VERSION}-osx-signed/"${SIGNER}"
+    git add ${VERSION}-win-signed/"${SIGNER}"
+    git commit -a
+    git push  # Assuming you can push to the gitian.sigs.ltz tree
+    popd
+
+### After 3 or more people have gitian-built and their results match:
+
+- Create `SHA256SUMS.asc` for the builds, and GPG-sign it:
+
+```bash
+sha256sum * > SHA256SUMS
+```
+
+The list of files should be:
+```
+litecoinz-${VERSION}-aarch64-linux-gnu.tar.gz
+litecoinz-${VERSION}-arm-linux-gnueabihf.tar.gz
+litecoinz-${VERSION}-i686-pc-linux-gnu.tar.gz
+litecoinz-${VERSION}-x86_64-linux-gnu.tar.gz
+litecoinz-${VERSION}-osx64.tar.gz
+litecoinz-${VERSION}-osx.dmg
+litecoinz-${VERSION}.tar.gz
+litecoinz-${VERSION}-win32-setup.exe
+litecoinz-${VERSION}-win32.zip
+litecoinz-${VERSION}-win64-setup.exe
+litecoinz-${VERSION}-win64.zip
+```
+The `*-debug*` files generated by the gitian build contain debug symbols
+for troubleshooting by developers. It is assumed that anyone that is interested
+in debugging can run gitian to generate the files for themselves. To avoid
+end-user confusion about which file to pick, as well as save storage
+space *do not upload these to the litecoinz.org server, nor put them in the torrent*.
+
+- GPG-sign it, delete the unsigned file:
+```
+gpg --digest-algo sha256 --clearsign SHA256SUMS # outputs SHA256SUMS.asc
+rm SHA256SUMS
+```
+(the digest algorithm is forced to sha256 to avoid confusion of the `Hash:` header that GPG adds with the SHA256 used for the files)
+Note: check that SHA256SUMS itself doesn't end up in SHA256SUMS, which is a spurious/nonsensical entry.
+
+- Upload zips and installers, as well as `SHA256SUMS.asc` from last step, to the litecoinz.org server.
+
+```
+- Update litecoinz.org version
+
+- Announce the release:
+
+  - litecoinz-dev and litecoinz-dev mailing list
+
+  - blog.litecoinz.org blog post
+
+  - Update title of #litecoinz and #litecoinz-dev on Freenode IRC
+
+  - Optionally twitter, reddit /r/LitecoinZ, ... but this will usually sort out itself
+
+  - Archive release notes for the new version to `doc/release-notes/` (branch `master` and branch of the release)
+
+  - Create a [new GitHub release](https://github.com/litecoinz-core/litecoinz/releases/new) with a link to the archived release notes.
+
+  - Celebrate

@@ -66,7 +66,7 @@ $0 [ --enable-lcov || --disable-tests ] [ --disable-mining ] [ --disable-libs ] 
   code. It must be passed after the test arguments, if present.
 
   If --disable-libs is passed, LitecoinZ is configured to not build any libraries like
-  'libzcashconsensus'.
+  'libbitcoinconsensus'.
 EOF
     exit 0
 fi

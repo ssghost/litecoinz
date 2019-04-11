@@ -23,6 +23,7 @@
 #include "zcash/IncrementalMerkleTree.hpp"
 #include "sodium.h"
 #include "miner.h"
+#include "wallet/paymentdisclosuredb.h"
 
 #include <array>
 #include <iostream>
@@ -31,9 +32,6 @@
 #include <string>
 
 #include "asyncrpcoperation_shieldcoinbase.h"
-
-#include "paymentdisclosure.h"
-#include "paymentdisclosuredb.h"
 
 using namespace libzcash;
 
@@ -110,11 +108,7 @@ void AsyncRPCOperation_shieldcoinbase::main() {
     bool success = false;
 
 #ifdef ENABLE_MINING
-  #ifdef ENABLE_WALLET
-    GenerateBitcoins(false, NULL, 0);
-  #else
-    GenerateBitcoins(false, 0);
-  #endif
+    GenerateBitcoins(false, 0, Params());
 #endif
 
     try {
@@ -139,11 +133,7 @@ void AsyncRPCOperation_shieldcoinbase::main() {
     }
 
 #ifdef ENABLE_MINING
-  #ifdef ENABLE_WALLET
-    GenerateBitcoins(GetBoolArg("-gen",false), pwalletMain, GetArg("-genproclimit", 1));
-  #else
-    GenerateBitcoins(GetBoolArg("-gen",false), GetArg("-genproclimit", 1));
-  #endif
+    GenerateBitcoins(GetBoolArg("-gen",false), GetArg("-genproclimit", 1), Params());
 #endif
 
     stop_execution_clock();
@@ -253,7 +243,7 @@ extern UniValue sendrawtransaction(const UniValue& params, bool fHelp);
 bool ShieldToAddress::operator()(const libzcash::SaplingPaymentAddress &zaddr) const {
     m_op->builder_.SetFee(m_op->fee_);
 
-    // Sending from a t-address, which we don't have an ovk for. Instead,
+    // Sending from a taddress, which we don't have an ovk for. Instead,
     // generate a common one from the HD seed. This ensures the data is
     // recoverable, while keeping it logically separate from the ZIP 32
     // Sapling key hierarchy, which the user might not be using.
@@ -270,15 +260,11 @@ bool ShieldToAddress::operator()(const libzcash::SaplingPaymentAddress &zaddr) c
         m_op->builder_.AddTransparentInput(COutPoint(t.txid, t.vout), t.scriptPubKey, t.amount);
     }
 
-    // Send all value to the target z-addr
+    // Send all value to the target zaddr
     m_op->builder_.SendChangeTo(zaddr, ovk);
 
     // Build the transaction
-    auto maybe_tx = m_op->builder_.Build();
-    if (!maybe_tx) {
-        throw JSONRPCError(RPC_WALLET_ERROR, "Failed to build transaction.");
-    }
-    m_op->tx_ = maybe_tx.get();
+    m_op->tx_ = m_op->builder_.Build().GetTxOrThrow();
 
     // Send the transaction
     // TODO: Use CWallet::CommitTransaction instead of sendrawtransaction

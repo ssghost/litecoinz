@@ -24,14 +24,13 @@
 #include "zcash/IncrementalMerkleTree.hpp"
 #include "sodium.h"
 #include "miner.h"
+#include "wallet/paymentdisclosuredb.h"
 
 #include <array>
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <string>
-
-#include "paymentdisclosuredb.h"
 
 using namespace libzcash;
 
@@ -71,11 +70,11 @@ AsyncRPCOperation_sendmany::AsyncRPCOperation_sendmany(
     if (minDepth < 0) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Minconf cannot be negative");
     }
-    
+
     if (fromAddress.size() == 0) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "From address parameter missing");
     }
-    
+
     if (tOutputs.size() == 0 && zOutputs.size() == 0) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "No recipients");
     }
@@ -135,11 +134,7 @@ void AsyncRPCOperation_sendmany::main() {
     bool success = false;
 
 #ifdef ENABLE_MINING
-  #ifdef ENABLE_WALLET
-    GenerateBitcoins(false, NULL, 0);
-  #else
-    GenerateBitcoins(false, 0);
-  #endif
+    GenerateBitcoins(false, 0, Params());
 #endif
 
     try {
@@ -164,11 +159,7 @@ void AsyncRPCOperation_sendmany::main() {
     }
 
 #ifdef ENABLE_MINING
-  #ifdef ENABLE_WALLET
-    GenerateBitcoins(GetBoolArg("-gen",false), pwalletMain, GetArg("-genproclimit", 1));
-  #else
-    GenerateBitcoins(GetBoolArg("-gen",false), GetArg("-genproclimit", 1));
-  #endif
+    GenerateBitcoins(GetBoolArg("-gen", false), GetArg("-genproclimit", 1), Params());
 #endif
 
     stop_execution_clock();
@@ -216,6 +207,8 @@ bool AsyncRPCOperation_sendmany::main_impl() {
     bool isPureTaddrOnlyTx = (isfromtaddr_ && z_outputs_.size() == 0);
     CAmount minersFee = fee_;
 
+    bool fCoinbaseMustBeProtected = Params().GetConsensus().fCoinbaseMustBeProtected;
+
     // When spending coinbase utxos, you can only specify a single zaddr as the change must go somewhere
     // and if there are multiple zaddrs, we don't know where to send it.
     if (isfromtaddr_) {
@@ -225,17 +218,23 @@ bool AsyncRPCOperation_sendmany::main_impl() {
                 throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds, no UTXOs found for taddr from address.");
             }
         } else {
-            bool b = find_utxos(false);
+            bool b = find_utxos(!fCoinbaseMustBeProtected);
             if (!b) {
                 if (isMultipleZaddrOutput) {
-                    throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Could not find any non-coinbase UTXOs to spend. Coinbase UTXOs can only be sent to a single zaddr recipient.");
+                    if (fCoinbaseMustBeProtected)
+                        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Could not find any non-coinbase UTXOs to spend. Coinbase UTXOs can only be sent to a single zaddr recipient.");
+                    else
+                        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Could not find any UTXOs to spend.");
                 } else {
-                    throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Could not find any non-coinbase UTXOs to spend.");
+                    if (fCoinbaseMustBeProtected)
+                        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Could not find any non-coinbase UTXOs to spend.");
+                    else
+                        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Could not find any UTXOs to spend.");
                 }
             }
-        }        
+        }
     }
-    
+
     if (isfromzaddr_ && !find_unspent_notes()) {
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds, no unspent notes found for zaddr from address.");
     }
@@ -277,7 +276,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
             strprintf("Insufficient transparent funds, have %s, need %s",
             FormatMoney(t_inputs_total), FormatMoney(targetAmount)));
     }
-    
+
     if (isfromzaddr_ && (z_inputs_total < targetAmount)) {
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS,
             strprintf("Insufficient shielded funds, have %s, need %s",
@@ -386,7 +385,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
             expsk = sk.expsk;
             ovk = expsk.full_viewing_key().ovk;
         } else {
-            // Sending from a t-address, which we don't have an ovk for. Instead,
+            // Sending from a taddress, which we don't have an ovk for. Instead,
             // generate a common one from the HD seed. This ensures the data is
             // recoverable, while keeping it logically separate from the ZIP 32
             // Sapling key hierarchy, which the user might not be using.
@@ -416,7 +415,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
             }
 
             CTxDestination changeAddr = vchPubKey.GetID();
-            assert(builder_.SendChangeTo(changeAddr));
+            builder_.SendChangeTo(changeAddr);
         }
 
         // Select Sapling notes
@@ -445,7 +444,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
             if (!witnesses[i]) {
                 throw JSONRPCError(RPC_WALLET_ERROR, "Missing witness for Sapling note");
             }
-            assert(builder_.AddSaplingSpend(expsk, notes[i], anchor, witnesses[i].get()));
+            builder_.AddSaplingSpend(expsk, notes[i], anchor, witnesses[i].get());
         }
 
         // Add Sapling outputs
@@ -469,17 +468,11 @@ bool AsyncRPCOperation_sendmany::main_impl() {
             auto amount = std::get<1>(r);
 
             auto address = DecodeDestination(outputAddress);
-            if (!builder_.AddTransparentOutput(address, amount)) {
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid output address, not a valid taddr.");
-            }
+            builder_.AddTransparentOutput(address, amount);
         }
 
         // Build the transaction
-        auto maybe_tx = builder_.Build();
-        if (!maybe_tx) {
-            throw JSONRPCError(RPC_WALLET_ERROR, "Failed to build transaction.");
-        }
-        tx_ = maybe_tx.get();
+        tx_ = builder_.Build().GetTxOrThrow();
 
         // Send the transaction
         // TODO: Use CWallet::CommitTransaction instead of sendrawtransaction
@@ -521,18 +514,18 @@ bool AsyncRPCOperation_sendmany::main_impl() {
 
     /**
      * SCENARIO #1
-     * 
+     *
      * taddr -> taddrs
-     * 
+     *
      * There are no zaddrs or joinsplits involved.
      */
     if (isPureTaddrOnlyTx) {
         add_taddr_outputs_to_tx();
-        
+
         CAmount funds = selectedUTXOAmount;
         CAmount fundsSpent = t_outputs_total + minersFee;
         CAmount change = funds - fundsSpent;
-        
+
         if (change > 0) {
             add_taddr_change_output_to_tx(change);
 
@@ -541,7 +534,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
                     FormatMoney(change)
                     );
         }
-        
+
         UniValue obj(UniValue::VOBJ);
         obj.push_back(Pair("rawtxn", EncodeHexTx(tx_)));
         sign_send_raw_transaction(obj);
@@ -551,7 +544,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
      * END SCENARIO #1
      */
 
-    
+
     // Prepare raw transaction to handle JoinSplits
     CMutableTransaction mtx(tx_);
     crypto_sign_keypair(joinSplitPubKey_.begin(), joinSplitPrivKey_);
@@ -591,10 +584,10 @@ bool AsyncRPCOperation_sendmany::main_impl() {
 
     /**
      * SCENARIO #2
-     * 
+     *
      * taddr -> taddrs
      *       -> zaddrs
-     * 
+     *
      * Note: Consensus rule states that coinbase utxos can only be sent to a zaddr.
      *       Local wallet rule does not allow any change when sending coinbase utxos
      *       since there is currently no way to specify a change address and we don't
@@ -602,13 +595,13 @@ bool AsyncRPCOperation_sendmany::main_impl() {
      */
     if (isfromtaddr_) {
         add_taddr_outputs_to_tx();
-        
+
         CAmount funds = selectedUTXOAmount;
         CAmount fundsSpent = t_outputs_total + minersFee + z_outputs_total;
         CAmount change = funds - fundsSpent;
-        
+
         if (change > 0) {
-            if (selectedUTXOCoinbase) {
+            if (fCoinbaseMustBeProtected && selectedUTXOCoinbase) {
                 assert(isSingleZaddrOutput);
                 throw JSONRPCError(RPC_WALLET_ERROR, strprintf(
                     "Change %s not allowed. When shielding coinbase funds, the wallet does not "
@@ -643,7 +636,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
                     jso.memo = get_memo_from_hex_string(hexMemo);
                 }
                 info.vjsout.push_back(jso);
-                
+
                 // Funds are removed from the value pool and enter the private pool
                 info.vpub_old += value;
             }
@@ -654,16 +647,16 @@ bool AsyncRPCOperation_sendmany::main_impl() {
     }
     /**
      * END SCENARIO #2
-     */   
- 
-    
-    
+     */
+
+
+
     /**
      * SCENARIO #3
-     * 
+     *
      * zaddr -> taddrs
      *       -> zaddrs
-     * 
+     *
      * Send to zaddrs by chaining JoinSplits together and immediately consuming any change
      * Send to taddrs by creating dummy z outputs and accumulating value in a change note
      * which is used to set vpub_new in the last chained joinsplit.
@@ -789,9 +782,9 @@ bool AsyncRPCOperation_sendmany::main_impl() {
 
             vOutPoints.push_back(jso);
             vInputNotes.push_back(note);
-            
+
             jsInputValue += noteFunds;
-            
+
             int wtxHeight = -1;
             int wtxDepth = -1;
             {
@@ -814,14 +807,14 @@ bool AsyncRPCOperation_sendmany::main_impl() {
                     wtxDepth
                     );
         }
-                    
+
         // Add history of previous commitments to witness
         if (vInputNotes.size() > 0) {
 
             if (vInputWitnesses.size()==0) {
                 throw JSONRPCError(RPC_WALLET_ERROR, "Could not find witness for note commitment");
             }
-            
+
             for (auto & optionalWitness : vInputWitnesses) {
                 if (!optionalWitness) {
                     throw JSONRPCError(RPC_WALLET_ERROR, "Witness for note commitment is null");
@@ -937,7 +930,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
  * Raw transaction as hex string should be in object field "rawtxn"
  */
 void AsyncRPCOperation_sendmany::sign_send_raw_transaction(UniValue obj)
-{   
+{
     // Sign the raw transaction
     UniValue rawtxnValue = find_value(obj, "rawtxn");
     if (rawtxnValue.isNull()) {
@@ -1343,11 +1336,11 @@ std::array<unsigned char, ZC_MEMO_SIZE> AsyncRPCOperation_sendmany::get_memo_fro
     if (slen % 2 !=0 || (slen>0 && rawMemo.size()!=slen/2)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Memo must be in hexadecimal format");
     }
-    
+
     if (rawMemo.size() > ZC_MEMO_SIZE) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("Memo size of %d is too big, maximum allowed is %d", rawMemo.size(), ZC_MEMO_SIZE));
     }
-    
+
     // copy vector into boost array
     int lenMemo = rawMemo.size();
     for (int i = 0; i < ZC_MEMO_SIZE && i < lenMemo; i++) {

@@ -314,7 +314,7 @@ UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys
                 continue;
             } else {
                 LogPrint("zrpc", "Importing detected an error: invalid spending key. Trying as a transparent key...\n");
-                // Not a valid spending key, so carry on and see if it's a Zcash style t-address.
+                // Not a valid spending key, so carry on and see if it's a Zcash style taddress.
             }
         }
 
@@ -380,11 +380,11 @@ UniValue dumpprivkey(const UniValue& params, bool fHelp)
     
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "dumpprivkey \"t-addr\"\n"
-            "\nReveals the private key corresponding to 't-addr'.\n"
+            "dumpprivkey \"taddr\"\n"
+            "\nReveals the private key corresponding to 'taddr'.\n"
             "Then the importprivkey can be used with this output\n"
             "\nArguments:\n"
-            "1. \"t-addr\"   (string, required) The transparent address for the private key\n"
+            "1. \"taddr\"   (string, required) The transparent address for the private key\n"
             "\nResult:\n"
             "\"key\"         (string) The private key\n"
             "\nExamples:\n"

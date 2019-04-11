@@ -1,5 +1,5 @@
 ---
-name: "litecoinz-win-2.0"
+name: "litecoinz-core-win-2.0.0"
 enable_cache: true
 suites:
 - "bionic"
@@ -20,16 +20,19 @@ packages:
 - "nsis"
 - "zip"
 - "ca-certificates"
-- "python"
+- "python3"
 - "rename"
+- "cmake"
 remotes:
 - "url": "https://github.com/litecoinz-project/litecoinz.git"
   "dir": "litecoinz"
 files: []
 script: |
+  set -e -o pipefail
+
   WRAP_DIR=$HOME/wrapped
   HOSTS="x86_64-w64-mingw32"
-  CONFIGFLAGS="--enable-reduce-exports --disable-bench --disable-gui-tests"
+  CONFIGFLAGS="--enable-reduce-exports --disable-gui-tests --disable-tests"
   FAKETIME_HOST_PROGS="ar ranlib nm windres strip objcopy"
   FAKETIME_PROGS="date makensis zip"
   HOST_CFLAGS="-O2 -g"
@@ -54,7 +57,7 @@ script: |
     echo "REAL=\`which -a ${prog} | grep -v ${WRAP_DIR}/${prog} | head -1\`" >> ${WRAP_DIR}/${prog}
     echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1' >> ${WRAP_DIR}/${prog}
     echo "export FAKETIME=\"$1\"" >> ${WRAP_DIR}/${prog}
-    echo "\$REAL \$@" >> $WRAP_DIR/${prog}
+    echo "\$REAL \"\$@\"" >> $WRAP_DIR/${prog}
     chmod +x ${WRAP_DIR}/${prog}
   done
   }
@@ -66,7 +69,7 @@ script: |
         echo "REAL=\`which -a ${i}-${prog} | grep -v ${WRAP_DIR}/${i}-${prog} | head -1\`" >> ${WRAP_DIR}/${i}-${prog}
         echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1' >> ${WRAP_DIR}/${i}-${prog}
         echo "export FAKETIME=\"$1\"" >> ${WRAP_DIR}/${i}-${prog}
-        echo "\$REAL \$@" >> $WRAP_DIR/${i}-${prog}
+        echo "\$REAL \"\$@\"" >> $WRAP_DIR/${i}-${prog}
         chmod +x ${WRAP_DIR}/${i}-${prog}
     done
   done
@@ -81,7 +84,7 @@ script: |
         echo '#!/usr/bin/env bash' > ${WRAP_DIR}/${i}/${prog}
         REAL=$(${i}-gcc -print-prog-name=${prog})
         echo "export MALLOC_PERTURB_=255" >> ${WRAP_DIR}/${i}/${prog}
-        echo "${REAL} \$@" >> $WRAP_DIR/${i}/${prog}
+        echo "${REAL} \"\$@\"" >> $WRAP_DIR/${i}/${prog}
         chmod +x ${WRAP_DIR}/${i}/${prog}
     done
     for prog in gcc g++; do
@@ -90,7 +93,7 @@ script: |
         echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1' >> ${WRAP_DIR}/${i}-${prog}
         echo "export FAKETIME=\"$1\"" >> ${WRAP_DIR}/${i}-${prog}
         echo "export COMPILER_PATH=${WRAP_DIR}/${i}" >> ${WRAP_DIR}/${i}-${prog}
-        echo "\$REAL \$@" >> $WRAP_DIR/${i}-${prog}
+        echo "\$REAL \"\$@\"" >> $WRAP_DIR/${i}-${prog}
         chmod +x ${WRAP_DIR}/${i}-${prog}
     done
   done
@@ -107,7 +110,7 @@ script: |
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do
-    make ${MAKEOPTS} -C ${BASEPREFIX} HOST="${i}"
+    make ${MAKEOPTS} -C ${BASEPREFIX} HOST="${i}" NO_GTEST=1
   done
 
   # Faketime for binaries
@@ -159,13 +162,18 @@ script: |
     rename 's/-setup\.exe$/-setup-unsigned.exe/' *-setup.exe
     cp -f litecoinz-*setup*.exe $OUTDIR/
     cd installed
-    mv ${DISTNAME}/bin/*.dll ${DISTNAME}/lib/
+    # LitecoinZ: libbitcoin is not build
+    #mv ${DISTNAME}/bin/*.dll ${DISTNAME}/lib/
+    # LitecoinZ: ends
     find . -name "lib*.la" -delete
     find . -name "lib*.a" -delete
+    # LitecoinZ: Delete libbitcoin from binary distribution for now, see https://github.com/litecoin-project/litecoin/issues/192
+    rm -rf ${DISTNAME}/lib/
+    rm -rf ${DISTNAME}/include/
+    # LitecoinZ: ends
     rm -rf ${DISTNAME}/lib/pkgconfig
     find ${DISTNAME}/bin -type f -executable -exec ${i}-objcopy --only-keep-debug {} {}.dbg \; -exec ${i}-strip -s {} \; -exec ${i}-objcopy --add-gnu-debuglink={}.dbg {} \;
-    # Commented out while we don't build any libraries
-    #find ${DISTNAME}/lib -type f -exec ${i}-objcopy --only-keep-debug {} {}.dbg \; -exec ${i}-strip -s {} \; -exec ${i}-objcopy --add-gnu-debuglink={}.dbg {} \;
+    # LitecoinZ: find ${DISTNAME}/lib -type f -exec ${i}-objcopy --only-keep-debug {} {}.dbg \; -exec ${i}-strip -s {} \; -exec ${i}-objcopy --add-gnu-debuglink={}.dbg {} \;
     find ${DISTNAME} -not -name "*.dbg"  -type f | sort | zip -X@ ${OUTDIR}/${DISTNAME}-${i}.zip
     find ${DISTNAME} -name "*.dbg"  -type f | sort | zip -X@ ${OUTDIR}/${DISTNAME}-${i}-debug.zip
     cd ../../

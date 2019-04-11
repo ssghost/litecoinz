@@ -35,25 +35,27 @@ litecoinz_gtest_SOURCES += \
 	gtest/test_sapling_note.cpp \
 	gtest/test_transaction.cpp \
 	gtest/test_transaction_builder.cpp \
-        gtest/test_upgrades.cpp \
+	gtest/test_upgrades.cpp \
 	gtest/test_validation.cpp \
 	gtest/test_circuit.cpp \
 	gtest/test_txid.cpp \
 	gtest/test_libzcash_utils.cpp \
 	gtest/test_proofs.cpp \
-	gtest/test_paymentdisclosure.cpp \
 	gtest/test_pedersen_hash.cpp \
 	gtest/test_checkblock.cpp \
-	gtest/test_zip32.cpp
+	gtest/test_zip32.cpp \
+	gtest/test_checkblockdelay.cpp
+
 if ENABLE_WALLET
 litecoinz_gtest_SOURCES += \
+	wallet/gtest/test_paymentdisclosure.cpp \
 	wallet/gtest/test_wallet.cpp
 endif
 
 litecoinz_gtest_CPPFLAGS = $(AM_CPPFLAGS) -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DSTATIC $(BITCOIN_INCLUDES)
 litecoinz_gtest_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
-litecoinz_gtest_LDADD = -lgtest -lgmock $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) \
+litecoinz_gtest_LDADD = -lgtest -lgmock $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBLEVELDB_SSE42) $(LIBMEMENV) \
   $(BOOST_LIBS) $(BOOST_UNIT_TEST_FRAMEWORK_LIB) $(LIBSECP256K1)
 if ENABLE_ZMQ
 litecoinz_gtest_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
@@ -62,7 +64,7 @@ if ENABLE_WALLET
 litecoinz_gtest_LDADD += $(LIBBITCOIN_WALLET)
 endif
 
-litecoinz_gtest_LDADD += $(LIBZCASH_CONSENSUS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBZCASH) $(LIBSNARK) $(LIBZCASH_LIBS) $(CURL_LIBS)
+litecoinz_gtest_LDADD += $(LIBBITCOINCONSENSUS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBZCASH) $(LIBSNARK) $(LIBZCASH_LIBS) $(CURL_LIBS)
 
 litecoinz_gtest_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
 

@@ -137,7 +137,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("litecoinz.info", "dnsseed.litecoinz.info")); // LitecoinZ
+        vSeeds.push_back(CDNSSeedData("litecoinz.org", "dnsseed.litecoinz.org")); // LitecoinZ
 
         // guarantees the first 2 characters, when base58 encoded, are "L1"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x0A,0xB3};
@@ -185,9 +185,13 @@ public:
             (  70000, uint256S("000000094161a482b4d2f6dd2a261bcd6962a2c00a5e6ba94002d0633ce8912e"))
             (  80000, uint256S("000000157847bab44d199ad34954da98910c726575716270771ee7e32ceba1d6"))
             (  90000, uint256S("0000002564e3694cd1240d570fdcf9cf36791b2e2c462040fb78af34959dd02e"))
-            (  93096, uint256S("00000038101895ae9add3b5d288db258b053c4bdc39642aeb6be44f7f53bc929")),
-            1529323588,     // * UNIX timestamp of last checkpoint block
-            95703,          // * total number of transactions between genesis and last checkpoint
+            (  93096, uint256S("00000038101895ae9add3b5d288db258b053c4bdc39642aeb6be44f7f53bc929"))
+            (  95001, uint256S("0000000169dcc8f2b842beefd00bb7bf0069eba2acdbbfc70c9fa8edcbe326e1"))
+            ( 120000, uint256S("000004c863a6f98cccecab76eab12b4a349f13f77ba6adab932197e2fb122f31"))
+            ( 200000, uint256S("0000030578048515037b4fdcf86a0a5a100c1bff8df73a96992688d64dcd3aa1"))
+            ( 262840, uint256S("000014ceea9e80561902ab4cde1d137e7a9925fe8388f72fa614e0314bd7f328")),
+            1554904170,     // * UNIX timestamp of last checkpoint block
+            262840,         // * total number of transactions between genesis and last checkpoint
                             //   (the tx=... number in the SetBestChain debug.log lines)
             1600            // * estimated number of transactions per day after checkpoint
         };
@@ -264,7 +268,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("litecoinz.info", "dnsseed.litecoinz.info")); // LitecoinZ
+        vSeeds.push_back(CDNSSeedData("litecoinz.org", "dnsseed.litecoinz.org")); // LitecoinZ
 
         // guarantees the first 2 characters, when base58 encoded, are "T1"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x0E,0xA4};

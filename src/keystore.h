@@ -78,16 +78,16 @@ public:
         const libzcash::SaplingPaymentAddress &defaultAddr) =0;
     virtual bool HaveSaplingFullViewingKey(const libzcash::SaplingIncomingViewingKey &ivk) const =0;
     virtual bool GetSaplingFullViewingKey(
-        const libzcash::SaplingIncomingViewingKey &ivk, 
+        const libzcash::SaplingIncomingViewingKey &ivk,
         libzcash::SaplingFullViewingKey& fvkOut) const =0;
 
-    //! Sapling incoming viewing keys 
+    //! Sapling incoming viewing keys
     virtual bool AddSaplingIncomingViewingKey(
         const libzcash::SaplingIncomingViewingKey &ivk,
         const libzcash::SaplingPaymentAddress &addr) =0;
     virtual bool HaveSaplingIncomingViewingKey(const libzcash::SaplingPaymentAddress &addr) const =0;
     virtual bool GetSaplingIncomingViewingKey(
-        const libzcash::SaplingPaymentAddress &addr, 
+        const libzcash::SaplingPaymentAddress &addr,
         libzcash::SaplingIncomingViewingKey& ivkOut) const =0;
     virtual void GetSaplingPaymentAddresses(std::set<libzcash::SaplingPaymentAddress> &setAddress) const =0;
 
@@ -236,7 +236,7 @@ public:
         }
     }
 
-    //! Sapling 
+    //! Sapling
     bool AddSaplingSpendingKey(
         const libzcash::SaplingExtendedSpendingKey &sk,
         const libzcash::SaplingPaymentAddress &defaultAddr);
@@ -269,7 +269,7 @@ public:
         const libzcash::SaplingPaymentAddress &defaultAddr);
     virtual bool HaveSaplingFullViewingKey(const libzcash::SaplingIncomingViewingKey &ivk) const;
     virtual bool GetSaplingFullViewingKey(
-        const libzcash::SaplingIncomingViewingKey &ivk, 
+        const libzcash::SaplingIncomingViewingKey &ivk,
         libzcash::SaplingFullViewingKey& fvkOut) const;
 
     virtual bool AddSaplingIncomingViewingKey(
@@ -277,11 +277,11 @@ public:
         const libzcash::SaplingPaymentAddress &addr);
     virtual bool HaveSaplingIncomingViewingKey(const libzcash::SaplingPaymentAddress &addr) const;
     virtual bool GetSaplingIncomingViewingKey(
-        const libzcash::SaplingPaymentAddress &addr, 
+        const libzcash::SaplingPaymentAddress &addr,
         libzcash::SaplingIncomingViewingKey& ivkOut) const;
 
     bool GetSaplingExtendedSpendingKey(
-        const libzcash::SaplingPaymentAddress &addr, 
+        const libzcash::SaplingPaymentAddress &addr,
         libzcash::SaplingExtendedSpendingKey &extskOut) const;
 
     void GetSaplingPaymentAddresses(std::set<libzcash::SaplingPaymentAddress> &setAddress) const
