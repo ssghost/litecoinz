@@ -12,7 +12,6 @@
 
 #include <stdio.h>
 #include <curl/curl.h>
-#include <curl/easy.h>
 #include <openssl/sha.h>
 
 #include <sstream>
@@ -20,14 +19,22 @@
 
 #include <boost/filesystem.hpp>
 
+std::string filename = "";
+
+void printInfo(std::string msg)
+{
+    std::string info = msg + " " + filename + "...";
+    LogPrintf("%s\n", info.c_str());
+    uiInterface.InitMessage(_(info.c_str()));
+}
+
 bool LTZ_VerifyParams(std::string file, std::string sha256expected)
 {
-    std::string msg = "Verifying " + file + "...";
-    LogPrintf("%s\n", msg.c_str());
+    printInfo("Verifying");
 
     FILE *fp = fopen(file.c_str(), "rb");
     if(!fp) {
-        msg = "Can not open " + file + "!";
+        std::string msg = "Can not open " + file + "!";
         LogPrintf("%s\n", msg.c_str());
     }
 
@@ -36,10 +43,6 @@ bool LTZ_VerifyParams(std::string file, std::string sha256expected)
 
     int len = 0;
     int bytesRead = 0;
-
-    boost::filesystem::path p(file);
-    std::string initMsg = "Verifying " + p.filename().string() + "...";
-    uiInterface.InitMessage(_(initMsg.c_str()));
 
     SHA256_CTX ctx;
     SHA256_Init(&ctx);
@@ -60,10 +63,7 @@ bool LTZ_VerifyParams(std::string file, std::string sha256expected)
 
     if (!(sha256expected.compare(oss.str()) == 0))
     {
-        msg = "Deleting corrupted file " + file + "!";
-        LogPrintf("%s\n", msg.c_str());
-        initMsg = "Deleting corrupted file " + p.filename().string() + "!";
-        uiInterface.InitMessage(_(initMsg.c_str()));
+        printInfo("Deleting corrupted file");
         boost::filesystem::remove(file.c_str());
         return false;
     }
@@ -71,19 +71,30 @@ bool LTZ_VerifyParams(std::string file, std::string sha256expected)
     return true;
 }
 
+static int xferinfo(void *p, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+{
+    int perc = 0;
+    if ((double)dlnow > 0)
+        perc = (double)dlnow * 100 / (double)dltotal;
+
+    std::string initMsg = "Downloading " + filename + " (" + std::to_string(perc) + "%)...";
+    uiInterface.InitMessage(_(initMsg.c_str()));
+
+    return 0;
+}
+
 bool LTZ_FetchParams(std::string url, std::string file)
 {
     CURL *curl;
+    CURLcode res = CURLE_OK;
+
     FILE *fp;
-    CURLcode res;
 
     std::string msg = "Downloading " + url + "...";
     LogPrintf("%s\n", msg.c_str());
 
     boost::filesystem::path p(file);
-    std::string initMsg = "Downloading " + p.filename().string() + "...";
-
-    uiInterface.InitMessage(_(initMsg.c_str()));
+    filename = p.filename().string();
 
     curl = curl_easy_init();
     if (curl)
@@ -92,14 +103,16 @@ bool LTZ_FetchParams(std::string url, std::string file)
         if (fp)
         {
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, xferinfo);
+            curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
             curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
-            curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
             curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
 
-            CURLcode res = curl_easy_perform(curl);
+            res = curl_easy_perform(curl);
             fclose(fp);
 
             std::ostringstream oss;

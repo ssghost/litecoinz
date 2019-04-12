@@ -81,6 +81,8 @@ for download.
 2.0.1 change log
 =================
 
+- f7ca3e9 Display download percentage while downloading params files
+- a7fe542 [doc] Add 2.0.1 release note
 - 27d2f3f [doc] Add zcash release notes
 - cd529d7 Version 2.0.1
 - 9851916 Issue#1643: Coinselection prunes extraneous inputs from ApproximateBestSubset
