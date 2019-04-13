@@ -10,11 +10,6 @@ and is the platform used to build the LitecoinZ Core Windows release binaries.
 * On Windows using [Windows
 Subsystem for Linux (WSL)](https://msdn.microsoft.com/commandline/wsl/about) and the Mingw-w64 cross compiler tool chain.
 
-Other options which may work, but which have not been extensively tested are (please contribute instructions):
-
-* On Windows using a POSIX compatibility layer application such as [cygwin](http://www.cygwin.com/) or [msys2](http://www.msys2.org/).
-* On Windows using a native compiler tool chain such as [Visual Studio](https://www.visualstudio.com).
-
 Installing Windows Subsystem for Linux
 ---------------------------------------
 
