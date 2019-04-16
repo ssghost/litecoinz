@@ -39,6 +39,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "settxfee", 0 },
     { "getreceivedbyaddress", 1 },
     { "getreceivedbyaccount", 1 },
+    { "abandontransaction", 1 },
     { "listreceivedbyaddress", 0 },
     { "listreceivedbyaddress", 1 },
     { "listreceivedbyaddress", 2 },

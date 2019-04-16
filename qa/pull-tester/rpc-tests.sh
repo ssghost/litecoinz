@@ -93,6 +93,7 @@ testScriptsExt=(
     'invalidblockrequest.py'
 #    'forknotify.py'
     'p2p-acceptblock.py'
+    'abandonconflict.py'
 );
 
 if [ "x$ENABLE_ZMQ" = "x1" ]; then
