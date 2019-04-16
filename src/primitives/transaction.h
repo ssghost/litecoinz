@@ -658,6 +658,9 @@ public:
      * shielded output values - is positive or negative.
      */
 
+    // True if only scriptSigs are different
+    bool IsEquivalentTo(const CTransaction& tx) const;
+
     // Return sum of txouts, (negative valueBalance or zero) and JoinSplit vpub_old.
     CAmount GetValueOut() const;
     // GetValueIn() is a method on CCoinsViewCache, because
