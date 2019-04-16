@@ -8,6 +8,7 @@
 #include "coins.h"
 #include "util.h"
 #include "init.h"
+#include "policy/policy.h"
 #include "primitives/transaction.h"
 #include "base58.h"
 #include "crypto/equihash.h"

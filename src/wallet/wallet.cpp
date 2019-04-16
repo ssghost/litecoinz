@@ -14,6 +14,7 @@
 #include "init.h"
 #include "key_io.h"
 #include "main.h"
+#include "policy/policy.h"
 #include "net.h"
 #include "rpc/protocol.h"
 #include "script/script.h"
