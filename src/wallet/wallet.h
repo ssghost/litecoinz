@@ -788,6 +788,9 @@ private:
     /* Mark a transaction (and its in-wallet descendants) as conflicting with a particular block. */
     void MarkConflicted(const uint256& hashBlock, const uint256& hashTx);
 
+    template <class T>
+    void SyncMetaData(std::pair<typename TxSpendMap<T>::iterator, typename TxSpendMap<T>::iterator>);
+
 public:
     /*
      * Size of the incremental witness cache for the notes in our wallet.
@@ -856,10 +859,6 @@ protected:
             return;
         }
     }
-
-private:
-    template <class T>
-    void SyncMetaData(std::pair<typename TxSpendMap<T>::iterator, typename TxSpendMap<T>::iterator>);
 
 protected:
     bool UpdatedNoteData(const CWalletTx& wtxIn, CWalletTx& wtx);
