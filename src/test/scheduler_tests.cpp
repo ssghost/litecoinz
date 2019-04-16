@@ -33,6 +33,7 @@ static void MicroSleep(uint64_t n)
     boost::this_thread::sleep_for(boost::chrono::microseconds(n));
 }
 
+#if 0 /* Disabled for now because there is a race condition issue in this test - see #6540 */
 BOOST_AUTO_TEST_CASE(manythreads)
 {
     seed_insecure_rand(false);
@@ -108,5 +109,6 @@ BOOST_AUTO_TEST_CASE(manythreads)
     }
     BOOST_CHECK_EQUAL(counterSum, 200);
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
