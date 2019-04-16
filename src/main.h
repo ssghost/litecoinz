@@ -151,6 +151,7 @@ extern bool fAddressIndex;
 // END insightexplorer
 
 extern bool fIsBareMultisigStd;
+extern bool fRequireStandard;
 extern bool fCheckBlockIndex;
 extern bool fCheckpointsEnabled;
 // TODO: remove this flag by structuring our code such that
