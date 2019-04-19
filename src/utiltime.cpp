@@ -15,8 +15,6 @@
 #include <ctime>
 #include <tinyformat.h>
 
-using namespace std;
-
 static std::atomic<int64_t> nMockTime(0); //!< For unit testing
 
 int64_t GetTime()
