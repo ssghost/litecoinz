@@ -923,7 +923,7 @@ UniValue AsyncRPCOperation_mergetoaddress::perform_joinsplit(
     uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId_);
 
     // Add the signature
-    if (!(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
+    if (!(crypto_sign_detached(&mtx.joinSplitSig[0], nullptr,
                                dataToBeSigned.begin(), 32,
                                joinSplitPrivKey_) == 0)) {
         throw std::runtime_error("crypto_sign_detached failed");

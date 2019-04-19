@@ -500,7 +500,7 @@ void test_simple_joinsplit_invalidity(uint32_t consensusBranchId, CMutableTransa
         CTransaction signTx(newTx);
         uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId);
 
-        assert(crypto_sign_detached(&newTx.joinSplitSig[0], NULL,
+        assert(crypto_sign_detached(&newTx.joinSplitSig[0], nullptr,
                                     dataToBeSigned.begin(), 32,
                                     joinSplitPrivKey
                                     ) == 0);

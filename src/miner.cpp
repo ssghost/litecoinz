@@ -120,7 +120,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
     // Create new block
     std::unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
     if(!pblocktemplate.get())
-        return NULL;
+        return nullptr;
     CBlock *pblock = &pblocktemplate->block; // pointer for convenience
 
     // -regtest only: allow overriding block.nVersion with
@@ -183,7 +183,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
             if (tx.IsCoinBase() || !IsFinalTx(tx, nHeight, nLockTimeCutoff) || IsExpiredTx(tx, nHeight))
                 continue;
 
-            COrphan* porphan = NULL;
+            COrphan* porphan = nullptr;
             double dPriority = 0;
             CAmount nTotalIn = 0;
             bool fMissingInputs = false;
@@ -463,7 +463,7 @@ static bool ProcessBlockFound(CBlock* pblock, const CChainParams& chainparams)
 
     // Process this block the same as if we had received it from another node
     CValidationState state;
-    if (!ProcessNewBlock(state, NULL, pblock, true, NULL))
+    if (!ProcessNewBlock(state, nullptr, pblock, true, nullptr))
         return error("LitecoinzMiner: ProcessNewBlock, block not accepted");
 
     TrackMinedBlock(pblock->GetHash());
@@ -503,7 +503,7 @@ void static BitcoinMiner(const CChainParams& chainparams)
 
         // Throw an error if no script was provided.  This can happen
         // due to some internal error but also if the keypool is empty.
-        // In the latter case, already the pointer is NULL.
+        // In the latter case, already the pointer is nullptr.
         if (!coinbaseScript || coinbaseScript->reserveScript.empty())
             throw std::runtime_error("No coinbase script available (mining requires a wallet or -mineraddress)");
 
@@ -719,19 +719,19 @@ void static BitcoinMiner(const CChainParams& chainparams)
 
 void GenerateBitcoins(bool fGenerate, int nThreads, const CChainParams& chainparams)
 {
-    static boost::thread_group* minerThreads = NULL;
+    static boost::thread_group* minerThreads = nullptr;
 
     if (nThreads < 0)
         nThreads = GetNumCores() / 2; // New algo is more hardware intensive, so we use only half cores
     else if (nThreads == GetNumCores())
         nThreads = nThreads / 2; // New algo is more hardware intensive, so we use only half cores
 
-    if (minerThreads != NULL)
+    if (minerThreads != nullptr)
     {
         minerThreads->interrupt_all();
         minerThreads->join_all();
         delete minerThreads;
-        minerThreads = NULL;
+        minerThreads = nullptr;
     }
 
     if (nThreads == 0 || !fGenerate)

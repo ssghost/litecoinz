@@ -150,7 +150,7 @@ TEST(paymentdisclosure, mainnet) {
 
         // Compute the payload signature
         unsigned char payloadSig[64];
-        if (!(crypto_sign_detached(&payloadSig[0], NULL,
+        if (!(crypto_sign_detached(&payloadSig[0], nullptr,
             dataToBeSigned.begin(), 32,
             &buffer[0] // buffer containing both private and public key required
             ) == 0))

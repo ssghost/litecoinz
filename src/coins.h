@@ -490,7 +490,7 @@ public:
     void SetNullifiers(const CTransaction& tx, bool spent);
 
     /**
-     * Return a pointer to CCoins in the cache, or NULL if not found. This is
+     * Return a pointer to CCoins in the cache, or nullptr if not found. This is
      * more efficient than GetCoins. Modifications to other cache entries are
      * allowed while accessing the returned pointer.
      */

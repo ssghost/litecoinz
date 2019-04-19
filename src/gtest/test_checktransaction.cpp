@@ -90,7 +90,7 @@ void CreateJoinSplitSignature(CMutableTransaction& mtx, uint32_t consensusBranch
     }
 
     // Add the signature
-    assert(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
+    assert(crypto_sign_detached(&mtx.joinSplitSig[0], nullptr,
                          dataToBeSigned.begin(), 32,
                          joinSplitPrivKey
                         ) == 0);

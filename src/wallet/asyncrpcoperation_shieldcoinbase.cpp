@@ -441,7 +441,7 @@ UniValue AsyncRPCOperation_shieldcoinbase::perform_joinsplit(ShieldCoinbaseJSInf
     uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId);
 
     // Add the signature
-    if (!(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
+    if (!(crypto_sign_detached(&mtx.joinSplitSig[0], nullptr,
             dataToBeSigned.begin(), 32,
             joinSplitPrivKey_
             ) == 0))

@@ -416,8 +416,8 @@ uint256 JoinSplit<NumInputs, NumOutputs>::h_sig(
 
     if (crypto_generichash_blake2b_salt_personal(output.begin(), 32,
                                                  &block[0], block.size(),
-                                                 NULL, 0, // No key.
-                                                 NULL,    // No salt.
+                                                 nullptr, 0, // No key.
+                                                 nullptr,    // No salt.
                                                  personalization
                                                 ) != 0)
     {

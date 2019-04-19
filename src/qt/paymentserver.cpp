@@ -271,7 +271,7 @@ bool PaymentServer::ipcSendCommandLine()
         if (!socket->waitForConnected(BITCOIN_IPC_CONNECT_TIMEOUT))
         {
             delete socket;
-            socket = NULL;
+            socket = nullptr;
             return false;
         }
 
@@ -287,7 +287,7 @@ bool PaymentServer::ipcSendCommandLine()
         socket->disconnectFromServer();
 
         delete socket;
-        socket = NULL;
+        socket = nullptr;
         fResult = true;
     }
 
@@ -361,7 +361,7 @@ void PaymentServer::initNetManager()
 {
     if (!optionsModel)
         return;
-    if (netManager != NULL)
+    if (netManager != nullptr)
         delete netManager;
 
     // netManager is used to fetch paymentrequests given in litecoinz: URIs

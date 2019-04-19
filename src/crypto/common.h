@@ -101,7 +101,7 @@ int inline init_and_check_sodium()
     unsigned char sig[crypto_sign_BYTES];
 
     crypto_sign_keypair(pk, sk);
-    crypto_sign_detached(sig, NULL, message, sizeof(message), sk);
+    crypto_sign_detached(sig, nullptr, message, sizeof(message), sk);
 
     assert(crypto_sign_verify_detached(sig, message, sizeof(message), pk) == 0);
 

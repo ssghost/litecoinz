@@ -91,7 +91,7 @@ public:
             std::map<QString, std::vector<COutput> > mapCoins;
 
             LOCK(wallet->cs_wallet);
-            wallet->AvailableCoins(vecOutputs, false, NULL, true);
+            wallet->AvailableCoins(vecOutputs, false, nullptr, true);
 
             BOOST_FOREACH(const COutput& out, vecOutputs) {
                 if (out.tx->IsCoinBase())

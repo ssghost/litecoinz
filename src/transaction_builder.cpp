@@ -389,7 +389,7 @@ TransactionBuilderResult TransactionBuilder::Build()
 
     // Create Sprout joinSplitSig
     if (crypto_sign_detached(
-        mtx.joinSplitSig.data(), NULL,
+        mtx.joinSplitSig.data(), nullptr,
         dataToBeSigned.begin(), 32,
         joinSplitPrivKey) != 0)
     {

@@ -132,7 +132,7 @@ TestingSetup::~TestingSetup()
 #ifdef ENABLE_WALLET
         UnregisterValidationInterface(pwalletMain);
         delete pwalletMain;
-        pwalletMain = NULL;
+        pwalletMain = nullptr;
 #endif
         UnloadBlockIndex();
         delete pcoinsTip;

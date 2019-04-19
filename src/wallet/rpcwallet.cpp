@@ -1665,7 +1665,7 @@ UniValue listsinceblock(const UniValue& params, bool fHelp)
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    CBlockIndex *pindex = NULL;
+    CBlockIndex *pindex = nullptr;
     int target_confirms = 1;
     isminefilter filter = ISMINE_SPENDABLE;
 
@@ -2440,9 +2440,9 @@ UniValue listunspent(const UniValue& params, bool fHelp)
 
     UniValue results(UniValue::VARR);
     vector<COutput> vecOutputs;
-    assert(pwalletMain != NULL);
+    assert(pwalletMain != nullptr);
     LOCK2(cs_main, pwalletMain->cs_wallet);
-    pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
+    pwalletMain->AvailableCoins(vecOutputs, false, nullptr, true);
     BOOST_FOREACH(const COutput& out, vecOutputs) {
         if (out.nDepth < nMinDepth || out.nDepth > nMaxDepth)
             continue;
@@ -2716,9 +2716,9 @@ UniValue z_listunshielded(const UniValue& params, bool fHelp)
 
     UniValue results(UniValue::VARR);
     vector<COutput> vecOutputs;
-    assert(pwalletMain != NULL);
+    assert(pwalletMain != nullptr);
     LOCK2(cs_main, pwalletMain->cs_wallet);
-    pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
+    pwalletMain->AvailableCoins(vecOutputs, false, nullptr, true);
     BOOST_FOREACH(const COutput& out, vecOutputs) {
         if (out.nDepth < nMinDepth || out.nDepth > nMaxDepth)
             continue;
@@ -3030,7 +3030,7 @@ UniValue zc_raw_receive(const UniValue& params, bool fHelp)
     SproutPaymentAddress payment_addr = k.address();
     SproutNote decrypted_note = npt.note(payment_addr);
 
-    assert(pwalletMain != NULL);
+    assert(pwalletMain != nullptr);
     std::vector<boost::optional<SproutWitness>> witnesses;
     uint256 anchor;
     uint256 commitment = decrypted_note.cm();
@@ -3207,7 +3207,7 @@ UniValue zc_raw_joinsplit(const UniValue& params, bool fHelp)
     uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId);
 
     // Add the signature
-    assert(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
+    assert(crypto_sign_detached(&mtx.joinSplitSig[0], nullptr,
                          dataToBeSigned.begin(), 32,
                          joinSplitPrivKey
                         ) == 0);
@@ -3398,7 +3398,7 @@ CAmount getBalanceTaddr(std::string transparentAddress, int minDepth=1, bool ign
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    pwalletMain->AvailableCoins(vecOutputs, false, NULL, true);
+    pwalletMain->AvailableCoins(vecOutputs, false, nullptr, true);
 
     BOOST_FOREACH(const COutput& out, vecOutputs) {
         if (out.nDepth < minDepth) {
@@ -4173,7 +4173,7 @@ UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
 
     // Get available utxos
     vector<COutput> vecOutputs;
-    pwalletMain->AvailableCoins(vecOutputs, true, NULL, false, true);
+    pwalletMain->AvailableCoins(vecOutputs, true, nullptr, false, true);
 
     // Find unspent coinbase utxos and update estimated size
     BOOST_FOREACH(const COutput& out, vecOutputs) {
@@ -4495,7 +4495,7 @@ UniValue z_mergetoaddress(const UniValue& params, bool fHelp)
     if (useAnyUTXO || taddrs.size() > 0) {
         // Get available utxos
         vector<COutput> vecOutputs;
-        pwalletMain->AvailableCoins(vecOutputs, true, NULL, false, false);
+        pwalletMain->AvailableCoins(vecOutputs, true, nullptr, false, false);
 
         // Find unspent utxos and update estimated size
         for (const COutput& out : vecOutputs) {

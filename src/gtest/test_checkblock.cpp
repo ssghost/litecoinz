@@ -145,7 +145,7 @@ TEST_F(ContextualCheckBlockTest, BadCoinbaseHeight) {
 
     // Treating block as genesis should pass
     MockCValidationState state;
-    EXPECT_TRUE(ContextualCheckBlock(block, state, NULL));
+    EXPECT_TRUE(ContextualCheckBlock(block, state, nullptr));
 
     // Treating block as non-genesis should fail
     CTransaction tx2 {mtx};

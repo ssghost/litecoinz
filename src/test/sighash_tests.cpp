@@ -204,7 +204,7 @@ void static RandomTransaction(CMutableTransaction &tx, bool fSingle, uint32_t co
         CTransaction signTx(tx);
         uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId);
 
-        assert(crypto_sign_detached(&tx.joinSplitSig[0], NULL,
+        assert(crypto_sign_detached(&tx.joinSplitSig[0], nullptr,
                                     dataToBeSigned.begin(), 32,
                                     joinSplitPrivKey
                                     ) == 0);

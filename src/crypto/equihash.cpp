@@ -39,9 +39,9 @@ int Equihash<N,K>::InitialiseState(eh_HashState& base_state)
     memcpy(personalization+8,  &le_N, 4);
     memcpy(personalization+12, &le_K, 4);
     return crypto_generichash_blake2b_init_salt_personal(&base_state,
-                                                         NULL, 0, // No key.
+                                                         nullptr, 0, // No key.
                                                          (512/N)*N/8,
-                                                         NULL,    // No salt.
+                                                         nullptr,    // No salt.
                                                          personalization);
 }
 

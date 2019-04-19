@@ -30,10 +30,10 @@ public:
         if (nSize > m_remaining)
             throw std::ios_base::failure(std::string(__func__) + ": end of data");
 
-        if (pch == NULL)
+        if (pch == nullptr)
             throw std::ios_base::failure(std::string(__func__) + ": bad destination buffer");
 
-        if (m_data == NULL)
+        if (m_data == nullptr)
             throw std::ios_base::failure(std::string(__func__) + ": bad source buffer");
 
         memcpy(pch, m_data, nSize);
@@ -96,7 +96,7 @@ int zcashconsensus_verify_script(const unsigned char *scriptPubKey, unsigned int
             flags,
             TransactionSignatureChecker(&tx, nIn, am, txdata),
             consensusBranchId,
-            NULL);
+            nullptr);
     } catch (const std::exception&) {
         return set_error(err, zcashconsensus_ERR_TX_DESERIALIZE); // Error deserializing
     }

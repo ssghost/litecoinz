@@ -22,7 +22,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
 
     // Genesis block
-    if (pindexLast == NULL)
+    if (pindexLast == nullptr)
         return nProofOfWorkLimit;
 
     LogPrint("pow", "pindexLast->nHeight=%d, params.nEquihashForkHeight=%d params.nPowAveragingWindow=%d\n", 
@@ -67,7 +67,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     }
 
     // Check we have enough blocks
-    if (pindexFirst == NULL)
+    if (pindexFirst == nullptr)
         return nProofOfWorkLimit;
 
     arith_uint256 bnAvg {bnTot / params.nPowAveragingWindow};

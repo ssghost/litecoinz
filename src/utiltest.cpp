@@ -66,7 +66,7 @@ CMutableTransaction GetValidSproutReceiveTransaction(ZCJoinSplit& params,
     uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId);
 
     // Add the signature
-    assert(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
+    assert(crypto_sign_detached(&mtx.joinSplitSig[0], nullptr,
                                 dataToBeSigned.begin(), 32,
                                 joinSplitPrivKey
                                ) == 0);
@@ -84,7 +84,7 @@ CWalletTx GetValidSproutReceive(ZCJoinSplit& params,
         params, sk, value, randomInputs, version
     );
     CTransaction tx {mtx};
-    CWalletTx wtx {NULL, tx};
+    CWalletTx wtx {nullptr, tx};
     return wtx;
 }
 
@@ -100,7 +100,7 @@ CWalletTx GetInvalidCommitmentSproutReceive(ZCJoinSplit& params,
     mtx.vjoinsplit[0].commitments[0] = uint256();
     mtx.vjoinsplit[0].commitments[1] = uint256();
     CTransaction tx {mtx};
-    CWalletTx wtx {NULL, tx};
+    CWalletTx wtx {nullptr, tx};
     return wtx;
 }
 
@@ -178,12 +178,12 @@ CWalletTx GetValidSproutSpend(ZCJoinSplit& params,
     uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId);
 
     // Add the signature
-    assert(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
+    assert(crypto_sign_detached(&mtx.joinSplitSig[0], nullptr,
                                 dataToBeSigned.begin(), 32,
                                 joinSplitPrivKey
                                ) == 0);
     CTransaction tx {mtx};
-    CWalletTx wtx {NULL, tx};
+    CWalletTx wtx {nullptr, tx};
     return wtx;
 }
 
@@ -238,6 +238,6 @@ CWalletTx GetValidSaplingReceive(const Consensus::Params& consensusParams,
     builder.AddSaplingOutput(fvk.ovk, pa, value, {});
 
     CTransaction tx = builder.Build().GetTxOrThrow();
-    CWalletTx wtx {NULL, tx};
+    CWalletTx wtx {nullptr, tx};
     return wtx;
 }

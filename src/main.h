@@ -221,7 +221,7 @@ FILE* OpenUndoFile(const CDiskBlockPos &pos, bool fReadOnly = false);
 /** Translation to a filesystem path */
 boost::filesystem::path GetBlockPosFilename(const CDiskBlockPos &pos, const char *prefix);
 /** Import blocks from an external file */
-bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp = NULL);
+bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp = nullptr);
 /** Initialize a new block tree database + block data on disk */
 bool InitBlockIndex();
 /** Load the block tree and coins database from disk */
@@ -247,7 +247,7 @@ std::string GetWarnings(const std::string& strFor);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
 bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
-bool ActivateBestChain(CValidationState &state, const CBlock *pblock = NULL);
+bool ActivateBestChain(CValidationState &state, const CBlock *pblock = nullptr);
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams);
 
 /**
@@ -342,13 +342,13 @@ unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CCoinsViewCache& ma
 
 /**
  * Check whether all inputs of this transaction are valid (no double spends, scripts & sigs, amounts)
- * This does not modify the UTXO set. If pvChecks is not NULL, script checks are pushed onto it
+ * This does not modify the UTXO set. If pvChecks is not nullptr, script checks are pushed onto it
  * instead of being performed inline.
  */
 bool ContextualCheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &view, bool fScriptChecks,
                            unsigned int flags, bool cacheStore, PrecomputedTransactionData& txdata,
                            const Consensus::Params& consensusParams, uint32_t consensusBranchId,
-                           std::vector<CScriptCheck> *pvChecks = NULL);
+                           std::vector<CScriptCheck> *pvChecks = nullptr);
 
 /** Check a transaction contextually against a set of consensus rules */
 bool ContextualCheckTransaction(const CTransaction& tx, CValidationState &state, int nHeight, int dosLevel,
@@ -471,10 +471,10 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
  * JoinSplit proofs are never verified, because:
  * - AcceptBlock doesn't perform script checks either.
  * - The only caller of AcceptBlock verifies JoinSplit proofs elsewhere.
- * If dbp is non-NULL, the file is known to already reside on disk
+ * If dbp is non-nullptr, the file is known to already reside on disk
  */
 bool AcceptBlock(const CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp);
-bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex **ppindex= NULL);
+bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex **ppindex= nullptr);
 
 
 

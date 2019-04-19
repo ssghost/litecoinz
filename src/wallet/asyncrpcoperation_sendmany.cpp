@@ -999,7 +999,7 @@ bool AsyncRPCOperation_sendmany::find_utxos(bool fAcceptCoinbase=false) {
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    pwalletMain->AvailableCoins(vecOutputs, false, NULL, true, fAcceptCoinbase);
+    pwalletMain->AvailableCoins(vecOutputs, false, nullptr, true, fAcceptCoinbase);
 
     BOOST_FOREACH(const COutput& out, vecOutputs) {
         if (!out.fSpendable) {
@@ -1201,7 +1201,7 @@ UniValue AsyncRPCOperation_sendmany::perform_joinsplit(
     uint256 dataToBeSigned = SignatureHash(scriptCode, signTx, NOT_AN_INPUT, SIGHASH_ALL, 0, consensusBranchId_);
 
     // Add the signature
-    if (!(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
+    if (!(crypto_sign_detached(&mtx.joinSplitSig[0], nullptr,
             dataToBeSigned.begin(), 32,
             joinSplitPrivKey_
             ) == 0))

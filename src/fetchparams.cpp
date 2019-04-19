@@ -106,7 +106,7 @@ bool LTZ_FetchParams(std::string url, std::string file)
             curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, xferinfo);
             curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
 
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, nullptr);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
             curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
             curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);

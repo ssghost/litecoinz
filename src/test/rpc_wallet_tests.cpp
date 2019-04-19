@@ -39,7 +39,7 @@
 
 using namespace std;
 
-extern UniValue createArgs(int nRequired, const char* address1 = NULL, const char* address2 = NULL);
+extern UniValue createArgs(int nRequired, const char* address1 = nullptr, const char* address2 = nullptr);
 extern UniValue CallRPC(string args);
 
 extern CWallet* pwalletMain;
@@ -1272,7 +1272,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling)
     CScript scriptPubKey = CScript() << OP_DUP << OP_HASH160 << ToByteVector(taddr) << OP_EQUALVERIFY << OP_CHECKSIG;
     mtx.vout.push_back(CTxOut(5 * COIN, scriptPubKey));
     CWalletTx wtx(pwalletMain, mtx);
-    pwalletMain->AddToWallet(wtx, true, NULL);
+    pwalletMain->AddToWallet(wtx, true, nullptr);
 
     // Fake-mine the transaction
     BOOST_CHECK_EQUAL(0, chainActive.Height());
@@ -1288,7 +1288,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling)
     BOOST_CHECK(chainActive.Contains(&fakeIndex));
     BOOST_CHECK_EQUAL(1, chainActive.Height());
     wtx.SetMerkleBranch(block);
-    pwalletMain->AddToWallet(wtx, true, NULL);
+    pwalletMain->AddToWallet(wtx, true, nullptr);
 
     // Context that z_sendmany requires
     auto builder = TransactionBuilder(consensusParams, nextBlockHeight, pwalletMain);
@@ -1334,7 +1334,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling)
         tx.vShieldedOutput[0].ephemeralKey));
 
     // Tear down
-    chainActive.SetTip(NULL);
+    chainActive.SetTip(nullptr);
     mapBlockIndex.erase(blockHash);
     mapArgs.erase("-developersapling");
     mapArgs.erase("-experimentalfeatures");

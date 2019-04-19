@@ -53,7 +53,7 @@ void pre_wallet_load()
 
     UnregisterValidationInterface(pwalletMain);
     delete pwalletMain;
-    pwalletMain = NULL;
+    pwalletMain = nullptr;
     bitdb.Reset();
     RegisterNodeSignals(GetNodeSignals());
     LogPrintf("%s: done\n", __func__);
@@ -361,7 +361,7 @@ double benchmark_increment_sprout_note_witnesses(size_t nTxs)
     CBlock block1;
     for (int i = 0; i < nTxs; ++i) {
         auto wtx = CreateSproutTxWithNoteData(sproutSpendingKey);
-        wallet.AddToWallet(wtx, true, NULL);
+        wallet.AddToWallet(wtx, true, nullptr);
         block1.vtx.push_back(wtx);
     }
 
@@ -376,7 +376,7 @@ double benchmark_increment_sprout_note_witnesses(size_t nTxs)
     block2.hashPrevBlock = block1.GetHash();
     {
         auto sproutTx = CreateSproutTxWithNoteData(sproutSpendingKey);
-        wallet.AddToWallet(sproutTx, true, NULL);
+        wallet.AddToWallet(sproutTx, true, nullptr);
         block2.vtx.push_back(sproutTx);
     }
 
@@ -423,7 +423,7 @@ double benchmark_increment_sapling_note_witnesses(size_t nTxs)
     CBlock block1;
     for (int i = 0; i < nTxs; ++i) {
         auto wtx = CreateSaplingTxWithNoteData(consensusParams, wallet, saplingSpendingKey);
-        wallet.AddToWallet(wtx, true, NULL);
+        wallet.AddToWallet(wtx, true, nullptr);
         block1.vtx.push_back(wtx);
     }
 
@@ -438,7 +438,7 @@ double benchmark_increment_sapling_note_witnesses(size_t nTxs)
     block2.hashPrevBlock = block1.GetHash();
     {
         auto saplingTx = CreateSaplingTxWithNoteData(consensusParams, wallet, saplingSpendingKey);
-        wallet.AddToWallet(saplingTx, true, NULL);
+        wallet.AddToWallet(saplingTx, true, nullptr);
         block1.vtx.push_back(saplingTx);
     }
 
