@@ -51,6 +51,7 @@ extern bool fPrintToDebugLog;
 extern bool fServer;
 
 extern bool fLogTimestamps;
+extern bool fLogTimeMicros;
 extern bool fLogIPs;
 extern std::atomic<bool> fReopenDebugLog;
 extern CTranslationInterface translationInterface;
