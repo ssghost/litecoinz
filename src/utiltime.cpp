@@ -54,6 +54,11 @@ int64_t GetTimeMicros()
     return now;
 }
 
+int64_t GetSystemTimeInSeconds()
+{
+    return GetTimeMicros()/1000000;
+}
+
 void MilliSleep(int64_t n)
 {
 
