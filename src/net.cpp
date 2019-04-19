@@ -53,14 +53,6 @@ namespace {
     const int MAX_FEELER_CONNECTIONS = 1;
 }
 
-//immutable thread safe array of allowed commands for logging inbound traffic
-const static std::string logAllowIncomingMsgCmds[] = {
-    "version", "addr", "inv", "getdata", "merkleblock",
-    "getblocks", "getheaders", "tx", "headers", "block",
-    "getaddr", "mempool", "ping", "pong", "alert", "notfound",
-    "filterload", "filteradd", "filterclear", "reject",
-    "sendheaders", "verack"};
-
 const static std::string NET_MESSAGE_COMMAND_OTHER = "*other*";
 
 //
@@ -440,7 +432,7 @@ void CNode::PushVersion()
         LogPrint("net", "send version message: version %d, blocks=%d, us=%s, them=%s, peer=%d\n", PROTOCOL_VERSION, nBestHeight, addrMe.ToString(), addrYou.ToString(), id);
     else
         LogPrint("net", "send version message: version %d, blocks=%d, us=%s, peer=%d\n", PROTOCOL_VERSION, nBestHeight, addrMe.ToString(), id);
-    PushMessage("version", PROTOCOL_VERSION, nLocalServices, nTime, addrYou, addrMe,
+    PushMessage(NetMsgType::VERSION, PROTOCOL_VERSION, nLocalServices, nTime, addrYou, addrMe,
                 nLocalHostNonce, strSubVersion, nBestHeight, true);
 }
 
@@ -2095,8 +2087,8 @@ CNode::CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNa
     nPingUsecTime = 0;
     fPingQueued = false;
     nMinPingUsecTime = std::numeric_limits<int64_t>::max();
-    for (unsigned int i = 0; i < sizeof(logAllowIncomingMsgCmds)/sizeof(logAllowIncomingMsgCmds[0]); i++)
-        mapRecvBytesPerMsgCmd[logAllowIncomingMsgCmds[i]] = 0;
+    BOOST_FOREACH(const std::string &msg, getAllNetMessageTypes())
+        mapRecvBytesPerMsgCmd[msg] = 0;
     mapRecvBytesPerMsgCmd[NET_MESSAGE_COMMAND_OTHER] = 0;
 
     {
