@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-// Dump addresses to peers.dat every 15 minutes (900s)
+// Dump addresses to peers.dat and banlist.dat every 15 minutes (900s)
 #define DUMP_ADDRESSES_INTERVAL 900
 
 #if !defined(HAVE_MSG_NOSIGNAL) && !defined(MSG_NOSIGNAL)
@@ -2224,10 +2224,11 @@ void DumpBanlist()
     CBanDB bandb;
     banmap_t banmap;
     CNode::GetBanned(banmap);
-    bandb.Write(banmap);
+    if (bandb.Write(banmap))
+        CNode::SetBannedSetDirty(false);
 
     LogPrint("net", "Flushed %d banned node ips/subnets to banlist.dat  %dms\n",
-             banmap.size(), GetTimeMillis() - nStart);
+        banmap.size(), GetTimeMillis() - nStart);
 }
 
 int64_t PoissonNextSend(int64_t nNow, int average_interval_seconds) {
