@@ -1988,7 +1988,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #endif
 
     if (GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION))
-        StartTorControl(threadGroup, scheduler);
+        StartTorControl();
 
     std::string strNodeError;
     if(!StartNode(connman, threadGroup, scheduler, strNodeError))
