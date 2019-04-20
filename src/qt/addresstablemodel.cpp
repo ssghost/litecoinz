@@ -88,7 +88,7 @@ public:
             LOCK(wallet->cs_wallet);
 
             // Transparent address
-            BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, wallet->mapAddressBook)
+            for (const PAIRTYPE(CTxDestination, CAddressBookData)& item : wallet->mapAddressBook)
             {
                 const CTxDestination& address = item.first;
                 bool fMine = IsMine(*wallet, address);

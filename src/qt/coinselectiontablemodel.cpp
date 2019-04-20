@@ -93,7 +93,7 @@ public:
             LOCK(wallet->cs_wallet);
             wallet->AvailableCoins(vecOutputs, false, nullptr, true);
 
-            BOOST_FOREACH(const COutput& out, vecOutputs) {
+            for (const COutput& out : vecOutputs) {
                 if (out.tx->IsCoinBase())
                     continue;
 
@@ -105,7 +105,7 @@ public:
                     mapCoins[QString::fromStdString(EncodeDestination(address))].push_back(out);
                 }
             }
-            BOOST_FOREACH(const PAIRTYPE(QString, std::vector<COutput>)& coins, mapCoins) {
+            for (const PAIRTYPE(QString, std::vector<COutput>)& coins : mapCoins) {
                 QString sWalletAddress = coins.first;
                 CAmount nSum = 0;
                 for (const COutput& out : coins.second)
