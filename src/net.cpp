@@ -1883,19 +1883,19 @@ bool CConnman::Start(boost::thread_group& threadGroup, std::string& strNodeError
     if (!GetBoolArg("-dnsseed", true))
         LogPrintf("DNS seeding disabled\n");
     else
-        threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "dnsseed", boost::function<void()>(boost::bind(&CConnman::ThreadDNSAddressSeed, this))));
+        threadGroup.create_thread(boost::bind(&TraceThread<std::function<void()> >, "dnsseed", std::function<void()>(boost::bind(&CConnman::ThreadDNSAddressSeed, this))));
 
     // Send and receive from sockets, accept connections
-    threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "net", boost::function<void()>(boost::bind(&CConnman::ThreadSocketHandler, this))));
+    threadGroup.create_thread(boost::bind(&TraceThread<std::function<void()> >, "net", std::function<void()>(boost::bind(&CConnman::ThreadSocketHandler, this))));
 
     // Initiate outbound connections from -addnode
-    threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "addcon", boost::function<void()>(boost::bind(&CConnman::ThreadOpenAddedConnections, this))));
+    threadGroup.create_thread(boost::bind(&TraceThread<std::function<void()> >, "addcon", std::function<void()>(boost::bind(&CConnman::ThreadOpenAddedConnections, this))));
 
     // Initiate outbound connections
-    threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "opencon", boost::function<void()>(boost::bind(&CConnman::ThreadOpenConnections, this))));
+    threadGroup.create_thread(boost::bind(&TraceThread<std::function<void()> >, "opencon", std::function<void()>(boost::bind(&CConnman::ThreadOpenConnections, this))));
 
     // Process messages
-    threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "msghand", boost::function<void()>(boost::bind(&CConnman::ThreadMessageHandler, this))));
+    threadGroup.create_thread(boost::bind(&TraceThread<std::function<void()> >, "msghand", std::function<void()>(boost::bind(&CConnman::ThreadMessageHandler, this))));
 
     return true;
 }
