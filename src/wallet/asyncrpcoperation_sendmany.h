@@ -5,14 +5,14 @@
 #ifndef ASYNCRPCOPERATION_SENDMANY_H
 #define ASYNCRPCOPERATION_SENDMANY_H
 
-#include "asyncrpcoperation.h"
-#include "amount.h"
-#include "primitives/transaction.h"
-#include "transaction_builder.h"
-#include "zcash/JoinSplit.hpp"
-#include "zcash/Address.hpp"
-#include "wallet.h"
-#include "wallet/paymentdisclosure.h"
+#include <asyncrpcoperation.h>
+#include <amount.h>
+#include <primitives/transaction.h>
+#include <transaction_builder.h>
+#include <zcash/JoinSplit.hpp>
+#include <zcash/Address.hpp>
+#include <wallet/wallet.h>
+#include <wallet/paymentdisclosure.h>
 
 #include <array>
 #include <unordered_map>

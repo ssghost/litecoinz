@@ -6,12 +6,12 @@
 #ifndef BITCOIN_WALLET_WALLETDB_H
 #define BITCOIN_WALLET_WALLETDB_H
 
-#include "amount.h"
-#include "wallet/db.h"
-#include "key.h"
-#include "keystore.h"
-#include "zcash/Address.hpp"
-#include "zcash/zip32.h"
+#include <amount.h>
+#include <wallet/db.h>
+#include <key.h>
+#include <keystore.h>
+#include <zcash/Address.hpp>
+#include <zcash/zip32.h>
 
 #include <list>
 #include <stdint.h>

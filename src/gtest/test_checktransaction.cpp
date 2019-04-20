@@ -2,10 +2,10 @@
 #include <gmock/gmock.h>
 #include <sodium.h>
 
-#include "main.h"
-#include "primitives/transaction.h"
-#include "consensus/validation.h"
-#include "utiltest.h"
+#include <main.h>
+#include <primitives/transaction.h>
+#include <consensus/validation.h>
+#include <utiltest.h>
 
 extern ZCJoinSplit* params;
 

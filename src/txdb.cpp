@@ -4,13 +4,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "txdb.h"
+#include <txdb.h>
 
-#include "chainparams.h"
-#include "hash.h"
-#include "main.h"
-#include "pow.h"
-#include "uint256.h"
+#include <chainparams.h>
+#include <hash.h>
+#include <main.h>
+#include <pow.h>
+#include <uint256.h>
 
 #include <stdint.h>
 

@@ -6,18 +6,18 @@
 #ifndef BITCOIN_COINS_H
 #define BITCOIN_COINS_H
 
-#include "compressor.h"
-#include "core_memusage.h"
-#include "memusage.h"
-#include "serialize.h"
-#include "uint256.h"
+#include <compressor.h>
+#include <core_memusage.h>
+#include <memusage.h>
+#include <serialize.h>
+#include <uint256.h>
 
 #include <assert.h>
 #include <stdint.h>
 
 #include <boost/foreach.hpp>
 #include <boost/unordered_map.hpp>
-#include "zcash/IncrementalMerkleTree.hpp"
+#include <zcash/IncrementalMerkleTree.hpp>
 
 /** 
  * Pruned version of CTransaction: only retains metadata and unspent transaction outputs

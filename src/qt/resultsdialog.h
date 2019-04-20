@@ -5,7 +5,7 @@
 #ifndef BITCOIN_QT_RESULTSDIALOG_H
 #define BITCOIN_QT_RESULTSDIALOG_H
 
-#include "platformstyle.h"
+#include <qt/platformstyle.h>
 #include <QDialog>
 #include <QTimer>
 #include <QProgressDialog>

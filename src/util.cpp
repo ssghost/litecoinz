@@ -5,17 +5,17 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "util.h"
+#include <util.h>
 
-#include "chainparamsbase.h"
-#include "random.h"
-#include "serialize.h"
-#include "sync.h"
-#include "utilstrencodings.h"
-#include "utiltime.h"
+#include <chainparamsbase.h>
+#include <random.h>
+#include <serialize.h>
+#include <sync.h>
+#include <utilstrencodings.h>
+#include <utiltime.h>
 
 #include <stdarg.h>
 #include <stdio.h>

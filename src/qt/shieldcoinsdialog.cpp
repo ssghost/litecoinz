@@ -3,23 +3,23 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "shieldcoinsdialog.h"
-#include "ui_shieldcoinsdialog.h"
+#include <qt/shieldcoinsdialog.h>
+#include <ui_shieldcoinsdialog.h>
 
-#include "bitcoinunits.h"
-#include "addressbookdialog.h"
-#include "addresstablemodel.h"
-#include "resultsdialog.h"
+#include <qt/bitcoinunits.h>
+#include <qt/addressbookdialog.h>
+#include <qt/addresstablemodel.h>
+#include <qt/resultsdialog.h>
 
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "walletmodel.h"
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
 #include <univalue.h>
-#include "rpc/server.h"
+#include <rpc/server.h>
 
 #include <sstream>
 #include <iomanip>

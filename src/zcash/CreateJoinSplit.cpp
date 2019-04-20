@@ -2,9 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "../util.h"
-#include "primitives/transaction.h"
-#include "zcash/JoinSplit.hpp"
+#include <zcash/../util.h>
+#include <primitives/transaction.h>
+#include <zcash/JoinSplit.hpp>
 
 #include <libsnark/common/profiling.hpp>
 

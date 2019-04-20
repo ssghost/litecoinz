@@ -1,13 +1,13 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "chainparams.h"
-#include "clientversion.h"
-#include "deprecation.h"
-#include "init.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <chainparams.h>
+#include <clientversion.h>
+#include <deprecation.h>
+#include <init.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 #include <boost/filesystem/operations.hpp>
 #include <fstream>

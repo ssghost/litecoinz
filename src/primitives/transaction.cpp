@@ -3,13 +3,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "primitives/transaction.h"
+#include <primitives/transaction.h>
 
-#include "hash.h"
-#include "tinyformat.h"
-#include "utilstrencodings.h"
+#include <hash.h>
+#include <tinyformat.h>
+#include <utilstrencodings.h>
 
-#include "librustzcash.h"
+#include <librustzcash.h>
 
 JSDescription::JSDescription(
     bool makeGrothProof,

@@ -3,25 +3,25 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "rpc/server.h"
-#include "rpc/client.h"
+#include <rpc/server.h>
+#include <rpc/client.h>
 
-#include "key_io.h"
-#include "main.h"
-#include "wallet/wallet.h"
+#include <key_io.h>
+#include <main.h>
+#include <wallet/wallet.h>
 
-#include "test/test_bitcoin.h"
+#include <test/test_bitcoin.h>
 
-#include "zcash/Address.hpp"
+#include <zcash/Address.hpp>
 
-#include "asyncrpcqueue.h"
-#include "asyncrpcoperation.h"
-#include "wallet/asyncrpcoperation_mergetoaddress.h"
-#include "wallet/asyncrpcoperation_sendmany.h"
-#include "wallet/asyncrpcoperation_shieldcoinbase.h"
+#include <asyncrpcqueue.h>
+#include <asyncrpcoperation.h>
+#include <wallet/asyncrpcoperation_mergetoaddress.h>
+#include <wallet/asyncrpcoperation_sendmany.h>
+#include <wallet/asyncrpcoperation_shieldcoinbase.h>
 
-#include "init.h"
-#include "utiltest.h"
+#include <init.h>
+#include <utiltest.h>
 
 #include <array>
 #include <chrono>

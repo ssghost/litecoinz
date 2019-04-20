@@ -3,15 +3,15 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "util.h"
-#include "uritests.h"
-#include "compattests.h"
+#include <util.h>
+#include <qt/test/uritests.h>
+#include <qt/test/compattests.h>
 
 #ifdef ENABLE_WALLET
-#include "paymentservertests.h"
+#include <qt/test/paymentservertests.h>
 #endif
 
 #include <QCoreApplication>

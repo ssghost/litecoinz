@@ -6,11 +6,11 @@ https://github.com/zcash/zips/blob/master/protocol/protocol.pdf
 #ifndef ZC_NOTE_ENCRYPTION_H_
 #define ZC_NOTE_ENCRYPTION_H_
 
-#include "uint256.h"
-#include "uint252.h"
+#include <uint256.h>
+#include <uint252.h>
 
-#include "zcash/Zcash.h"
-#include "zcash/Address.hpp"
+#include <zcash/Zcash.h>
+#include <zcash/Address.hpp>
 
 #include <array>
 

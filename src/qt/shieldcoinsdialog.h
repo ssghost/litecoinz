@@ -5,7 +5,7 @@
 #ifndef BITCOIN_QT_SHIELDCOINSDIALOG_H
 #define BITCOIN_QT_SHIELDCOINSDIALOG_H
 
-#include "walletmodel.h"
+#include <qt/walletmodel.h>
 
 #include <QDialog>
 #include <QTimer>

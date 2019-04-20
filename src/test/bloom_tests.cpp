@@ -2,19 +2,19 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "bloom.h"
+#include <bloom.h>
 
-#include "clientversion.h"
-#include "key.h"
-#include "key_io.h"
-#include "merkleblock.h"
-#include "random.h"
-#include "serialize.h"
-#include "streams.h"
-#include "uint256.h"
-#include "util.h"
-#include "utilstrencodings.h"
-#include "test/test_bitcoin.h"
+#include <clientversion.h>
+#include <key.h>
+#include <key_io.h>
+#include <merkleblock.h>
+#include <random.h>
+#include <serialize.h>
+#include <streams.h>
+#include <uint256.h>
+#include <util.h>
+#include <utilstrencodings.h>
+#include <test/test_bitcoin.h>
 
 #include <vector>
 

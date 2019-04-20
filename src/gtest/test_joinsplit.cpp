@@ -1,20 +1,20 @@
 #include <gtest/gtest.h>
 
-#include "utilstrencodings.h"
+#include <utilstrencodings.h>
 
 #include <boost/foreach.hpp>
 #include <boost/variant/get.hpp>
 
-#include "zcash/prf.h"
-#include "util.h"
-#include "streams.h"
-#include "version.h"
-#include "serialize.h"
-#include "primitives/transaction.h"
-#include "zcash/JoinSplit.hpp"
-#include "zcash/Note.hpp"
-#include "zcash/NoteEncryption.hpp"
-#include "zcash/IncrementalMerkleTree.hpp"
+#include <zcash/prf.h>
+#include <util.h>
+#include <streams.h>
+#include <version.h>
+#include <serialize.h>
+#include <primitives/transaction.h>
+#include <zcash/JoinSplit.hpp>
+#include <zcash/Note.hpp>
+#include <zcash/NoteEncryption.hpp>
+#include <zcash/IncrementalMerkleTree.hpp>
 
 #include <array>
 

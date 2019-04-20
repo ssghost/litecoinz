@@ -5,7 +5,7 @@
 #ifndef BITCOIN_QT_PAYMENTREQUESTPLUS_H
 #define BITCOIN_QT_PAYMENTREQUESTPLUS_H
 
-#include "paymentrequest.pb.h"
+#include <qt/paymentrequest.pb.h>
 
 #include <amount.h>
 #include <script/script.h>

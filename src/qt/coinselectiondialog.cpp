@@ -3,17 +3,17 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "coinselectiondialog.h"
-#include "ui_coinselectiondialog.h"
+#include <qt/coinselectiondialog.h>
+#include <ui_coinselectiondialog.h>
 
-#include "coinselectiontablemodel.h"
-#include "bitcoingui.h"
-#include "guiutil.h"
-#include "platformstyle.h"
-#include "walletmodel.h"
+#include <qt/coinselectiontablemodel.h>
+#include <qt/bitcoingui.h>
+#include <qt/guiutil.h>
+#include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
 
 #include <QMenu>
 #include <QSortFilterProxyModel>

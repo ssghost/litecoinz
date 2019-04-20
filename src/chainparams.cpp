@@ -4,19 +4,19 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "key_io.h"
-#include "main.h"
-#include "crypto/equihash.h"
+#include <key_io.h>
+#include <main.h>
+#include <crypto/equihash.h>
 
-#include "tinyformat.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <tinyformat.h>
+#include <util.h>
+#include <utilstrencodings.h>
 
 #include <assert.h>
 
 #include <boost/assign/list_of.hpp>
 
-#include "chainparamsseeds.h"
+#include <chainparamsseeds.h>
 
 static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesisOutputScript, uint32_t nTime, const uint256& nNonce, const std::vector<unsigned char>& nSolution, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {

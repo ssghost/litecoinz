@@ -3,7 +3,7 @@
 #include <zcash/Address.hpp>
 #include <zcash/zip32.h>
 
-#include "utiltest.h"
+#include <utiltest.h>
 
 #include <gtest/gtest.h>
 

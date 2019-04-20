@@ -14,12 +14,12 @@
 // https://www.internetsociety.org/sites/default/files/blogs-media/equihash-asymmetric-proof-of-work-based-generalized-birthday-problem.pdf
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "compat/endian.h"
-#include "crypto/equihash.h"
-#include "util.h"
+#include <compat/endian.h>
+#include <crypto/equihash.h>
+#include <util.h>
 
 #include <algorithm>
 #include <iostream>

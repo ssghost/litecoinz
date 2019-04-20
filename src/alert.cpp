@@ -3,14 +3,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "alert.h"
+#include <alert.h>
 
-#include "clientversion.h"
-#include "net.h"
-#include "pubkey.h"
-#include "timedata.h"
-#include "ui_interface.h"
-#include "util.h"
+#include <clientversion.h>
+#include <net.h>
+#include <pubkey.h>
+#include <timedata.h>
+#include <ui_interface.h>
+#include <util.h>
 
 #include <stdint.h>
 #include <algorithm>

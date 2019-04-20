@@ -4,18 +4,18 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "wallet/walletdb.h"
+#include <wallet/walletdb.h>
 
-#include "consensus/validation.h"
-#include "key_io.h"
-#include "main.h"
-#include "protocol.h"
-#include "serialize.h"
-#include "sync.h"
-#include "util.h"
-#include "utiltime.h"
-#include "wallet/wallet.h"
-#include "zcash/Proof.hpp"
+#include <consensus/validation.h>
+#include <key_io.h>
+#include <main.h>
+#include <protocol.h>
+#include <serialize.h>
+#include <sync.h>
+#include <util.h>
+#include <utiltime.h>
+#include <wallet/wallet.h>
+#include <zcash/Proof.hpp>
 
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>

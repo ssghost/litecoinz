@@ -5,12 +5,12 @@
 #ifndef BITCOIN_WALLET_CRYPTER_H
 #define BITCOIN_WALLET_CRYPTER_H
 
-#include "keystore.h"
-#include "serialize.h"
-#include "streams.h"
-#include "support/allocators/secure.h"
-#include "zcash/Address.hpp"
-#include "zcash/zip32.h"
+#include <keystore.h>
+#include <serialize.h>
+#include <streams.h>
+#include <support/allocators/secure.h>
+#include <zcash/Address.hpp>
+#include <zcash/zip32.h>
 
 class uint256;
 

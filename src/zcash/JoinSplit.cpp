@@ -1,8 +1,8 @@
-#include "JoinSplit.hpp"
-#include "prf.h"
-#include "sodium.h"
+#include <zcash/JoinSplit.hpp>
+#include <zcash/prf.h>
+#include <sodium.h>
 
-#include "zcash/util.h"
+#include <zcash/util.h>
 
 #include <memory>
 
@@ -14,19 +14,19 @@
 #include <libsnark/zk_proof_systems/ppzksnark/r1cs_ppzksnark/r1cs_ppzksnark.hpp>
 #include <libsnark/gadgetlib1/gadgets/hashes/sha256/sha256_gadget.hpp>
 #include <libsnark/gadgetlib1/gadgets/merkle_tree/merkle_tree_check_read_gadget.hpp>
-#include "tinyformat.h"
-#include "sync.h"
-#include "amount.h"
+#include <tinyformat.h>
+#include <sync.h>
+#include <amount.h>
 
-#include "librustzcash.h"
-#include "streams.h"
-#include "version.h"
+#include <librustzcash.h>
+#include <streams.h>
+#include <version.h>
 
 using namespace libsnark;
 
 namespace libzcash {
 
-#include "zcash/circuit/gadget.tcc"
+#include <zcash/circuit/gadget.tcc>
 
 static CCriticalSection cs_ParamsIO;
 

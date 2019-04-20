@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "clientversion.h"
-#include "consensus/validation.h"
-#include "main.h"
-#include "test/test_bitcoin.h"
-#include "utiltime.h"
-#include "zcash/Proof.hpp"
+#include <clientversion.h>
+#include <consensus/validation.h>
+#include <main.h>
+#include <test/test_bitcoin.h>
+#include <utiltime.h>
+#include <zcash/Proof.hpp>
 
 #include <cstdio>
 

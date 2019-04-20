@@ -2,14 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "deprecation.h"
+#include <deprecation.h>
 
-#include "alert.h"
-#include "clientversion.h"
-#include "init.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "chainparams.h"
+#include <alert.h>
+#include <clientversion.h>
+#include <init.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <chainparams.h>
 
 static const std::string CLIENT_VERSION_STR = FormatVersion(CLIENT_VERSION);
 

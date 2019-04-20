@@ -2,18 +2,18 @@
 #include <gtest/gtest.h>
 #include <sodium.h>
 
-#include "base58.h"
-#include "chainparams.h"
-#include "key_io.h"
-#include "main.h"
-#include "primitives/block.h"
-#include "random.h"
-#include "transaction_builder.h"
-#include "utiltest.h"
-#include "wallet/wallet.h"
-#include "zcash/JoinSplit.hpp"
-#include "zcash/Note.hpp"
-#include "zcash/NoteEncryption.hpp"
+#include <base58.h>
+#include <chainparams.h>
+#include <key_io.h>
+#include <main.h>
+#include <primitives/block.h>
+#include <random.h>
+#include <transaction_builder.h>
+#include <utiltest.h>
+#include <wallet/wallet.h>
+#include <zcash/JoinSplit.hpp>
+#include <zcash/Note.hpp>
+#include <zcash/NoteEncryption.hpp>
 
 #include <boost/filesystem.hpp>
 

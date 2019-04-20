@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "consensus/validation.h"
-#include "main.h"
-#include "utiltest.h"
-#include "zcash/Proof.hpp"
+#include <consensus/validation.h>
+#include <main.h>
+#include <utiltest.h>
+#include <zcash/Proof.hpp>
 
 class MockCValidationState : public CValidationState {
 public:

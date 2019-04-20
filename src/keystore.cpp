@@ -3,10 +3,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "keystore.h"
+#include <keystore.h>
 
-#include "key.h"
-#include "util.h"
+#include <key.h>
+#include <util.h>
 
 #include <boost/foreach.hpp>
 

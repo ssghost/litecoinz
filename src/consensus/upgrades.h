@@ -5,7 +5,7 @@
 #ifndef ZCASH_CONSENSUS_UPGRADES_H
 #define ZCASH_CONSENSUS_UPGRADES_H
 
-#include "consensus/params.h"
+#include <consensus/params.h>
 
 #include <boost/optional.hpp>
 

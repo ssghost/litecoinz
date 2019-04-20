@@ -2,22 +2,22 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "guiutil.h"
+#include <qt/guiutil.h>
 
-#include "bitcoinaddressvalidator.h"
-#include "litecoinzaddressvalidator.h"
-#include "bitcoinunits.h"
-#include "qvalidatedlineedit.h"
-#include "walletmodel.h"
+#include <qt/bitcoinaddressvalidator.h>
+#include <qt/litecoinzaddressvalidator.h>
+#include <qt/bitcoinunits.h>
+#include <qt/qvalidatedlineedit.h>
+#include <qt/walletmodel.h>
 
-#include "primitives/transaction.h"
+#include <primitives/transaction.h>
 #include <key_io.h>
-#include "init.h"
-#include "main.h" // For minRelayTxFee
-#include "protocol.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "util.h"
+#include <init.h>
+#include <main.h> // For minRelayTxFee
+#include <protocol.h>
+#include <script/script.h>
+#include <script/standard.h>
+#include <util.h>
 
 #ifdef WIN32
 #ifdef _WIN32_WINNT
@@ -32,9 +32,9 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include "shellapi.h"
-#include "shlobj.h"
-#include "shlwapi.h"
+#include <shellapi.h>
+#include <shlobj.h>
+#include <shlwapi.h>
 #endif
 
 #include <boost/filesystem.hpp>

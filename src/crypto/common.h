@@ -7,15 +7,15 @@
 #define BITCOIN_CRYPTO_COMMON_H
 
 #if defined(HAVE_CONFIG_H)
-#include "bitcoin-config.h"
+#include <bitcoin-config.h>
 #endif
 
 #include <stdint.h>
 #include <assert.h>
 #include <string.h>
 
-#include "sodium.h"
-#include "compat/endian.h"
+#include <sodium.h>
+#include <compat/endian.h>
 
 #if defined(NDEBUG)
 # error "LitecoinZ cannot be compiled without assertions."

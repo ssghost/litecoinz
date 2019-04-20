@@ -3,19 +3,19 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "rpc/server.h"
+#include <rpc/server.h>
 
-#include "clientversion.h"
-#include "main.h"
-#include "net.h"
-#include "netbase.h"
-#include "protocol.h"
-#include "sync.h"
-#include "timedata.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "version.h"
-#include "deprecation.h"
+#include <clientversion.h>
+#include <main.h>
+#include <net.h>
+#include <netbase.h>
+#include <rpc/protocol.h>
+#include <sync.h>
+#include <timedata.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <version.h>
+#include <deprecation.h>
 
 #include <boost/foreach.hpp>
 

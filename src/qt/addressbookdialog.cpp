@@ -3,17 +3,17 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "addressbookdialog.h"
-#include "ui_addressbookdialog.h"
+#include <qt/addressbookdialog.h>
+#include <ui_addressbookdialog.h>
 
-#include "addresstablemodel.h"
-#include "bitcoingui.h"
-#include "editaddressdialog.h"
-#include "guiutil.h"
-#include "platformstyle.h"
+#include <qt/addresstablemodel.h>
+#include <qt/bitcoingui.h>
+#include <qt/editaddressdialog.h>
+#include <qt/guiutil.h>
+#include <qt/platformstyle.h>
 
 #include <QIcon>
 #include <QMenu>

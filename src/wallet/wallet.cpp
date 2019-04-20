@@ -4,26 +4,26 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "wallet/wallet.h"
+#include <wallet/wallet.h>
 
-#include "checkpoints.h"
-#include "coincontrol.h"
-#include "consensus/upgrades.h"
-#include "consensus/validation.h"
-#include "consensus/consensus.h"
-#include "init.h"
-#include "key_io.h"
-#include "main.h"
-#include "policy/policy.h"
-#include "net.h"
-#include "rpc/protocol.h"
-#include "script/script.h"
-#include "script/sign.h"
-#include "timedata.h"
-#include "utilmoneystr.h"
-#include "zcash/Note.hpp"
-#include "crypter.h"
-#include "zcash/zip32.h"
+#include <checkpoints.h>
+#include <coincontrol.h>
+#include <consensus/upgrades.h>
+#include <consensus/validation.h>
+#include <consensus/consensus.h>
+#include <init.h>
+#include <key_io.h>
+#include <main.h>
+#include <policy/policy.h>
+#include <net.h>
+#include <rpc/protocol.h>
+#include <script/script.h>
+#include <script/sign.h>
+#include <timedata.h>
+#include <utilmoneystr.h>
+#include <zcash/Note.hpp>
+#include <wallet/crypter.h>
+#include <zcash/zip32.h>
 
 #include <assert.h>
 

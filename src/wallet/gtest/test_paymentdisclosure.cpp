@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
-#include "main.h"
-#include "utilmoneystr.h"
-#include "chainparams.h"
-#include "utilstrencodings.h"
-#include "zcash/Address.hpp"
-#include "wallet/wallet.h"
-#include "amount.h"
+#include <main.h>
+#include <utilmoneystr.h>
+#include <chainparams.h>
+#include <utilstrencodings.h>
+#include <zcash/Address.hpp>
+#include <wallet/wallet.h>
+#include <amount.h>
 
 #include <array>
 #include <memory>
@@ -15,12 +15,12 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <iostream>
-#include "util.h"
+#include <util.h>
 
-#include "wallet/paymentdisclosure.h"
-#include "wallet/paymentdisclosuredb.h"
+#include <wallet/paymentdisclosure.h>
+#include <wallet/paymentdisclosuredb.h>
 
-#include "sodium.h"
+#include <sodium.h>
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>

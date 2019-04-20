@@ -5,44 +5,44 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "init.h"
-#include "crypto/common.h"
-#include "addrman.h"
-#include "amount.h"
-#include "checkpoints.h"
-#include "compat/sanity.h"
-#include "consensus/upgrades.h"
-#include "consensus/validation.h"
-#include "httpserver.h"
-#include "httprpc.h"
-#include "key.h"
+#include <init.h>
+#include <crypto/common.h>
+#include <addrman.h>
+#include <amount.h>
+#include <checkpoints.h>
+#include <compat/sanity.h>
+#include <consensus/upgrades.h>
+#include <consensus/validation.h>
+#include <httpserver.h>
+#include <httprpc.h>
+#include <key.h>
 #ifdef ENABLE_MINING
-#include "key_io.h"
+#include <key_io.h>
 #endif
-#include "main.h"
-#include "metrics.h"
-#include "miner.h"
-#include "net.h"
-#include "policy/policy.h"
-#include "rpc/server.h"
-#include "rpc/register.h"
-#include "script/standard.h"
-#include "script/sigcache.h"
-#include "scheduler.h"
-#include "txdb.h"
-#include "torcontrol.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "utilmoneystr.h"
-#include "validationinterface.h"
+#include <main.h>
+#include <metrics.h>
+#include <miner.h>
+#include <net.h>
+#include <policy/policy.h>
+#include <rpc/server.h>
+#include <rpc/register.h>
+#include <script/standard.h>
+#include <script/sigcache.h>
+#include <scheduler.h>
+#include <txdb.h>
+#include <torcontrol.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <utilmoneystr.h>
+#include <validationinterface.h>
 #ifdef ENABLE_WALLET
-#include "wallet/wallet.h"
-#include "wallet/walletdb.h"
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
 #endif
-#include "warnings.h"
+#include <warnings.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <memory>
@@ -64,11 +64,11 @@
 #include <libsnark/common/profiling.hpp>
 
 #if ENABLE_ZMQ
-#include "zmq/zmqnotificationinterface.h"
+#include <zmq/zmqnotificationinterface.h>
 #endif
 
-#include "librustzcash.h"
-#include "fetchparams.h"
+#include <librustzcash.h>
+#include <fetchparams.h>
 
 using namespace std;
 

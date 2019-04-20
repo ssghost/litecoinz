@@ -5,12 +5,12 @@
 #ifndef ZCASH_UTIL_TEST_H
 #define ZCASH_UTIL_TEST_H
 
-#include "key_io.h"
-#include "wallet/wallet.h"
-#include "zcash/JoinSplit.hpp"
-#include "zcash/Note.hpp"
-#include "zcash/NoteEncryption.hpp"
-#include "zcash/zip32.h"
+#include <key_io.h>
+#include <wallet/wallet.h>
+#include <zcash/JoinSplit.hpp>
+#include <zcash/Note.hpp>
+#include <zcash/NoteEncryption.hpp>
+#include <zcash/zip32.h>
 
 // Sprout
 CWalletTx GetValidSproutReceive(ZCJoinSplit& params,

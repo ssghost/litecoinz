@@ -6,8 +6,8 @@
 #ifndef BITCOIN_SCRIPT_SCRIPT_H
 #define BITCOIN_SCRIPT_SCRIPT_H
 
-#include "crypto/common.h"
-#include "prevector.h"
+#include <crypto/common.h>
+#include <prevector.h>
 
 #include <assert.h>
 #include <climits>
@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include "uint256.h"
+#include <uint256.h>
 
 static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 520; // bytes
 

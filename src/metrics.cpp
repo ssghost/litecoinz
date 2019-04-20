@@ -3,17 +3,17 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "metrics.h"
-#include "ansicolor.h"
+#include <metrics.h>
+#include <ansicolor.h>
 
-#include "chainparams.h"
-#include "checkpoints.h"
-#include "main.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "utiltime.h"
-#include "utilmoneystr.h"
-#include "utilstrencodings.h"
+#include <chainparams.h>
+#include <checkpoints.h>
+#include <main.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <utiltime.h>
+#include <utilmoneystr.h>
+#include <utilstrencodings.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/synchronized_value.hpp>

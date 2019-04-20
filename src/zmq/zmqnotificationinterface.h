@@ -5,8 +5,8 @@
 #ifndef BITCOIN_ZMQ_ZMQNOTIFICATIONINTERFACE_H
 #define BITCOIN_ZMQ_ZMQNOTIFICATIONINTERFACE_H
 
-#include "validationinterface.h"
-#include "consensus/validation.h"
+#include <validationinterface.h>
+#include <consensus/validation.h>
 #include <string>
 #include <map>
 

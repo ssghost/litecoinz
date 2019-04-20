@@ -1,6 +1,6 @@
-#include "Proof.hpp"
+#include <zcash/Proof.hpp>
 
-#include "crypto/common.h"
+#include <crypto/common.h>
 
 #include <boost/static_assert.hpp>
 #include <libsnark/common/default_types/r1cs_ppzksnark_pp.hpp>

@@ -6,11 +6,11 @@
 #include <boost/optional.hpp>
 #include <boost/static_assert.hpp>
 
-#include "uint256.h"
-#include "serialize.h"
+#include <uint256.h>
+#include <serialize.h>
 
-#include "Zcash.h"
-#include "zcash/util.h"
+#include <zcash/Zcash.h>
+#include <zcash/util.h>
 
 namespace libzcash {
 

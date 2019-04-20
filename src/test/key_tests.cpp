@@ -2,18 +2,18 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "key.h"
+#include <key.h>
 
-#include "chainparams.h"
-#include "key_io.h"
-#include "script/script.h"
-#include "uint256.h"
-#include "util.h"
-#include "utilstrencodings.h"
-#include "utiltest.h"
-#include "test/test_bitcoin.h"
+#include <chainparams.h>
+#include <key_io.h>
+#include <script/script.h>
+#include <uint256.h>
+#include <util.h>
+#include <utilstrencodings.h>
+#include <utiltest.h>
+#include <test/test_bitcoin.h>
 
-#include "zcash/Address.hpp"
+#include <zcash/Address.hpp>
 
 #include <string>
 #include <vector>

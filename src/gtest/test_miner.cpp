@@ -1,10 +1,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "chainparams.h"
-#include "key.h"
-#include "miner.h"
-#include "util.h"
+#include <chainparams.h>
+#include <key.h>
+#include <miner.h>
+#include <util.h>
 
 
 TEST(Miner, GetScriptForMinerAddress) {

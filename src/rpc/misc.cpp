@@ -4,18 +4,18 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "clientversion.h"
-#include "init.h"
-#include "key_io.h"
-#include "main.h"
-#include "net.h"
-#include "netbase.h"
-#include "rpc/server.h"
-#include "timedata.h"
-#include "util.h"
+#include <clientversion.h>
+#include <init.h>
+#include <key_io.h>
+#include <main.h>
+#include <net.h>
+#include <netbase.h>
+#include <rpc/server.h>
+#include <timedata.h>
+#include <util.h>
 #ifdef ENABLE_WALLET
-#include "wallet/wallet.h"
-#include "wallet/walletdb.h"
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
 #endif
 
 #include <stdint.h>
@@ -24,7 +24,7 @@
 
 #include <univalue.h>
 
-#include "zcash/Address.hpp"
+#include <zcash/Address.hpp>
 
 using namespace std;
 

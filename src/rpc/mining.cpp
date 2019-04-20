@@ -4,24 +4,24 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "amount.h"
-#include "chainparams.h"
-#include "consensus/consensus.h"
-#include "consensus/validation.h"
-#include "core_io.h"
+#include <amount.h>
+#include <chainparams.h>
+#include <consensus/consensus.h>
+#include <consensus/validation.h>
+#include <core_io.h>
 #ifdef ENABLE_MINING
-#include "crypto/equihash.h"
+#include <crypto/equihash.h>
 #endif
-#include "init.h"
-#include "main.h"
-#include "metrics.h"
-#include "miner.h"
-#include "net.h"
-#include "pow.h"
-#include "rpc/server.h"
-#include "txmempool.h"
-#include "util.h"
-#include "validationinterface.h"
+#include <init.h>
+#include <main.h>
+#include <metrics.h>
+#include <miner.h>
+#include <net.h>
+#include <pow.h>
+#include <rpc/server.h>
+#include <txmempool.h>
+#include <util.h>
+#include <validationinterface.h>
 
 #include <stdint.h>
 

@@ -5,7 +5,7 @@
 #ifndef BITCOIN_QT_COINSELECTIONDIALOG_H
 #define BITCOIN_QT_COINSELECTIONDIALOG_H
 
-#include "walletmodel.h"
+#include <qt/walletmodel.h>
 
 #include <QDialog>
 

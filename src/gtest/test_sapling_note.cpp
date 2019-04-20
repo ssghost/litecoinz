@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
-#include "zcash/Address.hpp"
-#include "zcash/Note.hpp"
+#include <zcash/Address.hpp>
+#include <zcash/Note.hpp>
 
-#include "amount.h"
-#include "random.h"
-#include "librustzcash.h"
+#include <amount.h>
+#include <random.h>
+#include <librustzcash.h>
 
 #include <array>
 

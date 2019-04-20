@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "zcash/Address.hpp"
-#include "wallet/wallet.h"
-#include "wallet/walletdb.h"
-#include "util.h"
+#include <zcash/Address.hpp>
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
+#include <util.h>
 
 #include <boost/filesystem.hpp>
 

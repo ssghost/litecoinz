@@ -2,15 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "coinselectiontablemodel.h"
+#include <qt/coinselectiontablemodel.h>
 
-#include "bitcoinunits.h"
-#include "key_io.h"
-#include "guiutil.h"
-#include "walletmodel.h"
-#include "optionsmodel.h"
+#include <qt/bitcoinunits.h>
+#include <key_io.h>
+#include <qt/guiutil.h>
+#include <qt/walletmodel.h>
+#include <qt/optionsmodel.h>
 
-#include "wallet/wallet.h"
+#include <wallet/wallet.h>
 
 #include <boost/foreach.hpp>
 

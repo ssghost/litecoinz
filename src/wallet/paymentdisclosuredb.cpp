@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "wallet/paymentdisclosuredb.h"
+#include <wallet/paymentdisclosuredb.h>
 
-#include "util.h"
-#include "dbwrapper.h"
+#include <util.h>
+#include <dbwrapper.h>
 
 #include <boost/filesystem.hpp>
 

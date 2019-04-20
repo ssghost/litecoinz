@@ -2,29 +2,29 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "sendzcoinsdialog.h"
-#include "ui_sendzcoinsdialog.h"
+#include <qt/sendzcoinsdialog.h>
+#include <ui_sendzcoinsdialog.h>
 
-#include "addresstablemodel.h"
-#include "bitcoinunits.h"
-#include "coinselectiondialog.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "sendzcoinsentry.h"
-#include "walletmodel.h"
+#include <qt/addresstablemodel.h>
+#include <qt/bitcoinunits.h>
+#include <qt/coinselectiondialog.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/sendzcoinsentry.h>
+#include <qt/walletmodel.h>
 
-#include "base58.h"
-#include "coincontrol.h"
-#include "main.h" // mempool and minRelayTxFee
-#include "ui_interface.h"
-#include "txmempool.h"
-#include "wallet/wallet.h"
+#include <base58.h>
+#include <coincontrol.h>
+#include <main.h> // mempool and minRelayTxFee
+#include <ui_interface.h>
+#include <txmempool.h>
+#include <wallet/wallet.h>
 
 #include <univalue.h>
-#include "rpc/server.h"
+#include <rpc/server.h>
 
-#include "resultsdialog.h"
+#include <qt/resultsdialog.h>
 
 #include <QMessageBox>
 #include <QScrollBar>

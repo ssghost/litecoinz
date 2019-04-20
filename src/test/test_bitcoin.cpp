@@ -5,29 +5,29 @@
 
 #define BOOST_TEST_MODULE Bitcoin Test Suite
 
-#include "test_bitcoin.h"
+#include <test/test_bitcoin.h>
 
-#include "crypto/common.h"
+#include <crypto/common.h>
 
-#include "key.h"
-#include "main.h"
-#include "random.h"
-#include "txdb.h"
-#include "txmempool.h"
-#include "ui_interface.h"
-#include "rpc/server.h"
-#include "rpc/register.h"
-#include "util.h"
+#include <key.h>
+#include <main.h>
+#include <random.h>
+#include <txdb.h>
+#include <txmempool.h>
+#include <ui_interface.h>
+#include <rpc/server.h>
+#include <rpc/register.h>
+#include <util.h>
 #ifdef ENABLE_WALLET
-#include "wallet/db.h"
-#include "wallet/wallet.h"
+#include <wallet/db.h>
+#include <wallet/wallet.h>
 #endif
 
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/thread.hpp>
 
-#include "librustzcash.h"
+#include <librustzcash.h>
 
 CClientUIInterface uiInterface; // Declared but not defined in ui_interface.h
 CWallet* pwalletMain;

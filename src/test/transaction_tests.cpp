@@ -2,26 +2,26 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/tx_invalid.json.h"
-#include "data/tx_valid.json.h"
-#include "test/test_bitcoin.h"
+#include <test/data/tx_invalid.json.h>
+#include <test/data/tx_valid.json.h>
+#include <test/test_bitcoin.h>
 
-#include "init.h"
-#include "clientversion.h"
-#include "checkqueue.h"
-#include "consensus/upgrades.h"
-#include "consensus/validation.h"
-#include "core_io.h"
-#include "key.h"
-#include "keystore.h"
-#include "main.h"
-#include "policy/policy.h"
-#include "script/script.h"
-#include "script/script_error.h"
-#include "script/sign.h"
-#include "primitives/transaction.h"
+#include <init.h>
+#include <clientversion.h>
+#include <checkqueue.h>
+#include <consensus/upgrades.h>
+#include <consensus/validation.h>
+#include <core_io.h>
+#include <key.h>
+#include <keystore.h>
+#include <main.h>
+#include <policy/policy.h>
+#include <script/script.h>
+#include <script/script_error.h>
+#include <script/sign.h>
+#include <primitives/transaction.h>
 
-#include "sodium.h"
+#include <sodium.h>
 
 #include <array>
 #include <map>
@@ -36,9 +36,9 @@
 
 #include <univalue.h>
 
-#include "zcash/Note.hpp"
-#include "zcash/Address.hpp"
-#include "zcash/Proof.hpp"
+#include <zcash/Note.hpp>
+#include <zcash/Address.hpp>
+#include <zcash/Proof.hpp>
 
 using namespace std;
 

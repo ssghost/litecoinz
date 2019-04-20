@@ -39,18 +39,18 @@ the bad alert.
 
 */
 
-#include "main.h"
-#include "net.h"
-#include "alert.h"
-#include "init.h"
+#include <main.h>
+#include <net.h>
+#include <alert.h>
+#include <init.h>
 
-#include "util.h"
-#include "utiltime.h"
-#include "key.h"
-#include "clientversion.h"
-#include "chainparams.h"
+#include <util.h>
+#include <utiltime.h>
+#include <key.h>
+#include <clientversion.h>
+#include <chainparams.h>
 
-#include "alertkeys.h"
+#include <alertkeys.h>
 
 
 static const int64_t DAYS = 24 * 60 * 60;

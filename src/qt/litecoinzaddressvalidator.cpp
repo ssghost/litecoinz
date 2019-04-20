@@ -2,9 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "litecoinzaddressvalidator.h"
+#include <qt/litecoinzaddressvalidator.h>
 
-#include "key_io.h"
+#include <key_io.h>
 
 /* Base58 characters are:
      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"

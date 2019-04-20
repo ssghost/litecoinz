@@ -18,7 +18,7 @@
 // the i*n 0s, each bucket having 4 * 2^RESTBITS slots,
 // twice the number of subtrees expected to land there.
 
-#include "pow/tromp/equi.h"
+#include <pow/tromp/equi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>

@@ -1,9 +1,9 @@
 #ifndef BITCOIN_TEST_TEST_BITCOIN_H
 #define BITCOIN_TEST_TEST_BITCOIN_H
 
-#include "consensus/upgrades.h"
-#include "pubkey.h"
-#include "txdb.h"
+#include <consensus/upgrades.h>
+#include <pubkey.h>
+#include <txdb.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>

@@ -7,7 +7,7 @@
 #ifndef BITCOIN_MINER_H
 #define BITCOIN_MINER_H
 
-#include "primitives/block.h"
+#include <primitives/block.h>
 
 #include <boost/optional.hpp>
 #include <stdint.h>

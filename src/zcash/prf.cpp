@@ -1,6 +1,6 @@
-#include "prf.h"
-#include "crypto/sha256.h"
-#include "hash.h"
+#include <zcash/prf.h>
+#include <crypto/sha256.h>
+#include <hash.h>
 
 #include <array>
 #include <librustzcash.h>

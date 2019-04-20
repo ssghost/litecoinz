@@ -1,10 +1,10 @@
 #ifndef ZC_ADDRESS_H_
 #define ZC_ADDRESS_H_
 
-#include "uint256.h"
-#include "uint252.h"
-#include "serialize.h"
-#include "Zcash.h"
+#include <uint256.h>
+#include <uint252.h>
+#include <serialize.h>
+#include <zcash/Zcash.h>
 
 #include <boost/variant.hpp>
 

@@ -7,22 +7,22 @@
 #ifndef BITCOIN_PRIMITIVES_TRANSACTION_H
 #define BITCOIN_PRIMITIVES_TRANSACTION_H
 
-#include "amount.h"
-#include "random.h"
-#include "script/script.h"
-#include "serialize.h"
-#include "streams.h"
-#include "uint256.h"
-#include "consensus/consensus.h"
+#include <amount.h>
+#include <random.h>
+#include <script/script.h>
+#include <serialize.h>
+#include <streams.h>
+#include <uint256.h>
+#include <consensus/consensus.h>
 
 #include <array>
 
 #include <boost/variant.hpp>
 
-#include "zcash/NoteEncryption.hpp"
-#include "zcash/Zcash.h"
-#include "zcash/JoinSplit.hpp"
-#include "zcash/Proof.hpp"
+#include <zcash/NoteEncryption.hpp>
+#include <zcash/Zcash.h>
+#include <zcash/JoinSplit.hpp>
+#include <zcash/Proof.hpp>
 
 // Overwinter transaction version
 static const int32_t OVERWINTER_TX_VERSION = 3;

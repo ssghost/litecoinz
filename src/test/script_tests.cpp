@@ -2,22 +2,22 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/script_invalid.json.h"
-#include "data/script_valid.json.h"
+#include <test/data/script_invalid.json.h>
+#include <test/data/script_valid.json.h>
 
-#include "consensus/upgrades.h"
-#include "core_io.h"
-#include "key.h"
-#include "keystore.h"
-#include "main.h"
-#include "script/script.h"
-#include "script/script_error.h"
-#include "script/sign.h"
-#include "util.h"
-#include "test/test_bitcoin.h"
+#include <consensus/upgrades.h>
+#include <core_io.h>
+#include <key.h>
+#include <keystore.h>
+#include <main.h>
+#include <script/script.h>
+#include <script/script_error.h>
+#include <script/sign.h>
+#include <util.h>
+#include <test/test_bitcoin.h>
 
 #if defined(HAVE_CONSENSUS_LIB)
-#include "script/zcashconsensus.h"
+#include <script/zcashconsensus.h>
 #endif
 
 #include <fstream>

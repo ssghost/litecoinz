@@ -4,16 +4,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "rpc/server.h"
+#include <rpc/server.h>
 
-#include "init.h"
-#include "key_io.h"
-#include "random.h"
-#include "sync.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "utilstrencodings.h"
-#include "asyncrpcqueue.h"
+#include <init.h>
+#include <key_io.h>
+#include <random.h>
+#include <sync.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <utilstrencodings.h>
+#include <asyncrpcqueue.h>
 
 #include <memory>
 

@@ -4,17 +4,17 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "timedata.h"
+#include <timedata.h>
 
-#include "netbase.h"
-#include "sync.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "utilstrencodings.h"
-#include "warnings.h"
+#include <netbase.h>
+#include <sync.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <utilstrencodings.h>
+#include <warnings.h>
 
 #include <boost/foreach.hpp>
 

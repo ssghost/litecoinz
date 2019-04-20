@@ -1,9 +1,9 @@
-#include "NoteEncryption.hpp"
+#include <zcash/NoteEncryption.hpp>
 #include <stdexcept>
-#include "sodium.h"
+#include <sodium.h>
 #include <boost/static_assert.hpp>
-#include "prf.h"
-#include "librustzcash.h"
+#include <zcash/prf.h>
+#include <librustzcash.h>
 
 #define NOTEENCRYPTION_CIPHER_KEYSIZE 32
 

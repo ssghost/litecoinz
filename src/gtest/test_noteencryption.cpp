@@ -1,15 +1,15 @@
 #include <gtest/gtest.h>
-#include "sodium.h"
+#include <sodium.h>
 
 #include <array>
 #include <stdexcept>
 
-#include "zcash/Note.hpp"
-#include "zcash/NoteEncryption.hpp"
-#include "zcash/prf.h"
-#include "zcash/Address.hpp"
-#include "crypto/sha256.h"
-#include "librustzcash.h"
+#include <zcash/Note.hpp>
+#include <zcash/NoteEncryption.hpp>
+#include <zcash/prf.h>
+#include <zcash/Address.hpp>
+#include <crypto/sha256.h>
+#include <librustzcash.h>
 
 class TestNoteDecryption : public ZCNoteDecryption {
 public:

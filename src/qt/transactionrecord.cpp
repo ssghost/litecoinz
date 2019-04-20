@@ -2,16 +2,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "transactionrecord.h"
+#include <qt/transactionrecord.h>
 
-#include "consensus/consensus.h"
-#include "key_io.h"
-#include "main.h"
-#include "timedata.h"
-#include "wallet/wallet.h"
+#include <consensus/consensus.h>
+#include <key_io.h>
+#include <main.h>
+#include <timedata.h>
+#include <wallet/wallet.h>
 
-#include "univalue.h"
-#include "rpc/server.h"
+#include <univalue.h>
+#include <rpc/server.h>
 
 #include <stdint.h>
 

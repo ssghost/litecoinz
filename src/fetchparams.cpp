@@ -6,9 +6,9 @@
 #define CURL_STATICLIB
 #endif
 
-#include "fetchparams.h"
-#include "ui_interface.h"
-#include "util.h"
+#include <fetchparams.h>
+#include <ui_interface.h>
+#include <util.h>
 
 #include <stdio.h>
 #include <curl/curl.h>

@@ -3,15 +3,15 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "resultsdialog.h"
-#include "ui_resultsdialog.h"
-#include "platformstyle.h"
+#include <qt/resultsdialog.h>
+#include <ui_resultsdialog.h>
+#include <qt/platformstyle.h>
 
 #include <univalue.h>
-#include "rpc/server.h"
+#include <rpc/server.h>
 
 #include <QTimer>
 #include <QMessageBox>

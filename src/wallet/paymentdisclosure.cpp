@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "wallet/paymentdisclosure.h"
+#include <wallet/paymentdisclosure.h>
 
-#include "key_io.h"
-#include "util.h"
+#include <key_io.h>
+#include <util.h>
 
 std::string PaymentDisclosureInfo::ToString() const {
     return strprintf("PaymentDisclosureInfo(version=%d, esk=%s, joinSplitPrivKey=<omitted>, address=%s)",
