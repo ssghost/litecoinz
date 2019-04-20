@@ -223,7 +223,7 @@ static bool InitHTTPAllowList()
     std::string strAllowed;
     BOOST_FOREACH (const CSubNet& subnet, rpc_allow_subnets)
         strAllowed += subnet.ToString() + " ";
-    LogPrint("http", "Allowing HTTP connections from: %s\n", strAllowed);
+    LogPrint(BCLog::HTTP, "Allowing HTTP connections from: %s\n", strAllowed);
     return true;
 }
 
@@ -253,7 +253,7 @@ static void http_request_cb(struct evhttp_request* req, void* arg)
 {
     std::unique_ptr<HTTPRequest> hreq(new HTTPRequest(req));
 
-    LogPrint("http", "Received a %s request for %s from %s\n",
+    LogPrint(BCLog::HTTP, "Received a %s request for %s from %s\n",
              RequestMethodString(hreq->GetRequestMethod()), hreq->GetURI(), hreq->GetPeer().ToString());
 
     // Early address-based allow check
@@ -301,7 +301,7 @@ static void http_request_cb(struct evhttp_request* req, void* arg)
 /** Callback to reject HTTP requests after shutdown. */
 static void http_reject_request_cb(struct evhttp_request* req, void*)
 {
-    LogPrint("http", "Rejecting request while shutting down\n");
+    LogPrint(BCLog::HTTP, "Rejecting request while shutting down\n");
     evhttp_send_error(req, HTTP_SERVUNAVAIL, nullptr);
 }
 
@@ -309,10 +309,10 @@ static void http_reject_request_cb(struct evhttp_request* req, void*)
 static void ThreadHTTP(struct event_base* base, struct evhttp* http)
 {
     RenameThread("litecoinz-http");
-    LogPrint("http", "Entering http event loop\n");
+    LogPrint(BCLog::HTTP, "Entering http event loop\n");
     event_base_dispatch(base);
     // Event loop will be interrupted by InterruptHTTPServer()
-    LogPrint("http", "Exited http event loop\n");
+    LogPrint(BCLog::HTTP, "Exited http event loop\n");
 }
 
 /** Bind HTTP server to specified addresses */
@@ -343,7 +343,7 @@ static bool HTTPBindAddresses(struct evhttp* http)
 
     // Bind addresses
     for (std::vector<std::pair<std::string, uint16_t> >::iterator i = endpoints.begin(); i != endpoints.end(); ++i) {
-        LogPrint("http", "Binding RPC on address %s port %i\n", i->first, i->second);
+        LogPrint(BCLog::HTTP, "Binding RPC on address %s port %i\n", i->first, i->second);
         evhttp_bound_socket *bind_handle = evhttp_bind_socket_with_handle(http, i->first.empty() ? nullptr : i->first.c_str(), i->second);
         if (bind_handle) {
             boundSockets.push_back(bind_handle);
@@ -371,7 +371,7 @@ static void libevent_log_cb(int severity, const char *msg)
     if (severity >= EVENT_LOG_WARN) // Log warn messages and higher without debug category
         LogPrintf("libevent: %s\n", msg);
     else
-        LogPrint("libevent", "libevent: %s\n", msg);
+        LogPrint(BCLog::LIBEVENT, "libevent: %s\n", msg);
 }
 
 bool InitHTTPServer()
@@ -394,10 +394,11 @@ bool InitHTTPServer()
 #if LIBEVENT_VERSION_NUMBER >= 0x02010100
     // If -debug=libevent, set full libevent debugging.
     // Otherwise, disable all libevent debugging.
-    if (LogAcceptCategory("libevent"))
+    if (LogAcceptCategory(BCLog::LIBEVENT)) {
         event_enable_debug_logging(EVENT_DBG_ALL);
-    else
+    } else {
         event_enable_debug_logging(EVENT_DBG_NONE);
+    }
 #endif
 #ifdef WIN32
     evthread_use_windows_threads();
@@ -430,7 +431,7 @@ bool InitHTTPServer()
         return false;
     }
 
-    LogPrint("http", "Initialized HTTP server\n");
+    LogPrint(BCLog::HTTP, "Initialized HTTP server\n");
     int workQueueDepth = std::max((long)GetArg("-rpcworkqueue", DEFAULT_HTTP_WORKQUEUE), 1L);
     LogPrintf("HTTP: creating work queue of depth %d\n", workQueueDepth);
 
@@ -444,7 +445,7 @@ boost::thread threadHTTP;
 
 bool StartHTTPServer()
 {
-    LogPrint("http", "Starting HTTP server\n");
+    LogPrint(BCLog::HTTP, "Starting HTTP server\n");
     int rpcThreads = std::max((long)GetArg("-rpcthreads", DEFAULT_HTTP_THREADS), 1L);
     LogPrintf("HTTP: starting %d worker threads\n", rpcThreads);
     threadHTTP = boost::thread(boost::bind(&ThreadHTTP, eventBase, eventHTTP));
@@ -458,7 +459,7 @@ bool StartHTTPServer()
 
 void InterruptHTTPServer()
 {
-    LogPrint("http", "Interrupting HTTP server\n");
+    LogPrint(BCLog::HTTP, "Interrupting HTTP server\n");
     if (eventHTTP) {
         // Unlisten sockets
         BOOST_FOREACH (evhttp_bound_socket *socket, boundSockets) {
@@ -473,14 +474,14 @@ void InterruptHTTPServer()
 
 void StopHTTPServer()
 {
-    LogPrint("http", "Stopping HTTP server\n");
+    LogPrint(BCLog::HTTP, "Stopping HTTP server\n");
     if (workQueue) {
-        LogPrint("http", "Waiting for HTTP worker threads to exit\n");
+        LogPrint(BCLog::HTTP, "Waiting for HTTP worker threads to exit\n");
         workQueue->WaitExit();
         delete workQueue;
     }
     if (eventBase) {
-        LogPrint("http", "Waiting for HTTP event thread to exit\n");
+        LogPrint(BCLog::HTTP, "Waiting for HTTP event thread to exit\n");
         // Exit the event loop as soon as there are no active events.
         event_base_loopexit(eventBase, nullptr);
         // Give event loop a few seconds to exit (to send back last RPC responses), then break it
@@ -503,7 +504,7 @@ void StopHTTPServer()
         event_base_free(eventBase);
         eventBase = 0;
     }
-    LogPrint("http", "Stopped HTTP server\n");
+    LogPrint(BCLog::HTTP, "Stopped HTTP server\n");
 }
 
 struct event_base* EventBase()
@@ -650,7 +651,7 @@ HTTPRequest::RequestMethod HTTPRequest::GetRequestMethod()
 
 void RegisterHTTPHandler(const std::string &prefix, bool exactMatch, const HTTPRequestHandler &handler)
 {
-    LogPrint("http", "Registering HTTP handler for %s (exactmatch %d)\n", prefix, exactMatch);
+    LogPrint(BCLog::HTTP, "Registering HTTP handler for %s (exactmatch %d)\n", prefix, exactMatch);
     pathHandlers.push_back(HTTPPathHandler(prefix, exactMatch, handler));
 }
 
@@ -663,7 +664,7 @@ void UnregisterHTTPHandler(const std::string &prefix, bool exactMatch)
             break;
     if (i != iend)
     {
-        LogPrint("http", "Unregistering HTTP handler for %s (exactmatch %d)\n", prefix, exactMatch);
+        LogPrint(BCLog::HTTP, "Unregistering HTTP handler for %s (exactmatch %d)\n", prefix, exactMatch);
         pathHandlers.erase(i);
     }
 }

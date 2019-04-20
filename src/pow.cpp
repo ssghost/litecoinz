@@ -25,19 +25,19 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     if (pindexLast == nullptr)
         return nProofOfWorkLimit;
 
-    LogPrint("pow", "pindexLast->nHeight=%d, params.nEquihashForkHeight=%d params.nPowAveragingWindow=%d\n", 
+    LogPrint(BCLog::POW, "pindexLast->nHeight=%d, params.nEquihashForkHeight=%d params.nPowAveragingWindow=%d\n", 
              pindexLast->nHeight, params.nEquihashForkHeight, params.nPowAveragingWindow);
 
     // Reset the difficulty after the algo fork for testnet and regtest
     if (Params().NetworkIDString() != CBaseChainParams::MAIN) {
         if (((pindexLast->nHeight + 1) >= params.nEquihashForkHeight) && (pindexLast->nHeight < params.nEquihashForkHeight + params.nPowAveragingWindow)) {
-            LogPrint("pow", "Reset the difficulty for the algorithm change: %d\n", nProofOfWorkLimit);
+            LogPrint(BCLog::POW, "Reset the difficulty for the algorithm change: %d\n", nProofOfWorkLimit);
             return nProofOfWorkLimit;
         }
     } else {
         // Reset the difficulty after the algo fork
         if (((pindexLast->nHeight + 1) >= 95005) && (pindexLast->nHeight < params.nEquihashForkHeight + params.nPowAveragingWindow)) {
-            LogPrint("pow", "Reset the difficulty for the algorithm change: %d\n", nProofOfWorkLimit);
+            LogPrint(BCLog::POW, "Reset the difficulty for the algorithm change: %d\n", nProofOfWorkLimit);
             return nProofOfWorkLimit;
         }
     }
@@ -82,9 +82,9 @@ unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
     // Limit adjustment step
     // Use medians to prevent time-warp attacks
     int64_t nActualTimespan = nLastBlockTime - nFirstBlockTime;
-    LogPrint("pow", "  nActualTimespan = %d  before dampening\n", nActualTimespan);
+    LogPrint(BCLog::POW, "  nActualTimespan = %d  before dampening\n", nActualTimespan);
     nActualTimespan = params.AveragingWindowTimespan() + (nActualTimespan - params.AveragingWindowTimespan())/4;
-    LogPrint("pow", "  nActualTimespan = %d  before bounds\n", nActualTimespan);
+    LogPrint(BCLog::POW, "  nActualTimespan = %d  before bounds\n", nActualTimespan);
 
     if (nActualTimespan < params.MinActualTimespan())
         nActualTimespan = params.MinActualTimespan();
@@ -101,10 +101,10 @@ unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
         bnNew = bnPowLimit;
 
     /// debug print
-    LogPrint("pow", "GetNextWorkRequired RETARGET\n");
-    LogPrint("pow", "params.AveragingWindowTimespan() = %d    nActualTimespan = %d\n", params.AveragingWindowTimespan(), nActualTimespan);
-    LogPrint("pow", "Current average: %08x  %s\n", bnAvg.GetCompact(), bnAvg.ToString());
-    LogPrint("pow", "After:  %08x  %s\n", bnNew.GetCompact(), bnNew.ToString());
+    LogPrint(BCLog::POW, "GetNextWorkRequired RETARGET\n");
+    LogPrint(BCLog::POW, "params.AveragingWindowTimespan() = %d    nActualTimespan = %d\n", params.AveragingWindowTimespan(), nActualTimespan);
+    LogPrint(BCLog::POW, "Current average: %08x  %s\n", bnAvg.GetCompact(), bnAvg.ToString());
+    LogPrint(BCLog::POW, "After:  %08x  %s\n", bnNew.GetCompact(), bnNew.ToString());
 
     return bnNew.GetCompact();
 }
@@ -137,7 +137,7 @@ bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& param
         return error("CheckEquihashSolution: Unsupported solution size of %d", nSolSize);
     }
 
-    LogPrint("pow", "CheckEquihashSolution: selected n, k : %d, %d \n", n, k);
+    LogPrint(BCLog::POW, "CheckEquihashSolution: selected n, k : %d, %d \n", n, k);
 
     // Hash state
     crypto_generichash_blake2b_state state;

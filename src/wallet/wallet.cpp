@@ -3246,11 +3246,15 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
                 nValueRet += vValue[i].first;
             }
 
-        LogPrint("selectcoins", "SelectCoins() best subset: ");
-        for (unsigned int i = 0; i < vValue.size(); i++)
-            if (vfBest[i])
-                LogPrint("selectcoins", "%s ", FormatMoney(vValue[i].first));
-        LogPrint("selectcoins", "total %s\n", FormatMoney(nBest));
+        if (LogAcceptCategory(BCLog::SELECTCOINS)) {
+            LogPrint(BCLog::SELECTCOINS, "SelectCoins() best subset: ");
+            for (unsigned int i = 0; i < vValue.size(); i++) {
+                if (vfBest[i]) {
+                    LogPrint(BCLog::SELECTCOINS, "%s ", FormatMoney(vValue[i].first));
+                }
+            }
+            LogPrint(BCLog::SELECTCOINS, "total %s\n", FormatMoney(nBest));
+        }
     }
 
     return true;
@@ -4833,7 +4837,7 @@ boost::optional<libzcash::SpendingKey> GetSpendingKeyForPaymentAddress::operator
 SpendingKeyAddResult AddSpendingKeyToWallet::operator()(const libzcash::SproutSpendingKey &sk) const {
     auto addr = sk.address();
     if (log){
-        LogPrint("zrpc", "Importing zaddr %s...\n", EncodePaymentAddress(addr));
+        LogPrint(BCLog::ZRPC, "Importing zaddr %s...\n", EncodePaymentAddress(addr));
     }
     if (m_wallet->HaveSproutSpendingKey(addr)) {
         return KeyAlreadyExists;
@@ -4851,7 +4855,7 @@ SpendingKeyAddResult AddSpendingKeyToWallet::operator()(const libzcash::SaplingE
     auto addr = sk.DefaultAddress();
     {
         if (log){
-            LogPrint("zrpc", "Importing zaddr %s...\n", EncodePaymentAddress(addr));
+            LogPrint(BCLog::ZRPC, "Importing zaddr %s...\n", EncodePaymentAddress(addr));
         }
         // Don't throw error in case a key is already there
         if (m_wallet->HaveSaplingSpendingKey(fvk)) {
