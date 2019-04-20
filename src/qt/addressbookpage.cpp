@@ -60,7 +60,7 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, QWidget *pa
         ui->deleteSendingTAddress->setIcon(platformStyle->MultiColorIcon(":/images/remove1"));
     }
 
-    // Set "Receiving Addresses" as current tab 
+    // Set "Receiving Addresses" as current tab
     ui->tabWidget->setCurrentIndex(0);
 
     // Set "Receiving Addresses View" not editable

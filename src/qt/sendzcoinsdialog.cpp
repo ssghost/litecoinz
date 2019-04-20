@@ -687,7 +687,7 @@ void SendZCoinsDialog::updateLabels()
     ui->labelCoinSelectionLowOutput->setEnabled(nPayAmount > 0);
     ui->labelCoinSelectionChangeText->setEnabled(nPayAmount > 0);
     ui->labelCoinSelectionChange->setEnabled(nPayAmount > 0);
- 
+
     // stats
     ui->labelCoinSelectionAmount->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, nAmount));     // Amount
     ui->labelCoinSelectionFee->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, nPayFee));        // Fee

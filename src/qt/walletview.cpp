@@ -48,7 +48,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     QLabel *labelLogo = new QLabel(this);
     labelLogo->setContentsMargins(10, 10, 10, 10);
     QPixmap logoPix (":/images/logo");
-    labelLogo->setPixmap(logoPix); 
+    labelLogo->setPixmap(logoPix);
     transactionView = new TransactionView(platformStyle, this);
     vbox->addWidget(labelLogo);
     vbox->addWidget(transactionView);

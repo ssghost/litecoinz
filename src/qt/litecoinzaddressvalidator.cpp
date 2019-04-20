@@ -95,7 +95,7 @@ QValidator::State LitecoinZAddressCheckValidator::validate(QString &input, int &
     if (IsValidPaymentAddress(address)) {
         isZaddr = true;
     }
- 
+
     if (isZaddr)
         return QValidator::Acceptable;
 

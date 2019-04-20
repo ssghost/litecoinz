@@ -361,10 +361,10 @@ TEST(wallet_zkeys_tests, write_cryptedzkey_direct_to_db) {
     strWalletPass.reserve(100);
     strWalletPass = "hello";
     ASSERT_TRUE(wallet.EncryptWallet(strWalletPass));
-    
+
     // adding a new key will fail as the wallet is locked
     EXPECT_ANY_THROW(wallet.GenerateNewSproutZKey());
-    
+
     // unlock wallet and then add
     wallet.Unlock(strWalletPass);
     auto paymentAddress2 = wallet.GenerateNewSproutZKey();
@@ -375,11 +375,11 @@ TEST(wallet_zkeys_tests, write_cryptedzkey_direct_to_db) {
 
     // Confirm it's not the same as the other wallet
     ASSERT_TRUE(&wallet != &wallet2);
-    
+
     // wallet should have two keys
     wallet2.GetSproutPaymentAddresses(addrs);
     ASSERT_EQ(2, addrs.size());
-    
+
     // check we have entries for our payment addresses
     ASSERT_TRUE(addrs.count(paymentAddress));
     ASSERT_TRUE(addrs.count(paymentAddress2));

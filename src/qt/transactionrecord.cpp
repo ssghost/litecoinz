@@ -116,7 +116,7 @@ QList<TransactionRecord> TransactionRecord::decomposeZTransaction(const CWallet 
             for (auto js : wtx.vjoinsplit) {
                 nValue += js.vpub_new;
             }
-            
+
             nChange = nValue - nDebit;
             CAmount fee = AmountFromValue(5) - nChange;
             nCredit = fee;

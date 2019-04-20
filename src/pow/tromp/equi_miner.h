@@ -301,7 +301,7 @@ struct equi {
     u32 dunits;
     u32 prevbo;
     u32 nextbo;
-  
+
     htlayout(equi *eq, u32 r): hta(eq->hta), prevhashunits(0), dunits(0) {
       u32 nexthashbytes = hashsize(r);
       nexthashunits = hashwords(nexthashbytes);
@@ -422,7 +422,7 @@ struct equi {
       }
     }
   }
-  
+
   void digitodd(const u32 r, const u32 id) {
     htlayout htl(this, r);
     collisiondata cd;
@@ -478,7 +478,7 @@ struct equi {
       }
     }
   }
-  
+
   void digiteven(const u32 r, const u32 id) {
     htlayout htl(this, r);
     collisiondata cd;
@@ -534,7 +534,7 @@ struct equi {
       }
     }
   }
-  
+
   void digitK(const u32 id) {
     collisiondata cd;
     htlayout htl(this, WK);

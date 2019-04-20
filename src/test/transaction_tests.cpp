@@ -514,7 +514,7 @@ void test_simple_joinsplit_invalidity(uint32_t consensusBranchId, CMutableTransa
         CValidationState state;
 
         newTx.vjoinsplit.push_back(JSDescription());
-        
+
         JSDescription *jsdesc = &newTx.vjoinsplit[0];
         jsdesc->vpub_old = -1;
 

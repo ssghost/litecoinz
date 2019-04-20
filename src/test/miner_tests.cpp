@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
                 pblock->nSolution = soln;
 
                 CValidationState state;
-                
+
                 if (ProcessNewBlock(state, nullptr, pblock, true, nullptr) && state.IsValid()) {
                     goto foundit;
                 }

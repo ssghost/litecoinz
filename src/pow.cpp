@@ -25,7 +25,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     if (pindexLast == nullptr)
         return nProofOfWorkLimit;
 
-    LogPrint(BCLog::POW, "pindexLast->nHeight=%d, params.nEquihashForkHeight=%d params.nPowAveragingWindow=%d\n", 
+    LogPrint(BCLog::POW, "pindexLast->nHeight=%d, params.nEquihashForkHeight=%d params.nPowAveragingWindow=%d\n",
              pindexLast->nHeight, params.nEquihashForkHeight, params.nPowAveragingWindow);
 
     // Reset the difficulty after the algo fork for testnet and regtest

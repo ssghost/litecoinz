@@ -91,7 +91,7 @@ void AsyncRPCOperation::main() {
     if (isCancelled()) {
         return;
     }
-    
+
     set_state(OperationStatus::EXECUTING);
 
     start_execution_clock();
