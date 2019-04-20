@@ -14,6 +14,7 @@
 #include <addrman.h>
 #include <chainparams.h>
 #include <clientversion.h>
+#include <fs.h>
 #include <primitives/transaction.h>
 #include <scheduler.h>
 #include <ui_interface.h>
@@ -25,7 +26,6 @@
 #include <fcntl.h>
 #endif
 
-#include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
 #include <math.h>

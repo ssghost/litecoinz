@@ -11,9 +11,8 @@
 
 #include <qt/guiutil.h>
 
+#include <fs.h>
 #include <util.h>
-
-#include <boost/filesystem.hpp>
 
 #include <QFileDialog>
 #include <QSettings>

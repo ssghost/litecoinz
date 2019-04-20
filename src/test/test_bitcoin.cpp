@@ -9,6 +9,7 @@
 
 #include <crypto/common.h>
 
+#include <fs.h>
 #include <key.h>
 #include <main.h>
 #include <random.h>
@@ -23,7 +24,6 @@
 #include <wallet/wallet.h>
 #endif
 
-#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/thread.hpp>
 

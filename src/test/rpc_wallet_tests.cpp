@@ -6,6 +6,7 @@
 #include <rpc/server.h>
 #include <rpc/client.h>
 
+#include <fs.h>
 #include <key_io.h>
 #include <main.h>
 #include <wallet/wallet.h>
@@ -33,7 +34,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/format.hpp>
-#include <boost/filesystem.hpp>
 
 #include <univalue.h>
 

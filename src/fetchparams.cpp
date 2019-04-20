@@ -7,6 +7,7 @@
 #endif
 
 #include <fetchparams.h>
+#include <fs.h>
 #include <ui_interface.h>
 #include <util.h>
 
@@ -16,8 +17,6 @@
 
 #include <sstream>
 #include <string>
-
-#include <boost/filesystem.hpp>
 
 std::string filename = "";
 

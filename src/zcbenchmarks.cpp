@@ -3,9 +3,9 @@
 #include <map>
 #include <thread>
 #include <unistd.h>
-#include <boost/filesystem.hpp>
 
 #include <coins.h>
+#include <fs.h>
 #include <util.h>
 #include <init.h>
 #include <policy/policy.h>

@@ -19,6 +19,7 @@
 #include <consensus/upgrades.h>
 #include <consensus/validation.h>
 #include <deprecation.h>
+#include <fs.h>
 #include <init.h>
 #include <merkleblock.h>
 #include <metrics.h>
@@ -42,8 +43,6 @@
 #include <sstream>
 
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/thread.hpp>
 #include <boost/static_assert.hpp>

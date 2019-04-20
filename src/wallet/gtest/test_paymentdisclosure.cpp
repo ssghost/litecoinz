@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <fs.h>
 #include <main.h>
 #include <utilmoneystr.h>
 #include <chainparams.h>
@@ -13,7 +14,6 @@
 #include <string>
 #include <set>
 #include <vector>
-#include <boost/filesystem.hpp>
 #include <iostream>
 #include <util.h>
 

@@ -25,6 +25,7 @@
 #include <qt/walletmodel.h>
 #endif
 
+#include <fs.h>
 #include <init.h>
 #include <rpc/server.h>
 #include <scheduler.h>
@@ -38,7 +39,6 @@
 
 #include <stdint.h>
 
-#include <boost/filesystem/operations.hpp>
 #include <boost/thread.hpp>
 
 #include <QApplication>

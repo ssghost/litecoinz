@@ -4,6 +4,7 @@
 
 #include <base58.h>
 #include <chainparams.h>
+#include <fs.h>
 #include <key_io.h>
 #include <main.h>
 #include <primitives/block.h>
@@ -14,8 +15,6 @@
 #include <zcash/JoinSplit.hpp>
 #include <zcash/Note.hpp>
 #include <zcash/NoteEncryption.hpp>
-
-#include <boost/filesystem.hpp>
 
 using ::testing::Return;
 

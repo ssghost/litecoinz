@@ -10,8 +10,8 @@
 #include <map>
 #include <stdint.h>
 #include <string>
-#include <boost/filesystem.hpp>
 
+#include <fs.h>
 #include <univalue.h>
 
 //! HTTP status codes

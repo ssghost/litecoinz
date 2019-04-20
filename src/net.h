@@ -10,6 +10,7 @@
 #include <addrdb.h>
 #include <bloom.h>
 #include <compat.h>
+#include <fs.h>
 #include <hash.h>
 #include <limitedmap.h>
 #include <mruset.h>
@@ -29,7 +30,6 @@
 #include <arpa/inet.h>
 #endif
 
-#include <boost/filesystem/path.hpp>
 #include <boost/foreach.hpp>
 #include <boost/signals2/signal.hpp>
 
