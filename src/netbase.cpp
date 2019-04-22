@@ -175,6 +175,16 @@ bool LookupHost(const char *pszName, std::vector<CNetAddr>& vIP, unsigned int nM
     return LookupIntern(strHost.c_str(), vIP, nMaxSolutions, fAllowLookup);
 }
 
+bool LookupHost(const char *pszName, CNetAddr& addr, bool fAllowLookup)
+{
+    std::vector<CNetAddr> vIP;
+    LookupHost(pszName, vIP, 1, fAllowLookup);
+    if(vIP.empty())
+        return false;
+    addr = vIP.front();
+    return true;
+}
+
 bool Lookup(const char *pszName, std::vector<CService>& vAddr, int portDefault, bool fAllowLookup, unsigned int nMaxSolutions)
 {
     if (pszName[0] == 0)
@@ -594,10 +604,12 @@ bool ConnectSocketByName(CService &addr, SOCKET& hSocketRet, const char *pszDest
     proxyType nameProxy;
     GetNameProxy(nameProxy);
 
-    CService addrResolved(CNetAddr(strDest, fNameLookup && !HaveNameProxy()), port);
-    if (addrResolved.IsValid()) {
-        addr = addrResolved;
-        return ConnectSocket(addr, hSocketRet, nTimeout);
+    CService addrResolved;
+    if (Lookup(strDest.c_str(), addrResolved, port, fNameLookup && !HaveNameProxy())) {
+        if (addrResolved.IsValid()) {
+            addr = addrResolved;
+            return ConnectSocket(addr, hSocketRet, nTimeout);
+        }
     }
 
     addr = CService("0.0.0.0:0");
@@ -662,22 +674,6 @@ CNetAddr::CNetAddr(const struct in_addr& ipv4Addr)
 CNetAddr::CNetAddr(const struct in6_addr& ipv6Addr)
 {
     SetRaw(NET_IPV6, (const uint8_t*)&ipv6Addr);
-}
-
-CNetAddr::CNetAddr(const char *pszIp, bool fAllowLookup)
-{
-    Init();
-    std::vector<CNetAddr> vIP;
-    if (LookupHost(pszIp, vIP, 1, fAllowLookup))
-        *this = vIP[0];
-}
-
-CNetAddr::CNetAddr(const std::string &strIp, bool fAllowLookup)
-{
-    Init();
-    std::vector<CNetAddr> vIP;
-    if (LookupHost(strIp.c_str(), vIP, 1, fAllowLookup))
-        *this = vIP[0];
 }
 
 unsigned int CNetAddr::GetByte(int n) const
@@ -1099,35 +1095,35 @@ bool CService::SetSockAddr(const struct sockaddr *paddr)
     }
 }
 
-CService::CService(const char *pszIpPort, bool fAllowLookup)
+CService::CService(const char *pszIpPort)
 {
     Init();
     CService ip;
-    if (Lookup(pszIpPort, ip, 0, fAllowLookup))
+    if (Lookup(pszIpPort, ip, 0, false))
         *this = ip;
 }
 
-CService::CService(const char *pszIpPort, int portDefault, bool fAllowLookup)
+CService::CService(const char *pszIpPort, int portDefault)
 {
     Init();
     CService ip;
-    if (Lookup(pszIpPort, ip, portDefault, fAllowLookup))
+    if (Lookup(pszIpPort, ip, portDefault, false))
         *this = ip;
 }
 
-CService::CService(const std::string &strIpPort, bool fAllowLookup)
+CService::CService(const std::string &strIpPort)
 {
     Init();
     CService ip;
-    if (Lookup(strIpPort.c_str(), ip, 0, fAllowLookup))
+    if (Lookup(strIpPort.c_str(), ip, 0, false))
         *this = ip;
 }
 
-CService::CService(const std::string &strIpPort, int portDefault, bool fAllowLookup)
+CService::CService(const std::string &strIpPort, int portDefault)
 {
     Init();
     CService ip;
-    if (Lookup(strIpPort.c_str(), ip, portDefault, fAllowLookup))
+    if (Lookup(strIpPort.c_str(), ip, portDefault, false))
         *this = ip;
 }
 
@@ -1220,63 +1216,85 @@ CSubNet::CSubNet():
     memset(netmask, 0, sizeof(netmask));
 }
 
-CSubNet::CSubNet(const std::string &strSubnet, bool fAllowLookup)
+CSubNet::CSubNet(const CNetAddr &addr, int32_t mask)
 {
-    size_t slash = strSubnet.find_last_of('/');
-    std::vector<CNetAddr> vIP;
-
     valid = true;
+    network = addr;
     // Default to /32 (IPv4) or /128 (IPv6), i.e. match single address
     memset(netmask, 255, sizeof(netmask));
 
-    std::string strAddress = strSubnet.substr(0, slash);
-    if (LookupHost(strAddress.c_str(), vIP, 1, fAllowLookup))
+    // IPv4 addresses start at offset 12, and first 12 bytes must match, so just offset n
+    const int astartofs = network.IsIPv4() ? 12 : 0;
+
+    int32_t n = mask;
+    if(n >= 0 && n <= (128 - astartofs*8)) // Only valid if in range of bits of address
     {
-        network = vIP[0];
+        n += astartofs*8;
+        // Clear bits [n..127]
+        for (; n < 128; ++n)
+            netmask[n>>3] &= ~(1<<(7-(n&7)));
+    } else
+        valid = false;
+
+    // Normalize network according to netmask
+    for(int x=0; x<16; ++x)
+        network.ip[x] &= netmask[x];
+}
+
+CSubNet::CSubNet(const CNetAddr &addr, const CNetAddr &mask)
+{
+    valid = true;
+    network = addr;
+    // Default to /32 (IPv4) or /128 (IPv6), i.e. match single address
+    memset(netmask, 255, sizeof(netmask));
+
+    // IPv4 addresses start at offset 12, and first 12 bytes must match, so just offset n
+    const int astartofs = network.IsIPv4() ? 12 : 0;
+
+    for(int x=astartofs; x<16; ++x)
+        netmask[x] = mask.ip[x];
+
+    // Normalize network according to netmask
+    for(int x=0; x<16; ++x)
+        network.ip[x] &= netmask[x];
+}
+
+
+bool LookupSubNet(const char* pszName, CSubNet& ret)
+{
+    std::string strSubnet(pszName);
+    size_t slash = strSubnet.find_last_of('/');
+    std::vector<CNetAddr> vIP;
+
+    std::string strAddress = strSubnet.substr(0, slash);
+    if (LookupHost(strAddress.c_str(), vIP, 1, false))
+    {
+        CNetAddr network = vIP[0];
         if (slash != strSubnet.npos)
         {
             std::string strNetmask = strSubnet.substr(slash + 1);
             int32_t n;
             // IPv4 addresses start at offset 12, and first 12 bytes must match, so just offset n
-            const int astartofs = network.IsIPv4() ? 12 : 0;
-            if (ParseInt32(strNetmask, &n)) // If valid number, assume /24 symtex
-            {
-                if(n >= 0 && n <= (128 - astartofs*8)) // Only valid if in range of bits of address
-                {
-                    n += astartofs*8;
-                    // Clear bits [n..127]
-                    for (; n < 128; ++n)
-                        netmask[n>>3] &= ~(1<<(7-(n&7)));
-                }
-                else
-                {
-                    valid = false;
-                }
+            if (ParseInt32(strNetmask, &n)) { // If valid number, assume /24 syntax
+                ret = CSubNet(network, n);
+                return ret.IsValid();
             }
             else // If not a valid number, try full netmask syntax
             {
-                if (LookupHost(strNetmask.c_str(), vIP, 1, false)) // Never allow lookup for netmask
-                {
-                    // Copy only the *last* four bytes in case of IPv4, the rest of the mask should stay 1's as
-                    // we don't want pchIPv4 to be part of the mask.
-                    for(int x=astartofs; x<16; ++x)
-                        netmask[x] = vIP[0].ip[x];
-                }
-                else
-                {
-                    valid = false;
+                // Never allow lookup for netmask
+                if (LookupHost(strNetmask.c_str(), vIP, 1, false)) {
+                    ret = CSubNet(network, vIP[0]);
+                    return ret.IsValid();
                 }
             }
         }
+        else
+        {
+            ret = CSubNet(network);
+            return ret.IsValid();
+        }
     }
-    else
-    {
-        valid = false;
-    }
-
-    // Normalize network according to netmask
-    for(int x=0; x<16; ++x)
-        network.ip[x] &= netmask[x];
+    return false;
 }
 
 CSubNet::CSubNet(const CNetAddr &addr):
