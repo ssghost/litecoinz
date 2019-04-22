@@ -58,6 +58,9 @@ class HTTPRequest
 {
 private:
     struct evhttp_request* req;
+
+    // For test access
+protected:
     bool replySent;
 
 public:

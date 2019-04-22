@@ -143,6 +143,7 @@ BITCOIN_CORE_H = \
   mruset.h \
   net.h \
   netbase.h \
+  netaddress.h \
   noui.h \
   policy/fees.h \
   policy/policy.h \
@@ -344,6 +345,7 @@ libbitcoin_common_a_SOURCES = \
   key.cpp \
   key_io.cpp \
   keystore.cpp \
+  netaddress.cpp \
   netbase.cpp \
   primitives/block.cpp \
   primitives/transaction.cpp \
