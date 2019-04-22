@@ -1,4 +1,4 @@
-// Copyright (c) 2015 The Bitcoin Core developers
+// Copyright (c) 2015-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -32,7 +32,7 @@ void InterruptHTTPServer();
 /** Stop HTTP server */
 void StopHTTPServer();
 
-/** Change logging level for libevent. Removes BCLog::LIBEVENT from logCategories if
+/** Change logging level for libevent. Removes BCLog::LIBEVENT from log categories if
  * libevent doesn't support debug logging.*/
 bool UpdateHTTPServerLogging(bool enable);
 
@@ -58,14 +58,11 @@ class HTTPRequest
 {
 private:
     struct evhttp_request* req;
-
-    // For test access
-protected:
     bool replySent;
 
 public:
-    HTTPRequest(struct evhttp_request* req);
-    virtual ~HTTPRequest();
+    explicit HTTPRequest(struct evhttp_request* req);
+    ~HTTPRequest();
 
     enum RequestMethod {
         UNKNOWN,
@@ -81,17 +78,17 @@ public:
 
     /** Get CService (address:ip) for the origin of the http request.
      */
-    virtual CService GetPeer();
+    CService GetPeer();
 
     /** Get request method.
      */
-    virtual RequestMethod GetRequestMethod();
+    RequestMethod GetRequestMethod();
 
     /**
      * Get the request header specified by hdr, or an empty string.
      * Return a pair (isPresent,string).
      */
-    virtual std::pair<bool, std::string> GetHeader(const std::string& hdr);
+    std::pair<bool, std::string> GetHeader(const std::string& hdr);
 
     /**
      * Read request body.
@@ -106,7 +103,7 @@ public:
      *
      * @note call this before calling WriteErrorReply or Reply.
      */
-    virtual void WriteHeader(const std::string& hdr, const std::string& value);
+    void WriteHeader(const std::string& hdr, const std::string& value);
 
     /**
      * Write HTTP reply.
@@ -116,7 +113,7 @@ public:
      * @note Can be called only once. As this will give the request back to the
      * main thread, do not call any other HTTPRequest methods after calling this.
      */
-    virtual void WriteReply(int nStatus, const std::string& strReply = "");
+    void WriteReply(int nStatus, const std::string& strReply = "");
 };
 
 /** Event handler closure.
