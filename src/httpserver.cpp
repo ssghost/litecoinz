@@ -16,6 +16,7 @@
 
 #include <condition_variable>
 #include <mutex>
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

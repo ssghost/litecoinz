@@ -17,6 +17,7 @@
 #include <sync.h>
 #include <util.h>
 
+#include <memory>
 #include <stdint.h>
 
 #include <univalue.h>

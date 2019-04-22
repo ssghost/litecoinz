@@ -39,6 +39,7 @@
 #ifdef ENABLE_MINING
 #include <functional>
 #endif
+#include <memory>
 #include <mutex>
 
 using namespace std;

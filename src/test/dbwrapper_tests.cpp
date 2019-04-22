@@ -10,6 +10,9 @@
 
 #include <boost/assign/std/vector.hpp> // for 'operator+=()'
 #include <boost/assert.hpp>
+
+#include <memory>
+
 #include <boost/test/unit_test.hpp>
 
 using namespace std;

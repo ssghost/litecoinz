@@ -8,6 +8,8 @@
 #include <main.h> // For CNodeStateStats
 #include <net.h>
 
+#include <memory>
+
 #include <QAbstractTableModel>
 #include <QStringList>
 

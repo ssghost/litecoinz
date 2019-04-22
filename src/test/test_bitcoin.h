@@ -6,6 +6,8 @@
 #include <pubkey.h>
 #include <txdb.h>
 
+#include <memory>
+
 #include <boost/thread.hpp>
 
 /** Basic testing setup.
