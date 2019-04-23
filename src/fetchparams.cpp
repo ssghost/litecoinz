@@ -63,7 +63,7 @@ bool LTZ_VerifyParams(std::string file, std::string sha256expected)
     if (!(sha256expected.compare(oss.str()) == 0))
     {
         printInfo("Deleting corrupted file");
-        boost::filesystem::remove(file.c_str());
+        fs::remove(file.c_str());
         return false;
     }
 
@@ -92,7 +92,7 @@ bool LTZ_FetchParams(std::string url, std::string file)
     std::string msg = "Downloading " + url + "...";
     LogPrintf("%s\n", msg.c_str());
 
-    boost::filesystem::path p(file);
+    fs::path p(file);
     filename = p.filename().string();
 
     curl = curl_easy_init();

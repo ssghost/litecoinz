@@ -216,7 +216,7 @@ void Shutdown()
 
     if (fFeeEstimatesInitialized)
     {
-        boost::filesystem::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
+        fs::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
         CAutoFile est_fileout(fopen(est_path.string().c_str(), "wb"), SER_DISK, CLIENT_VERSION);
         if (!est_fileout.IsNull())
             mempool.WriteFeeEstimates(est_fileout);
@@ -254,8 +254,8 @@ void Shutdown()
 
 #ifndef WIN32
     try {
-        boost::filesystem::remove(GetPidFile());
-    } catch (const boost::filesystem::filesystem_error& e) {
+        fs::remove(GetPidFile());
+    } catch (const fs::filesystem_error& e) {
         LogPrintf("%s: Unable to remove pidfile: %s\n", __func__, e.what());
     }
 #endif
@@ -567,7 +567,7 @@ struct CImportingNow
 // works correctly.
 void CleanupBlockRevFiles()
 {
-    using namespace boost::filesystem;
+    using namespace fs;
     map<string, path> mapBlockFiles;
 
     // Glob all blk?????.dat and rev?????.dat files from the blocks directory.
@@ -601,7 +601,7 @@ void CleanupBlockRevFiles()
     }
 }
 
-void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
+void ThreadImport(std::vector<fs::path> vImportFiles)
 {
     RenameThread("litecoinz-loadblk");
     // -reindex
@@ -610,7 +610,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
         int nFile = 0;
         while (true) {
             CDiskBlockPos pos(nFile, 0);
-            if (!boost::filesystem::exists(GetBlockPosFilename(pos, "blk")))
+            if (!fs::exists(GetBlockPosFilename(pos, "blk")))
                 break; // No block files left to reindex
             FILE *file = OpenBlockFile(pos, true);
             if (!file)
@@ -627,12 +627,12 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
     }
 
     // hardcoded $DATADIR/bootstrap.dat
-    boost::filesystem::path pathBootstrap = GetDataDir() / "bootstrap.dat";
-    if (boost::filesystem::exists(pathBootstrap)) {
+    fs::path pathBootstrap = GetDataDir() / "bootstrap.dat";
+    if (fs::exists(pathBootstrap)) {
         FILE *file = fopen(pathBootstrap.string().c_str(), "rb");
         if (file) {
             CImportingNow imp;
-            boost::filesystem::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
+            fs::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
             LogPrintf("Importing bootstrap.dat...\n");
             LoadExternalBlockFile(file);
             RenameOver(pathBootstrap, pathBootstrapOld);
@@ -642,7 +642,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
     }
 
     // -loadblock=
-    for (const boost::filesystem::path& path : vImportFiles) {
+    for (const fs::path& path : vImportFiles) {
         FILE *file = fopen(path.string().c_str(), "rb");
         if (file) {
             CImportingNow imp;
@@ -682,24 +682,24 @@ static bool ZC_LoadParams(
     struct timeval tv_start, tv_end;
     float elapsed;
 
-    boost::filesystem::path pk_path = ZC_GetParamsDir() / "sprout-proving.key";
-    boost::filesystem::path vk_path = ZC_GetParamsDir() / "sprout-verifying.key";
-    boost::filesystem::path sapling_spend = ZC_GetParamsDir() / "sapling-spend.params";
-    boost::filesystem::path sapling_output = ZC_GetParamsDir() / "sapling-output.params";
-    boost::filesystem::path sprout_groth16 = ZC_GetParamsDir() / "sprout-groth16.params";
+    fs::path pk_path = ZC_GetParamsDir() / "sprout-proving.key";
+    fs::path vk_path = ZC_GetParamsDir() / "sprout-verifying.key";
+    fs::path sapling_spend = ZC_GetParamsDir() / "sapling-spend.params";
+    fs::path sapling_output = ZC_GetParamsDir() / "sapling-output.params";
+    fs::path sprout_groth16 = ZC_GetParamsDir() / "sprout-groth16.params";
 
     if (!(
-        boost::filesystem::exists(pk_path) &&
-        boost::filesystem::exists(vk_path) &&
-        boost::filesystem::exists(sapling_spend) &&
-        boost::filesystem::exists(sapling_output) &&
-        boost::filesystem::exists(sprout_groth16)
+        fs::exists(pk_path) &&
+        fs::exists(vk_path) &&
+        fs::exists(sapling_spend) &&
+        fs::exists(sapling_output) &&
+        fs::exists(sprout_groth16)
     )) {
         // Create the 'litecoinz-params' directory or the 'LitecoinZParams' folder
         TryCreateDirectory(ZC_GetParamsDir());
     }
 
-    if(!(boost::filesystem::exists(pk_path))) {
+    if(!(fs::exists(pk_path))) {
         // Download the 'sprout-proving.key' file
         if (!LTZ_FetchParams("https://z.cash/downloads/sprout-proving.key", pk_path.string()))
             return false;
@@ -710,7 +710,7 @@ static bool ZC_LoadParams(
         return false;
     }
 
-    if(!(boost::filesystem::exists(vk_path))) {
+    if(!(fs::exists(vk_path))) {
         // Download the 'sprout-verifying.key' file
         if (!LTZ_FetchParams("https://z.cash/downloads/sprout-verifying.key", vk_path.string()))
             return false;
@@ -721,7 +721,7 @@ static bool ZC_LoadParams(
         return false;
     }
 
-    if(!(boost::filesystem::exists(sapling_spend))) {
+    if(!(fs::exists(sapling_spend))) {
         // Download the 'sapling-spend.params' file
         if (!LTZ_FetchParams("https://z.cash/downloads/sapling-spend.params", sapling_spend.string()))
             return false;
@@ -732,7 +732,7 @@ static bool ZC_LoadParams(
         return false;
     }
 
-    if(!(boost::filesystem::exists(sapling_output))) {
+    if(!(fs::exists(sapling_output))) {
         // Download the 'sapling-output.params' file
         if (!LTZ_FetchParams("https://z.cash/downloads/sapling-output.params", sapling_output.string()))
             return false;
@@ -743,7 +743,7 @@ static bool ZC_LoadParams(
         return false;
     }
 
-    if(!(boost::filesystem::exists(sprout_groth16))) {
+    if(!(fs::exists(sprout_groth16))) {
         // Download the 'sprout-groth16.params' file
         if (!LTZ_FetchParams("https://z.cash/downloads/sprout-groth16.params", sprout_groth16.string()))
             return false;
@@ -764,7 +764,7 @@ static bool ZC_LoadParams(
     LogPrintf("Loaded verifying key in %fs seconds.\n", elapsed);
 
     static_assert(
-        sizeof(boost::filesystem::path::value_type) == sizeof(codeunit),
+        sizeof(fs::path::value_type) == sizeof(codeunit),
         "librustzcash not configured correctly");
     auto sapling_spend_str = sapling_spend.native();
     auto sapling_output_str = sapling_output.native();
@@ -1280,11 +1280,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     std::string strDataDir = GetDataDir().string();
 #ifdef ENABLE_WALLET
     // Wallet file must be a plain filename without a directory
-    if (strWalletFile != boost::filesystem::basename(strWalletFile) + boost::filesystem::extension(strWalletFile))
+    if (strWalletFile != fs::basename(strWalletFile) + fs::extension(strWalletFile))
         return InitError(strprintf(_("Wallet %s resides outside data directory %s"), strWalletFile, strDataDir));
 #endif
     // Make sure only a single Bitcoin process is using the data directory.
-    boost::filesystem::path pathLockFile = GetDataDir() / ".lock";
+    fs::path pathLockFile = GetDataDir() / ".lock";
     FILE* file = fopen(pathLockFile.string().c_str(), "a"); // empty lock file; created if it doesn't exist.
     if (file) fclose(file);
 
@@ -1352,7 +1352,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         return InitError(_("Error downloading or verifying LitecoinZ network parameters"));
 
     if (GetBoolArg("-savesproutr1cs", false)) {
-        boost::filesystem::path r1cs_path = ZC_GetParamsDir() / "r1cs";
+        fs::path r1cs_path = ZC_GetParamsDir() / "r1cs";
 
         LogPrintf("Saving Sprout R1CS to %s\n", r1cs_path.string());
 
@@ -1542,20 +1542,20 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     fReindex = GetBoolArg("-reindex", false);
 
     // Upgrading to 0.8; hard-link the old blknnnn.dat files into /blocks/
-    boost::filesystem::path blocksDir = GetDataDir() / "blocks";
-    if (!boost::filesystem::exists(blocksDir))
+    fs::path blocksDir = GetDataDir() / "blocks";
+    if (!fs::exists(blocksDir))
     {
-        boost::filesystem::create_directories(blocksDir);
+        fs::create_directories(blocksDir);
         bool linked = false;
         for (unsigned int i = 1; i < 10000; i++) {
-            boost::filesystem::path source = GetDataDir() / strprintf("blk%04u.dat", i);
-            if (!boost::filesystem::exists(source)) break;
-            boost::filesystem::path dest = blocksDir / strprintf("blk%05u.dat", i-1);
+            fs::path source = GetDataDir() / strprintf("blk%04u.dat", i);
+            if (!fs::exists(source)) break;
+            fs::path dest = blocksDir / strprintf("blk%05u.dat", i-1);
             try {
-                boost::filesystem::create_hard_link(source, dest);
+                fs::create_hard_link(source, dest);
                 LogPrintf("Hardlinked %s -> %s\n", source.string(), dest.string());
                 linked = true;
-            } catch (const boost::filesystem::filesystem_error& e) {
+            } catch (const fs::filesystem_error& e) {
                 // Note: hardlink creation failing is not a disaster, it just means
                 // blocks will get re-downloaded from peers.
                 LogPrintf("Error hardlinking blk%04u.dat: %s\n", i, e.what());
@@ -1727,7 +1727,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
     LogPrintf(" block index %15dms\n", GetTimeMillis() - nStart);
 
-    boost::filesystem::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
+    fs::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
     CAutoFile est_filein(fopen(est_path.string().c_str(), "rb"), SER_DISK, CLIENT_VERSION);
     // Allowed to fail as this file IS missing on first startup.
     if (!est_filein.IsNull())
@@ -1969,7 +1969,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (!ActivateBestChain(state))
         strErrors << "Failed to connect best block";
 
-    std::vector<boost::filesystem::path> vImportFiles;
+    std::vector<fs::path> vImportFiles;
     if (mapArgs.count("-loadblock"))
     {
         for (const std::string& strFile : mapMultiArgs["-loadblock"])

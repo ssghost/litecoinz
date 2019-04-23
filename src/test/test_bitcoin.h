@@ -33,8 +33,8 @@ struct JoinSplitTestingSetup: public BasicTestingSetup {
 class CConnman;
 struct TestingSetup: public JoinSplitTestingSetup {
     CCoinsViewDB *pcoinsdbview;
-    boost::filesystem::path orig_current_path;
-    boost::filesystem::path pathTemp;
+    fs::path orig_current_path;
+    fs::path pathTemp;
     boost::thread_group threadGroup;
     CConnman* connman;
 
