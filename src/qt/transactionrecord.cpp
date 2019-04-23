@@ -38,10 +38,11 @@ bool TransactionRecord::findZTransaction(const CWallet *wallet, const uint256 &h
     wallet->GetSproutPaymentAddresses(addresses);
     for (auto addr : addresses ) {
         if (wallet->HaveSproutSpendingKey(addr)) {
-            UniValue params(UniValue::VARR);
-            params.push_back(EncodePaymentAddress(addr));
-            params.push_back(0);
-            UniValue ret = z_listreceivedbyaddress(params, false);
+            JSONRPCRequest request;
+            request.params.push_back(EncodePaymentAddress(addr));
+            request.params.push_back(0);
+            request.fHelp = false;
+            UniValue ret = z_listreceivedbyaddress(request);
             for (const UniValue& entry : ret.getValues()) {
                 UniValue txid = find_value(entry, "txid");
                 UniValue amount = find_value(entry, "amount");

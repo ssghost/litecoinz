@@ -33,7 +33,7 @@
 
 using namespace libzcash;
 
-extern UniValue sendrawtransaction(const UniValue& params, bool fHelp);
+extern UniValue sendrawtransaction(const JSONRPCRequest& request);
 
 int mta_find_output(UniValue obj, int n)
 {
@@ -370,9 +370,10 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
         // TODO: Use CWallet::CommitTransaction instead of sendrawtransaction
         auto signedtxn = EncodeHexTx(tx_);
         if (!testmode) {
-            UniValue params = UniValue(UniValue::VARR);
-            params.push_back(signedtxn);
-            UniValue sendResultValue = sendrawtransaction(params, false);
+            JSONRPCRequest request;
+            request.params.push_back(signedtxn);
+            request.fHelp = false;
+            UniValue sendResultValue = sendrawtransaction(request);
             if (sendResultValue.isNull()) {
                 throw JSONRPCError(RPC_WALLET_ERROR, "sendrawtransaction did not return an error or a txid.");
             }
@@ -749,7 +750,7 @@ bool AsyncRPCOperation_mergetoaddress::main_impl()
 }
 
 
-extern UniValue signrawtransaction(const UniValue& params, bool fHelp);
+extern UniValue signrawtransaction(const JSONRPCRequest& request);
 
 /**
  * Sign and send a raw transaction.
@@ -764,9 +765,10 @@ void AsyncRPCOperation_mergetoaddress::sign_send_raw_transaction(UniValue obj)
     }
     std::string rawtxn = rawtxnValue.get_str();
 
-    UniValue params = UniValue(UniValue::VARR);
-    params.push_back(rawtxn);
-    UniValue signResultValue = signrawtransaction(params, false);
+    JSONRPCRequest request;
+    request.params.push_back(rawtxn);
+    request.fHelp = false;
+    UniValue signResultValue = signrawtransaction(request);
     UniValue signResultObject = signResultValue.get_obj();
     UniValue completeValue = find_value(signResultObject, "complete");
     bool complete = completeValue.get_bool();
@@ -783,10 +785,10 @@ void AsyncRPCOperation_mergetoaddress::sign_send_raw_transaction(UniValue obj)
 
     // Send the signed transaction
     if (!testmode) {
-        params.clear();
-        params.setArray();
-        params.push_back(signedtxn);
-        UniValue sendResultValue = sendrawtransaction(params, false);
+        request.params.clear();
+        request.params.setArray();
+        request.params.push_back(signedtxn);
+        UniValue sendResultValue = sendrawtransaction(request);
         if (sendResultValue.isNull()) {
             throw JSONRPCError(RPC_WALLET_ERROR, "Send raw transaction did not return an error or a txid.");
         }

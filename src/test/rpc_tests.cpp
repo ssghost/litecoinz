@@ -43,11 +43,14 @@ UniValue CallRPC(string args)
             vArgs[i] = "";
         }
     }
-    UniValue params = RPCConvertValues(strMethod, vArgs);
+    JSONRPCRequest request;
+    request.strMethod = strMethod;
+    request.params = RPCConvertValues(strMethod, vArgs);
+    request.fHelp = false;
     BOOST_CHECK(tableRPC[strMethod]);
     rpcfn_type method = tableRPC[strMethod]->actor;
     try {
-        UniValue result = (*method)(params, false);
+        UniValue result = (*method)(request);
         return result;
     }
     catch (const UniValue& objError) {

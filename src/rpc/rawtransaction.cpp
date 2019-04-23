@@ -221,9 +221,9 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     }
 }
 
-UniValue getrawtransaction(const UniValue& params, bool fHelp)
+UniValue getrawtransaction(const JSONRPCRequest& request)
 {
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
         throw runtime_error(
             "getrawtransaction \"txid\" ( verbose )\n"
             "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
@@ -318,11 +318,11 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    uint256 hash = ParseHashV(params[0], "parameter 1");
+    uint256 hash = ParseHashV(request.params[0], "parameter 1");
 
     bool fVerbose = false;
-    if (params.size() > 1)
-        fVerbose = (params[1].get_int() != 0);
+    if (request.params.size() > 1)
+        fVerbose = (request.params[1].get_int() != 0);
 
     CTransaction tx;
     uint256 hashBlock;
@@ -340,9 +340,9 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
     return result;
 }
 
-UniValue gettxoutproof(const UniValue& params, bool fHelp)
+UniValue gettxoutproof(const JSONRPCRequest& request)
 {
-    if (fHelp || (params.size() != 1 && params.size() != 2))
+    if (request.fHelp || (request.params.size() != 1 && request.params.size() != 2))
         throw runtime_error(
             "gettxoutproof [\"txid\",...] ( blockhash )\n"
             "\nReturns a hex-encoded proof that \"txid\" was included in a block.\n"
@@ -364,7 +364,7 @@ UniValue gettxoutproof(const UniValue& params, bool fHelp)
 
     set<uint256> setTxids;
     uint256 oneTxid;
-    UniValue txids = params[0].get_array();
+    UniValue txids = request.params[0].get_array();
     for (size_t idx = 0; idx < txids.size(); idx++) {
         const UniValue& txid = txids[idx];
         if (txid.get_str().length() != 64 || !IsHex(txid.get_str()))
@@ -381,9 +381,9 @@ UniValue gettxoutproof(const UniValue& params, bool fHelp)
     CBlockIndex* pblockindex = nullptr;
 
     uint256 hashBlock;
-    if (params.size() > 1)
+    if (request.params.size() > 1)
     {
-        hashBlock = uint256S(params[1].get_str());
+        hashBlock = uint256S(request.params[1].get_str());
         if (!mapBlockIndex.count(hashBlock))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
         pblockindex = mapBlockIndex[hashBlock];
@@ -421,9 +421,9 @@ UniValue gettxoutproof(const UniValue& params, bool fHelp)
     return strHex;
 }
 
-UniValue verifytxoutproof(const UniValue& params, bool fHelp)
+UniValue verifytxoutproof(const JSONRPCRequest& request)
 {
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "verifytxoutproof \"proof\"\n"
             "\nVerifies that a proof points to a transaction in a block, returning the transaction it commits to\n"
@@ -434,7 +434,7 @@ UniValue verifytxoutproof(const UniValue& params, bool fHelp)
             "[\"txid\"]      (array, strings) The txid(s) which the proof commits to, or empty array if the proof is invalid\n"
         );
 
-    CDataStream ssMB(ParseHexV(params[0], "proof"), SER_NETWORK, PROTOCOL_VERSION);
+    CDataStream ssMB(ParseHexV(request.params[0], "proof"), SER_NETWORK, PROTOCOL_VERSION);
     CMerkleBlock merkleBlock;
     ssMB >> merkleBlock;
 
@@ -454,9 +454,9 @@ UniValue verifytxoutproof(const UniValue& params, bool fHelp)
     return res;
 }
 
-UniValue createrawtransaction(const UniValue& params, bool fHelp)
+UniValue createrawtransaction(const JSONRPCRequest& request)
 {
-    if (fHelp || params.size() < 2 || params.size() > 4)
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 4)
         throw runtime_error(
             "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,...} ( locktime ) ( expiryheight )\n"
             "\nCreate a transaction spending the given inputs and sending to the given addresses.\n"
@@ -490,27 +490,27 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
         );
 
     LOCK(cs_main);
-    RPCTypeCheck(params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ)(UniValue::VNUM)(UniValue::VNUM), true);
-    if (params[0].isNull() || params[1].isNull())
+    RPCTypeCheck(request.params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ)(UniValue::VNUM)(UniValue::VNUM), true);
+    if (request.params[0].isNull() || request.params[1].isNull())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 and 2 must be non-null");
 
-    UniValue inputs = params[0].get_array();
-    UniValue sendTo = params[1].get_obj();
+    UniValue inputs = request.params[0].get_array();
+    UniValue sendTo = request.params[1].get_obj();
 
     int nextBlockHeight = chainActive.Height() + 1;
     CMutableTransaction rawTx = CreateNewContextualCMutableTransaction(
         Params().GetConsensus(), nextBlockHeight);
 
-    if (params.size() > 2 && !params[2].isNull()) {
-        int64_t nLockTime = params[2].get_int64();
+    if (request.params.size() > 2 && !request.params[2].isNull()) {
+        int64_t nLockTime = request.params[2].get_int64();
         if (nLockTime < 0 || nLockTime > std::numeric_limits<uint32_t>::max())
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, locktime out of range");
         rawTx.nLockTime = nLockTime;
     }
 
-    if (params.size() > 3 && !params[3].isNull()) {
+    if (request.params.size() > 3 && !request.params[3].isNull()) {
         if (NetworkUpgradeActive(nextBlockHeight, Params().GetConsensus(), Consensus::UPGRADE_OVERWINTER)) {
-            int64_t nExpiryHeight = params[3].get_int64();
+            int64_t nExpiryHeight = request.params[3].get_int64();
             if (nExpiryHeight < 0 || nExpiryHeight >= TX_EXPIRY_HEIGHT_THRESHOLD) {
                 throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("Invalid parameter, expiryheight must be nonnegative and less than %d.", TX_EXPIRY_HEIGHT_THRESHOLD));
             }
@@ -573,9 +573,9 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
     return EncodeHexTx(rawTx);
 }
 
-UniValue decoderawtransaction(const UniValue& params, bool fHelp)
+UniValue decoderawtransaction(const JSONRPCRequest& request)
 {
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "decoderawtransaction \"hexstring\"\n"
             "\nReturn a JSON object representing the serialized, hex-encoded transaction.\n"
@@ -656,11 +656,11 @@ UniValue decoderawtransaction(const UniValue& params, bool fHelp)
         );
 
     LOCK(cs_main);
-    RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
+    RPCTypeCheck(request.params, boost::assign::list_of(UniValue::VSTR));
 
     CTransaction tx;
 
-    if (!DecodeHexTx(tx, params[0].get_str()))
+    if (!DecodeHexTx(tx, request.params[0].get_str()))
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
 
     UniValue result(UniValue::VOBJ);
@@ -669,9 +669,9 @@ UniValue decoderawtransaction(const UniValue& params, bool fHelp)
     return result;
 }
 
-UniValue decodescript(const UniValue& params, bool fHelp)
+UniValue decodescript(const JSONRPCRequest& request)
 {
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "decodescript \"hex\"\n"
             "\nDecode a hex-encoded script.\n"
@@ -695,12 +695,12 @@ UniValue decodescript(const UniValue& params, bool fHelp)
         );
 
     LOCK(cs_main);
-    RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
+    RPCTypeCheck(request.params, boost::assign::list_of(UniValue::VSTR));
 
     UniValue r(UniValue::VOBJ);
     CScript script;
-    if (params[0].get_str().size() > 0){
-        vector<unsigned char> scriptData(ParseHexV(params[0], "argument"));
+    if (request.params[0].get_str().size() > 0){
+        vector<unsigned char> scriptData(ParseHexV(request.params[0], "argument"));
         script = CScript(scriptData.begin(), scriptData.end());
     } else {
         // Empty scripts are valid
@@ -723,9 +723,9 @@ static void TxInErrorToJSON(const CTxIn& txin, UniValue& vErrorsRet, const std::
     vErrorsRet.push_back(entry);
 }
 
-UniValue signrawtransaction(const UniValue& params, bool fHelp)
+UniValue signrawtransaction(const JSONRPCRequest& request)
 {
-    if (fHelp || params.size() < 1 || params.size() > 5)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 5)
         throw runtime_error(
             "signrawtransaction \"hexstring\" ( [{\"txid\":\"id\",\"vout\":n,\"scriptPubKey\":\"hex\",\"redeemScript\":\"hex\"},...] [\"privatekey1\",...] sighashtype )\n"
             "\nSign inputs for raw transaction (serialized, hex-encoded).\n"
@@ -791,9 +791,9 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
 #else
     LOCK(cs_main);
 #endif
-    RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR)(UniValue::VARR)(UniValue::VARR)(UniValue::VSTR)(UniValue::VSTR), true);
+    RPCTypeCheck(request.params, boost::assign::list_of(UniValue::VSTR)(UniValue::VARR)(UniValue::VARR)(UniValue::VSTR)(UniValue::VSTR), true);
 
-    vector<unsigned char> txData(ParseHexV(params[0], "argument 1"));
+    vector<unsigned char> txData(ParseHexV(request.params[0], "argument 1"));
     CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
     vector<CMutableTransaction> txVariants;
     while (!ssData.empty()) {
@@ -834,9 +834,9 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
 
     bool fGivenKeys = false;
     CBasicKeyStore tempKeystore;
-    if (params.size() > 2 && !params[2].isNull()) {
+    if (request.params.size() > 2 && !request.params[2].isNull()) {
         fGivenKeys = true;
-        UniValue keys = params[2].get_array();
+        UniValue keys = request.params[2].get_array();
         for (size_t idx = 0; idx < keys.size(); idx++) {
             UniValue k = keys[idx];
             CKey key = DecodeSecret(k.get_str());
@@ -851,8 +851,8 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
 #endif
 
     // Add previous txouts given in the RPC call:
-    if (params.size() > 1 && !params[1].isNull()) {
-        UniValue prevTxs = params[1].get_array();
+    if (request.params.size() > 1 && !request.params[1].isNull()) {
+        UniValue prevTxs = request.params[1].get_array();
         for (size_t idx = 0; idx < prevTxs.size(); idx++) {
             const UniValue& p = prevTxs[idx];
             if (!p.isObject())
@@ -909,7 +909,7 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
 #endif
 
     int nHashType = SIGHASH_ALL;
-    if (params.size() > 3 && !params[3].isNull()) {
+    if (request.params.size() > 3 && !request.params[3].isNull()) {
         static map<string, int> mapSigHashValues =
             boost::assign::map_list_of
             (string("ALL"), int(SIGHASH_ALL))
@@ -919,7 +919,7 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
             (string("SINGLE"), int(SIGHASH_SINGLE))
             (string("SINGLE|ANYONECANPAY"), int(SIGHASH_SINGLE|SIGHASH_ANYONECANPAY))
             ;
-        string strHashType = params[3].get_str();
+        string strHashType = request.params[3].get_str();
         if (mapSigHashValues.count(strHashType))
             nHashType = mapSigHashValues[strHashType];
         else
@@ -937,10 +937,10 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
     // Grab the current consensus branch ID
     auto consensusBranchId = CurrentEpochBranchId(chainHeight, Params().GetConsensus());
 
-    if (params.size() > 4 && !params[4].isNull()) {
-        consensusBranchId = ParseHexToUInt32(params[4].get_str());
+    if (request.params.size() > 4 && !request.params[4].isNull()) {
+        consensusBranchId = ParseHexToUInt32(request.params[4].get_str());
         if (!IsConsensusBranchId(consensusBranchId)) {
-            throw runtime_error(params[4].get_str() + " is not a valid consensus branch id");
+            throw runtime_error(request.params[4].get_str() + " is not a valid consensus branch id");
         }
     }
 
@@ -990,9 +990,9 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
     return result;
 }
 
-UniValue sendrawtransaction(const UniValue& params, bool fHelp)
+UniValue sendrawtransaction(const JSONRPCRequest& request)
 {
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
         throw runtime_error(
             "sendrawtransaction \"hexstring\" ( allowhighfees )\n"
             "\nSubmits raw transaction (serialized, hex-encoded) to local node and network.\n"
@@ -1014,11 +1014,11 @@ UniValue sendrawtransaction(const UniValue& params, bool fHelp)
         );
 
     LOCK(cs_main);
-    RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR)(UniValue::VBOOL));
+    RPCTypeCheck(request.params, boost::assign::list_of(UniValue::VSTR)(UniValue::VBOOL));
 
     // parse hex string from parameter
     CTransaction tx;
-    if (!DecodeHexTx(tx, params[0].get_str()))
+    if (!DecodeHexTx(tx, request.params[0].get_str()))
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
     uint256 hashTx = tx.GetHash();
 
@@ -1036,8 +1036,8 @@ UniValue sendrawtransaction(const UniValue& params, bool fHelp)
     }
 
     bool fOverrideFees = false;
-    if (params.size() > 1)
-        fOverrideFees = params[1].get_bool();
+    if (request.params.size() > 1 && request.params[1].get_bool())
+        fOverrideFees = request.params[1].get_bool();
 
     CCoinsViewCache &view = *pcoinsTip;
     const CCoins* existingCoins = view.AccessCoins(hashTx);

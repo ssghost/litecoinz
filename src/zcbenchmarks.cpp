@@ -567,20 +567,21 @@ double benchmark_connectblock_slow()
     return duration;
 }
 
-extern UniValue getnewaddress(const UniValue& params, bool fHelp); // in rpcwallet.cpp
-extern UniValue sendtoaddress(const UniValue& params, bool fHelp);
+extern UniValue getnewaddress(const JSONRPCRequest& request); // in rpcwallet.cpp
+extern UniValue sendtoaddress(const JSONRPCRequest& request);
 
 double benchmark_sendtoaddress(CAmount amount)
 {
-    UniValue params(UniValue::VARR);
-    auto addr = getnewaddress(params, false);
+    JSONRPCRequest request;
+    auto addr = getnewaddress(request);
 
-    params.push_back(addr);
-    params.push_back(ValueFromAmount(amount));
+    request.params.push_back(addr);
+    request.params.push_back(ValueFromAmount(amount));
+    request.fHelp = false;
 
     struct timeval tv_start;
     timer_start(tv_start);
-    auto txid = sendtoaddress(params, false);
+    auto txid = sendtoaddress(request);
     return timer_stop(tv_start);
 }
 
@@ -597,14 +598,15 @@ double benchmark_loadwallet()
     return res;
 }
 
-extern UniValue listunspent(const UniValue& params, bool fHelp);
+extern UniValue listunspent(const JSONRPCRequest& request);
 
 double benchmark_listunspent()
 {
-    UniValue params(UniValue::VARR);
+    JSONRPCRequest request;
+    request.fHelp = false;
     struct timeval tv_start;
     timer_start(tv_start);
-    auto unspent = listunspent(params, false);
+    auto unspent = listunspent(request);
     return timer_stop(tv_start);
 }
 

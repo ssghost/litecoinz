@@ -83,10 +83,11 @@ void ResultsDialog::updateProgressBar()
     try {
         /* Check and display the operation status */
         UniValue obj(UniValue::VARR);
-        UniValue params(UniValue::VARR);
         obj.push_back(strOperationId.toStdString());
-        params.push_back(obj);
-        UniValue ret = z_getoperationstatus(params, false);
+        JSONRPCRequest request;
+        request.params.push_back(obj);
+        request.fHelp = false;
+        UniValue ret = z_getoperationstatus(request);
 
         UniValue status = find_value(ret[0], "status");
         strStatus = QString::fromStdString(status.get_str());

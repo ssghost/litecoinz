@@ -28,8 +28,8 @@ using namespace std;
 void EnsureWalletIsUnlocked();
 bool EnsureWalletIsAvailable(bool avoidException);
 
-UniValue dumpwallet_impl(const UniValue& params, bool fHelp, bool fDumpZKeys);
-UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys);
+UniValue dumpwallet_impl(const JSONRPCRequest& request, bool fDumpZKeys);
+UniValue importwallet_impl(const JSONRPCRequest& request, bool fImportZKeys);
 
 
 int64_t static DecodeDumpTime(const std::string &str) {
@@ -71,12 +71,12 @@ std::string DecodeDumpString(const std::string &str) {
     return ret.str();
 }
 
-UniValue importprivkey(const UniValue& params, bool fHelp)
+UniValue importprivkey(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 3)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw runtime_error(
             "importprivkey \"zcashprivkey\" ( \"label\" rescan )\n"
             "\nAdds a private key (as returned by dumpprivkey) to your wallet.\n"
@@ -103,15 +103,15 @@ UniValue importprivkey(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    string strSecret = params[0].get_str();
+    string strSecret = request.params[0].get_str();
     string strLabel = "";
-    if (params.size() > 1)
-        strLabel = params[1].get_str();
+    if (request.params.size() > 1)
+        strLabel = request.params[1].get_str();
 
     // Whether to perform rescan after import
     bool fRescan = true;
-    if (params.size() > 2)
-        fRescan = params[2].get_bool();
+    if (request.params.size() > 2)
+        fRescan = request.params[2].get_bool();
 
     CKey key = DecodeSecret(strSecret);
     if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
@@ -144,12 +144,12 @@ UniValue importprivkey(const UniValue& params, bool fHelp)
     return EncodeDestination(vchAddress);
 }
 
-UniValue importaddress(const UniValue& params, bool fHelp)
+UniValue importaddress(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 3)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw runtime_error(
             "importaddress \"address\" ( \"label\" rescan )\n"
             "\nAdds an address or script (in hex) that can be watched as if it were in your wallet but cannot be used to spend.\n"
@@ -174,24 +174,24 @@ UniValue importaddress(const UniValue& params, bool fHelp)
 
     CScript script;
 
-    CTxDestination dest = DecodeDestination(params[0].get_str());
+    CTxDestination dest = DecodeDestination(request.params[0].get_str());
     if (IsValidDestination(dest)) {
         script = GetScriptForDestination(dest);
-    } else if (IsHex(params[0].get_str())) {
-        std::vector<unsigned char> data(ParseHex(params[0].get_str()));
+    } else if (IsHex(request.params[0].get_str())) {
+        std::vector<unsigned char> data(ParseHex(request.params[0].get_str()));
         script = CScript(data.begin(), data.end());
     } else {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid LitecoinZ address or script");
     }
 
     string strLabel = "";
-    if (params.size() > 1)
-        strLabel = params[1].get_str();
+    if (request.params.size() > 1)
+        strLabel = request.params[1].get_str();
 
     // Whether to perform rescan after import
     bool fRescan = true;
-    if (params.size() > 2)
-        fRescan = params[2].get_bool();
+    if (request.params.size() > 2)
+        fRescan = request.params[2].get_bool();
 
     {
         if (::IsMine(*pwalletMain, script) == ISMINE_SPENDABLE)
@@ -220,12 +220,12 @@ UniValue importaddress(const UniValue& params, bool fHelp)
     return NullUniValue;
 }
 
-UniValue z_importwallet(const UniValue& params, bool fHelp)
+UniValue z_importwallet(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "z_importwallet \"filename\"\n"
             "\nImports taddr and zaddr keys from a wallet export file (see z_exportwallet).\n"
@@ -240,15 +240,15 @@ UniValue z_importwallet(const UniValue& params, bool fHelp)
             + HelpExampleRpc("z_importwallet", "\"path/to/exportdir/nameofbackup\"")
         );
 
-	return importwallet_impl(params, fHelp, true);
+	return importwallet_impl(request, true);
 }
 
-UniValue importwallet(const UniValue& params, bool fHelp)
+UniValue importwallet(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "importwallet \"filename\"\n"
             "\nImports taddr keys from a wallet dump file (see dumpwallet).\n"
@@ -263,10 +263,10 @@ UniValue importwallet(const UniValue& params, bool fHelp)
             + HelpExampleRpc("importwallet", "\"path/to/exportdir/nameofbackup\"")
         );
 
-	return importwallet_impl(params, fHelp, false);
+	return importwallet_impl(request, false);
 }
 
-UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys)
+UniValue importwallet_impl(const JSONRPCRequest& request, bool fImportZKeys)
 {
     if (fPruneMode)
         throw JSONRPCError(RPC_WALLET_ERROR, "Importing wallets is disabled in pruned mode");
@@ -276,7 +276,7 @@ UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys
     EnsureWalletIsUnlocked();
 
     ifstream file;
-    file.open(params[0].get_str().c_str(), std::ios::in | std::ios::ate);
+    file.open(request.params[0].get_str().c_str(), std::ios::in | std::ios::ate);
     if (!file.is_open())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot open wallet dump file");
 
@@ -378,12 +378,12 @@ UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys
     return NullUniValue;
 }
 
-UniValue dumpprivkey(const UniValue& params, bool fHelp)
+UniValue dumpprivkey(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "dumpprivkey \"taddr\"\n"
             "\nReveals the private key corresponding to 'taddr'.\n"
@@ -402,7 +402,7 @@ UniValue dumpprivkey(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    std::string strAddress = params[0].get_str();
+    string strAddress = request.params[0].get_str();
     CTxDestination dest = DecodeDestination(strAddress);
     if (!IsValidDestination(dest)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid LitecoinZ address");
@@ -420,12 +420,12 @@ UniValue dumpprivkey(const UniValue& params, bool fHelp)
 
 
 
-UniValue z_exportwallet(const UniValue& params, bool fHelp)
+UniValue z_exportwallet(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "z_exportwallet \"filename\"\n"
             "\nExports all wallet keys, for taddr and zaddr, in a human-readable format.  Overwriting an existing file is not permitted.\n"
@@ -438,15 +438,15 @@ UniValue z_exportwallet(const UniValue& params, bool fHelp)
             + HelpExampleRpc("z_exportwallet", "\"test\"")
         );
 
-	return dumpwallet_impl(params, fHelp, true);
+	return dumpwallet_impl(request, true);
 }
 
-UniValue dumpwallet(const UniValue& params, bool fHelp)
+UniValue dumpwallet(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "dumpwallet \"filename\"\n"
             "\nDumps taddr wallet keys in a human-readable format.  Overwriting an existing file is not permitted.\n"
@@ -459,10 +459,10 @@ UniValue dumpwallet(const UniValue& params, bool fHelp)
             + HelpExampleRpc("dumpwallet", "\"test\"")
         );
 
-	return dumpwallet_impl(params, fHelp, false);
+	return dumpwallet_impl(request, false);
 }
 
-UniValue dumpwallet_impl(const UniValue& params, bool fHelp, bool fDumpZKeys)
+UniValue dumpwallet_impl(const JSONRPCRequest& request, bool fDumpZKeys)
 {
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
@@ -477,7 +477,7 @@ UniValue dumpwallet_impl(const UniValue& params, bool fHelp, bool fDumpZKeys)
     if (exportdir.empty()) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Cannot export wallet until the litecoinzd -exportdir option has been set");
     }
-    std::string unclean = params[0].get_str();
+    std::string unclean = request.params[0].get_str();
     std::string clean = SanitizeFilename(unclean);
     if (clean.compare(unclean) != 0) {
         throw JSONRPCError(RPC_WALLET_ERROR, strprintf("Filename is invalid as only alphanumeric characters are allowed.  Try '%s' instead.", clean));
@@ -578,12 +578,12 @@ UniValue dumpwallet_impl(const UniValue& params, bool fHelp, bool fDumpZKeys)
 }
 
 
-UniValue z_importkey(const UniValue& params, bool fHelp)
+UniValue z_importkey(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 3)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw runtime_error(
             "z_importkey \"zkey\" ( rescan startHeight )\n"
             "\nAdds a zkey (as returned by z_exportkey) to your wallet.\n"
@@ -612,8 +612,8 @@ UniValue z_importkey(const UniValue& params, bool fHelp)
     // Whether to perform rescan after import
     bool fRescan = true;
     bool fIgnoreExistingKey = true;
-    if (params.size() > 1) {
-        auto rescan = params[1].get_str();
+    if (request.params.size() > 1) {
+        auto rescan = request.params[1].get_str();
         if (rescan.compare("whenkeyisnew") != 0) {
             fIgnoreExistingKey = false;
             if (rescan.compare("yes") == 0) {
@@ -636,13 +636,13 @@ UniValue z_importkey(const UniValue& params, bool fHelp)
 
     // Height to rescan from
     int nRescanHeight = 0;
-    if (params.size() > 2)
-        nRescanHeight = params[2].get_int();
+    if (request.params.size() > 2)
+        nRescanHeight = request.params[2].get_int();
     if (nRescanHeight < 0 || nRescanHeight > chainActive.Height()) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
     }
 
-    string strSecret = params[0].get_str();
+    string strSecret = request.params[0].get_str();
     auto spendingkey = DecodeSpendingKey(strSecret);
     if (!IsValidSpendingKey(spendingkey)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid spending key");
@@ -669,12 +669,12 @@ UniValue z_importkey(const UniValue& params, bool fHelp)
     return NullUniValue;
 }
 
-UniValue z_importviewingkey(const UniValue& params, bool fHelp)
+UniValue z_importviewingkey(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 3)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw runtime_error(
             "z_importviewingkey \"vkey\" ( rescan startHeight )\n"
             "\nAdds a viewing key (as returned by z_exportviewingkey) to your wallet.\n"
@@ -703,8 +703,8 @@ UniValue z_importviewingkey(const UniValue& params, bool fHelp)
     // Whether to perform rescan after import
     bool fRescan = true;
     bool fIgnoreExistingKey = true;
-    if (params.size() > 1) {
-        auto rescan = params[1].get_str();
+    if (request.params.size() > 1) {
+        auto rescan = request.params[1].get_str();
         if (rescan.compare("whenkeyisnew") != 0) {
             fIgnoreExistingKey = false;
             if (rescan.compare("no") == 0) {
@@ -719,14 +719,14 @@ UniValue z_importviewingkey(const UniValue& params, bool fHelp)
 
     // Height to rescan from
     int nRescanHeight = 0;
-    if (params.size() > 2) {
-        nRescanHeight = params[2].get_int();
+    if (request.params.size() > 2) {
+        nRescanHeight = request.params[2].get_int();
     }
     if (nRescanHeight < 0 || nRescanHeight > chainActive.Height()) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
     }
 
-    string strVKey = params[0].get_str();
+    string strVKey = request.params[0].get_str();
     auto viewingkey = DecodeViewingKey(strVKey);
     if (!IsValidViewingKey(viewingkey)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid viewing key");
@@ -765,12 +765,12 @@ UniValue z_importviewingkey(const UniValue& params, bool fHelp)
     return NullUniValue;
 }
 
-UniValue z_exportkey(const UniValue& params, bool fHelp)
+UniValue z_exportkey(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "z_exportkey \"zaddr\"\n"
             "\nReveals the zkey corresponding to 'zaddr'.\n"
@@ -789,7 +789,7 @@ UniValue z_exportkey(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    string strAddress = params[0].get_str();
+    string strAddress = request.params[0].get_str();
 
     auto address = DecodePaymentAddress(strAddress);
     if (!IsValidPaymentAddress(address)) {
@@ -804,12 +804,12 @@ UniValue z_exportkey(const UniValue& params, bool fHelp)
     return EncodeSpendingKey(sk.get());
 }
 
-UniValue z_exportviewingkey(const UniValue& params, bool fHelp)
+UniValue z_exportviewingkey(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "z_exportviewingkey \"zaddr\"\n"
             "\nReveals the viewing key corresponding to 'zaddr'.\n"
@@ -827,7 +827,7 @@ UniValue z_exportviewingkey(const UniValue& params, bool fHelp)
 
     EnsureWalletIsUnlocked();
 
-    string strAddress = params[0].get_str();
+    string strAddress = request.params[0].get_str();
 
     auto address = DecodePaymentAddress(strAddress);
     if (!IsValidPaymentAddress(address)) {

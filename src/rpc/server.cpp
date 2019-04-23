@@ -165,7 +165,7 @@ vector<unsigned char> ParseHexO(const UniValue& o, string strKey)
  * Note: This interface may still be subject to change.
  */
 
-std::string CRPCTable::help(const std::string& strCommand) const
+std::string CRPCTable::help(const std::string& strCommand, const JSONRPCRequest& helpreq) const
 {
     string strRet;
     string category;
@@ -176,6 +176,10 @@ std::string CRPCTable::help(const std::string& strCommand) const
         vCommands.push_back(make_pair(mi->second->category + mi->first, mi->second));
     sort(vCommands.begin(), vCommands.end());
 
+    JSONRPCRequest jreq(helpreq);
+    jreq.fHelp = true;
+    jreq.params = UniValue();
+
     for (const PAIRTYPE(string, const CRPCCommand*)& command : vCommands)
     {
         const CRPCCommand *pcmd = command.second;
@@ -185,12 +189,12 @@ std::string CRPCTable::help(const std::string& strCommand) const
             continue;
         if ((strCommand != "" || pcmd->category == "hidden") && strMethod != strCommand)
             continue;
+        jreq.strMethod = strMethod;
         try
         {
-            UniValue params;
             rpcfn_type pfn = pcmd->actor;
             if (setDone.insert(pfn).second)
-                (*pfn)(params, true);
+                (*pfn)(jreq);
         }
         catch (const std::exception& e)
         {
@@ -220,9 +224,9 @@ std::string CRPCTable::help(const std::string& strCommand) const
     return strRet;
 }
 
-UniValue help(const UniValue& params, bool fHelp)
+UniValue help(const JSONRPCRequest& jsonRequest)
 {
-    if (fHelp || params.size() > 1)
+    if (jsonRequest.fHelp || jsonRequest.params.size() > 1)
         throw runtime_error(
             "help ( \"command\" )\n"
             "\nList all commands, or get help for a specified command.\n"
@@ -233,17 +237,17 @@ UniValue help(const UniValue& params, bool fHelp)
         );
 
     string strCommand;
-    if (params.size() > 0)
-        strCommand = params[0].get_str();
+    if (jsonRequest.params.size() > 0)
+        strCommand = jsonRequest.params[0].get_str();
 
-    return tableRPC.help(strCommand);
+    return tableRPC.help(strCommand, jsonRequest);
 }
 
 
-UniValue stop(const UniValue& params, bool fHelp)
+UniValue stop(const JSONRPCRequest& jsonRequest)
 {
     // Accept the deprecated and ignored 'detach' boolean argument
-    if (fHelp || params.size() > 1)
+    if (jsonRequest.fHelp || jsonRequest.params.size() > 1)
         throw runtime_error(
             "stop\n"
             "\nStop LitecoinZ server.");
@@ -365,7 +369,7 @@ bool RPCIsInWarmup(std::string *outStatus)
     return fRPCInWarmup;
 }
 
-void JSONRequest::parse(const UniValue& valRequest)
+void JSONRPCRequest::parse(const UniValue& valRequest)
 {
     // Parse request
     if (!valRequest.isObject())
@@ -396,15 +400,14 @@ void JSONRequest::parse(const UniValue& valRequest)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Params must be an array");
 }
 
-static UniValue JSONRPCExecOne(const UniValue& req)
+static UniValue JSONRPCExecOne(JSONRPCRequest jreq, const UniValue& req)
 {
     UniValue rpc_result(UniValue::VOBJ);
 
-    JSONRequest jreq;
     try {
         jreq.parse(req);
 
-        UniValue result = tableRPC.execute(jreq.strMethod, jreq.params);
+        UniValue result = tableRPC.execute(jreq);
         rpc_result = JSONRPCReplyObj(result, NullUniValue, jreq.id);
     }
     catch (const UniValue& objError)
@@ -420,16 +423,16 @@ static UniValue JSONRPCExecOne(const UniValue& req)
     return rpc_result;
 }
 
-std::string JSONRPCExecBatch(const UniValue& vReq)
+std::string JSONRPCExecBatch(const JSONRPCRequest& jreq, const UniValue& vReq)
 {
     UniValue ret(UniValue::VARR);
     for (size_t reqIdx = 0; reqIdx < vReq.size(); reqIdx++)
-        ret.push_back(JSONRPCExecOne(vReq[reqIdx]));
+        ret.push_back(JSONRPCExecOne(jreq, vReq[reqIdx]));
 
     return ret.write() + "\n";
 }
 
-UniValue CRPCTable::execute(const std::string &strMethod, const UniValue &params) const
+UniValue CRPCTable::execute(const JSONRPCRequest &request) const
 {
     // Return immediately if in warmup
     {
@@ -439,7 +442,7 @@ UniValue CRPCTable::execute(const std::string &strMethod, const UniValue &params
     }
 
     // Find method
-    const CRPCCommand *pcmd = tableRPC[strMethod];
+    const CRPCCommand *pcmd = tableRPC[request.strMethod];
     if (!pcmd)
         throw JSONRPCError(RPC_METHOD_NOT_FOUND, "Method not found");
 
@@ -448,7 +451,7 @@ UniValue CRPCTable::execute(const std::string &strMethod, const UniValue &params
     try
     {
         // Execute
-        return pcmd->actor(params, false);
+        return pcmd->actor(request);
     }
     catch (const std::exception& e)
     {

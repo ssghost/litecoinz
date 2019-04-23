@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_RPCSERVER_H
-#define BITCOIN_RPCSERVER_H
+#ifndef BITCOIN_RPC_SERVER_H
+#define BITCOIN_RPC_SERVER_H
 
 #include <amount.h>
 #include <rpc/protocol.h>
@@ -32,14 +32,17 @@ namespace RPCServer
 class CBlockIndex;
 class CNetAddr;
 
-class JSONRequest
+class JSONRPCRequest
 {
 public:
     UniValue id;
     std::string strMethod;
     UniValue params;
+    bool fHelp;
+    std::string URI;
+    std::string authUser;
 
-    JSONRequest() { id = NullUniValue; }
+    JSONRPCRequest() { id = NullUniValue; }
     void parse(const UniValue& valRequest);
 };
 
@@ -122,7 +125,7 @@ void RPCUnregisterTimerInterface(RPCTimerInterface *iface);
  */
 void RPCRunLater(const std::string& name, std::function<void(void)> func, int64_t nSeconds);
 
-typedef UniValue(*rpcfn_type)(const UniValue& params, bool fHelp);
+typedef UniValue(*rpcfn_type)(const JSONRPCRequest& jsonRequest);
 
 class CRPCCommand
 {
@@ -143,16 +146,15 @@ private:
 public:
     CRPCTable();
     const CRPCCommand* operator[](const std::string& name) const;
-    std::string help(const std::string& name) const;
+    std::string help(const std::string& name, const JSONRPCRequest& helpreq) const;
 
     /**
      * Execute a method.
-     * @param method   Method to execute
-     * @param params   UniValue Array of arguments (JSON objects)
+     * @param request The JSONRPCRequest to execute
      * @returns Result of the call.
      * @throws an exception (UniValue) when an error happens.
      */
-    UniValue execute(const std::string &method, const UniValue &params) const;
+    UniValue execute(const JSONRPCRequest &request) const;
 
     /**
     * Returns a list of registered commands
@@ -189,16 +191,16 @@ extern std::string HelpExampleCli(const std::string& methodname, const std::stri
 extern std::string HelpExampleRpc(const std::string& methodname, const std::string& args);
 
 extern void EnsureWalletIsUnlocked();
-extern UniValue z_sendmany(const UniValue& params, bool fHelp); // in rpcwallet.cpp
-extern UniValue z_shieldcoinbase(const UniValue& params, bool fHelp); // in rpcwallet.cpp
-extern UniValue z_listreceivedbyaddress(const UniValue& params, bool fHelp); // in rpcwallet.cpp
-extern UniValue z_getoperationstatus(const UniValue& params, bool fHelp); // in rpcwallet.cpp
+extern UniValue z_sendmany(const JSONRPCRequest& request); // in rpcwallet.cpp
+extern UniValue z_shieldcoinbase(const JSONRPCRequest& request); // in rpcwallet.cpp
+extern UniValue z_listreceivedbyaddress(const JSONRPCRequest& request); // in rpcwallet.cpp
+extern UniValue z_getoperationstatus(const JSONRPCRequest& request); // in rpcwallet.cpp
 
 bool StartRPC();
 void InterruptRPC();
 void StopRPC();
-std::string JSONRPCExecBatch(const UniValue& vReq);
+std::string JSONRPCExecBatch(const JSONRPCRequest& jreq, const UniValue& vReq);
 
 extern std::string experimentalDisabledHelpMsg(const std::string& rpc, const std::string& enableArg);
 
-#endif // BITCOIN_RPCSERVER_H
+#endif // BITCOIN_RPC_SERVER_H

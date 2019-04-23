@@ -6,6 +6,7 @@
 #define BITCOIN_WALLET_RPCWALLET_H
 
 class CRPCTable;
+class JSONRPCRequest;
 
 void RegisterWalletRPCCommands(CRPCTable &tableRPC);
 

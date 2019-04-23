@@ -35,9 +35,9 @@ bool EnsureWalletIsAvailable(bool avoidException);
 /**
  * RPC call to generate a payment disclosure
  */
-UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
+UniValue z_getpaymentdisclosure(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
     string enableArg = "paymentdisclosure";
@@ -47,7 +47,7 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
         strPaymentDisclosureDisabledMsg = experimentalDisabledHelpMsg("z_getpaymentdisclosure", enableArg);
     }
 
-    if (fHelp || params.size() < 3 || params.size() > 4 )
+    if (request.fHelp || request.params.size() < 3 || request.params.size() > 4 )
         throw runtime_error(
             "z_getpaymentdisclosure \"txid\" \"js_index\" \"output_index\" (\"message\") \n"
             "\nGenerate a payment disclosure for a given joinsplit output.\n"
@@ -74,7 +74,7 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
     EnsureWalletIsUnlocked();
 
     // Check wallet knows about txid
-    string txid = params[0].get_str();
+    string txid = request.params[0].get_str();
     uint256 hash;
     hash.SetHex(txid);
 
@@ -103,21 +103,21 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
     }
 
     // Check js_index
-    int js_index = params[1].get_int();
+    int js_index = request.params[1].get_int();
     if (js_index < 0 || js_index >= wtx.vjoinsplit.size()) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid js_index");
     }
 
     // Check output_index
-    int output_index = params[2].get_int();
+    int output_index = request.params[2].get_int();
     if (output_index < 0 || output_index >= ZC_NUM_JS_OUTPUTS) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid output_index");
     }
 
     // Get message if it exists
     string msg;
-    if (params.size() == 4) {
-        msg = params[3].get_str();
+    if (request.params.size() == 4) {
+        msg = request.params[3].get_str();
     }
 
     // Create PaymentDisclosureKey
@@ -142,9 +142,9 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
 /**
  * RPC call to validate a payment disclosure data blob.
  */
-UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
+UniValue z_validatepaymentdisclosure(const JSONRPCRequest& request)
 {
-    if (!EnsureWalletIsAvailable(fHelp))
+    if (!EnsureWalletIsAvailable(request.fHelp))
         return NullUniValue;
 
     string enableArg = "paymentdisclosure";
@@ -154,7 +154,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
         strPaymentDisclosureDisabledMsg = experimentalDisabledHelpMsg("z_validatepaymentdisclosure", enableArg);
     }
 
-    if (fHelp || params.size() != 1)
+    if (request.fHelp || request.params.size() != 1)
         throw runtime_error(
             "z_validatepaymentdisclosure \"paymentdisclosure\"\n"
             "\nValidates a payment disclosure.\n"
@@ -176,7 +176,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
     EnsureWalletIsUnlocked();
 
     // Verify the payment disclosure input begins with "zpd:" prefix.
-    string strInput = params[0].get_str();
+    string strInput = request.params[0].get_str();
     size_t pos = strInput.find(PAYMENT_DISCLOSURE_BLOB_STRING_PREFIX);
     if (pos != 0) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, payment disclosure prefix not found.");

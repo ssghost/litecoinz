@@ -64,16 +64,16 @@ ShieldCoinsDialog::~ShieldCoinsDialog()
 void ShieldCoinsDialog::on_shieldButton_clicked()
 {
 
-    UniValue params(UniValue::VARR);
+    JSONRPCRequest request;
     UniValue ret;
 
     try {
-        params.push_back("*");
-        params.push_back(ui->reqShieldAddress->text().toStdString());
-        params.push_back(ValueFromAmount(payTxFee.GetFeePerK()));
-        params.push_back(ui->operationLimit->value());
+        request.params.push_back("*");
+        request.params.push_back(ui->reqShieldAddress->text().toStdString());
+        request.params.push_back(ValueFromAmount(payTxFee.GetFeePerK()));
+        request.params.push_back(ui->operationLimit->value());
 
-        ret = z_shieldcoinbase(params, false);
+        ret = z_shieldcoinbase(request);
     } catch (std::exception &e) {
         qFatal("Error %s ", e.what());
     } catch (...) {
