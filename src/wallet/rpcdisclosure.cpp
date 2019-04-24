@@ -82,7 +82,7 @@ UniValue z_getpaymentdisclosure(const JSONRPCRequest& request)
     uint256 hashBlock;
 
     // Check txid has been seen
-    if (!GetTransaction(hash, tx, hashBlock, true)) {
+    if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, true)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
     }
 
@@ -210,7 +210,7 @@ UniValue z_validatepaymentdisclosure(const JSONRPCRequest& request)
     CTransaction tx;
     uint256 hashBlock;
     // Check if we have seen the transaction
-    if (!GetTransaction(hash, tx, hashBlock, true)) {
+    if (!GetTransaction(hash, tx, Params().GetConsensus(), hashBlock, true)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available about transaction");
     }
 
