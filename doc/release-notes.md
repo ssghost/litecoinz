@@ -16,6 +16,14 @@ however. The new "trusted" field in the `listtransactions` RPC output
 indicates whether outputs of an unconfirmed transaction are considered
 spendable.
 
+Merkle branches removed from wallet
+-----------------------------------
+Previously, every wallet transaction stored a Merkle branch to prove its
+presence in blocks. This wasn't being used for more than an expensive
+sanity check. Since 2.0.2, these are no longer stored. When loading a
+2.0.2 wallet into an older version, it will automatically rescan to avoid
+failed checks.
+
 ### Logging
 
 - The log timestamp format is now ISO 8601 (e.g. "2018-02-28T12:34:56Z").
