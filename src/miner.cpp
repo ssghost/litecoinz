@@ -389,7 +389,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         pblocktemplate->vTxSigOps[0] = GetLegacySigOpCount(pblock->vtx[0]);
 
         CValidationState state;
-        if (!TestBlockValidity(state, *pblock, pindexPrev, false, false))
+        if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false))
             throw std::runtime_error("CreateNewBlock(): TestBlockValidity failed");
     }
 
@@ -463,7 +463,7 @@ static bool ProcessBlockFound(CBlock* pblock, const CChainParams& chainparams)
 
     // Process this block the same as if we had received it from another node
     CValidationState state;
-    if (!ProcessNewBlock(state, nullptr, pblock, true, nullptr))
+    if (!ProcessNewBlock(state, chainparams, nullptr, pblock, true, nullptr))
         return error("LitecoinzMiner: ProcessNewBlock, block not accepted");
 
     TrackMinedBlock(pblock->GetHash());

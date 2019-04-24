@@ -256,7 +256,7 @@ UniValue generate(const JSONRPCRequest& request)
         }
 endloop:
         CValidationState state;
-        if (!ProcessNewBlock(state, nullptr, pblock, true, nullptr))
+        if (!ProcessNewBlock(state, Params(), nullptr, pblock, true, nullptr))
             throw JSONRPCError(RPC_INTERNAL_ERROR, "ProcessNewBlock, block not accepted");
         ++nHeight;
         blockHashes.push_back(pblock->GetHash().GetHex());
@@ -534,7 +534,7 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
             if (block.hashPrevBlock != pindexPrev->GetBlockHash())
                 return "inconclusive-not-best-prevblk";
             CValidationState state;
-            TestBlockValidity(state, block, pindexPrev, false, true);
+            TestBlockValidity(state, Params(), block, pindexPrev, false, true);
             return BIP22ValidationResult(state);
         }
     }
@@ -792,7 +792,7 @@ UniValue submitblock(const JSONRPCRequest& request)
     CValidationState state;
     submitblock_StateCatcher sc(block.GetHash());
     RegisterValidationInterface(&sc);
-    bool fAccepted = ProcessNewBlock(state, nullptr, &block, true, nullptr);
+    bool fAccepted = ProcessNewBlock(state, Params(), nullptr, &block, true, nullptr);
     UnregisterValidationInterface(&sc);
     if (fBlockPresent)
     {

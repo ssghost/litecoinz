@@ -138,6 +138,7 @@ struct {
 // NOTE: These tests rely on CreateNewBlock doing its own self-validation!
 BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
 {
+    const CChainParams& chainparams = Params(CBaseChainParams::MAIN);
     CScript scriptPubKey = CScript() << ParseHex("04aaa049f7609d4b17ac733a67dd8abd10c0b5b410f0b3681b36dfb85fdc157fa22257895785bfc0c8741a9ff87d98d8a9a5330a8790aadd2f709576f65b37db89") << OP_CHECKSIG;
     CBlockTemplate *pblocktemplate;
     CMutableTransaction tx,tx2;
@@ -264,7 +265,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         pblock->hashFinalSaplingRoot = uint256();
 
         CValidationState state;
-        BOOST_CHECK(ProcessNewBlock(state, nullptr, pblock, true, nullptr));
+        BOOST_CHECK(ProcessNewBlock(state, chainparams, nullptr, pblock, true, nullptr));
         BOOST_CHECK_MESSAGE(state.IsValid(), state.GetRejectReason());
         pblock->hashPrevBlock = pblock->GetHash();
 
