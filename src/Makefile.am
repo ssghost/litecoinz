@@ -204,11 +204,12 @@ BITCOIN_CORE_H = \
   wallet/wallet_ismine.h \
   wallet/walletdb.h \
   warnings.h \
+  zen/delay.h \
   zmq/zmqabstractnotifier.h \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h \
-  zen/delay.h
+  zmq/zmqrpc.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -268,7 +269,8 @@ libbitcoin_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_zmq_a_SOURCES = \
   zmq/zmqabstractnotifier.cpp \
   zmq/zmqnotificationinterface.cpp \
-  zmq/zmqpublishnotifier.cpp
+  zmq/zmqpublishnotifier.cpp \
+  zmq/zmqrpc.cpp
 endif
 
 # wallet: shared between litecoinzd and litecoinz-qt, but only linked

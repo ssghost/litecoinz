@@ -65,6 +65,7 @@
 
 #if ENABLE_ZMQ
 #include <zmq/zmqnotificationinterface.h>
+#include <zmq/zmqrpc.h>
 #endif
 
 #include <librustzcash.h>
@@ -86,10 +87,6 @@ static const bool DEFAULT_SAFEMODE = true;
 static const bool DEFAULT_STOPAFTERBLOCKIMPORT = false;
 
 std::unique_ptr<CConnman> g_connman;
-
-#if ENABLE_ZMQ
-static CZMQNotificationInterface* pzmqNotificationInterface = nullptr;
-#endif
 
 #ifdef WIN32
 // Win32 LevelDB doesn't use file descriptors, and the ones used for
@@ -245,10 +242,10 @@ void Shutdown()
 #endif
 
 #if ENABLE_ZMQ
-    if (pzmqNotificationInterface) {
-        UnregisterValidationInterface(pzmqNotificationInterface);
-        delete pzmqNotificationInterface;
-        pzmqNotificationInterface = nullptr;
+    if (g_zmq_notification_interface) {
+        UnregisterValidationInterface(g_zmq_notification_interface);
+        delete g_zmq_notification_interface;
+        g_zmq_notification_interface = nullptr;
     }
 #endif
 
@@ -1123,6 +1120,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         RegisterWalletRPCCommands(tableRPC);
 #endif
 
+#if ENABLE_ZMQ
+    RegisterZMQRPCCommands(tableRPC);
+#endif
+
     nConnectTimeout = GetArg("-timeout", DEFAULT_CONNECT_TIMEOUT);
     if (nConnectTimeout <= 0)
         nConnectTimeout = DEFAULT_CONNECT_TIMEOUT;
@@ -1531,10 +1532,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         AddOneShot(strDest);
 
 #if ENABLE_ZMQ
-    pzmqNotificationInterface = CZMQNotificationInterface::CreateWithArguments(mapArgs);
+    g_zmq_notification_interface = CZMQNotificationInterface::CreateWithArguments(mapArgs);
 
-    if (pzmqNotificationInterface) {
-        RegisterValidationInterface(pzmqNotificationInterface);
+    if (g_zmq_notification_interface) {
+        RegisterValidationInterface(g_zmq_notification_interface);
     }
 #endif
 

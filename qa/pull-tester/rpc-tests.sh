@@ -48,6 +48,7 @@ testScripts=(
     'mempool_tx_expiry.py'
     'httpbasics.py'
     'multi_rpc.py',
+    'rpc_zmq.py',
     'zapwallettxes.py'
     'proxy_test.py'
     'merkle_blocks.py'

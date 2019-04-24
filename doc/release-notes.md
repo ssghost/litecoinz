@@ -19,3 +19,8 @@ spendable.
 ### Logging
 
 - The log timestamp format is now ISO 8601 (e.g. "2018-02-28T12:34:56Z").
+
+### ZMQ
+
+- The new RPC `getzmqnotifications` returns information about active ZMQ
+  notifications.
