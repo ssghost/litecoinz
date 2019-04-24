@@ -3946,7 +3946,7 @@ void FindFilesToPrune(std::set<int>& setFilesToPrune)
     if (chainActive.Tip() == nullptr || nPruneTarget == 0) {
         return;
     }
-    if (chainActive.Tip()->nHeight <= Params().PruneAfterHeight()) {
+    if ((uint64_t)chainActive.Tip()->nHeight <= Params().PruneAfterHeight()) {
         return;
     }
 

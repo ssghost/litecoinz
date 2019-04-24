@@ -86,7 +86,7 @@ public:
     bool DefaultConsistencyChecks() const { return fDefaultConsistencyChecks; }
     /** Policy: Filter transactions that do not match well-defined patterns */
     bool RequireStandard() const { return fRequireStandard; }
-    int64_t PruneAfterHeight() const { return nPruneAfterHeight; }
+    uint64_t PruneAfterHeight() const { return nPruneAfterHeight; }
     unsigned int EquihashN(int height = 0) const
     {
         if(height < consensus.nEquihashForkHeight) {
