@@ -12,6 +12,7 @@
 #include <amount.h>
 #include <chainparams.h>
 #include <consensus/consensus.h>
+#include <consensus/merkle.h>
 #include <consensus/upgrades.h>
 #include <consensus/validation.h>
 #ifdef ENABLE_MINING
@@ -443,7 +444,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     assert(txCoinbase.vin[0].scriptSig.size() <= 100);
 
     pblock->vtx[0] = txCoinbase;
-    pblock->hashMerkleRoot = pblock->ComputeMerkleRoot();
+    pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
 
 static bool ProcessBlockFound(CBlock* pblock, const CChainParams& chainparams)
