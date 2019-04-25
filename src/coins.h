@@ -511,7 +511,7 @@ public:
      * BIP 34 have been enforced since launch. See the Zcash protocol specification, section
      * "Bitcoin Improvement Proposals". Simultaneous modifications are not allowed.
      */
-    CCoinsModifier ModifyNewCoins(const uint256 &txid);
+    CCoinsModifier ModifyNewCoins(const uint256 &txid, bool coinbase);
 
     /**
      * Push the modifications applied to this cache to its base.
