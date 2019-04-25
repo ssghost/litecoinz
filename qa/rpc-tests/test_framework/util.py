@@ -24,6 +24,27 @@ import re
 
 from authproxy import AuthServiceProxy
 
+#Set Mocktime default to OFF.
+#MOCKTIME is only needed for scripts that use the
+#cached version of the blockchain.  If the cached
+#version of the blockchain is used without MOCKTIME
+#then the mempools will not sync due to IBD.
+MOCKTIME = 0
+
+def enable_mocktime():
+    #For backwared compatibility of the python scripts
+    #with previous versions of the cache, set MOCKTIME 
+    #to Jan 1, 2014 + (201 * 10 * 60)
+    global MOCKTIME
+    MOCKTIME = 1388534400 + (201 * 10 * 60)
+
+def disable_mocktime():
+    global MOCKTIME
+    MOCKTIME = 0
+
+def get_mocktime():
+    return MOCKTIME
+
 def p2p_port(n):
     return 11000 + n + os.getpid()%999
 def rpc_port(n):
@@ -122,9 +143,10 @@ def initialize_chain(test_dir):
 
         # Create a 200-block-long chain; each of the 4 nodes
         # gets 25 mature blocks and 25 immature.
-        # blocks are created with timestamps 10 minutes apart, starting
-        # at 1 Jan 2014
-        block_time = 1388534400
+        # blocks are created with timestamps 10 minutes apart
+        # starting from 2010 minutes in the past
+        enable_mocktime()
+        block_time = get_mocktime() - (201 * 10 * 60)
         for i in range(2):
             for peer in range(4):
                 for j in range(25):
@@ -136,7 +158,8 @@ def initialize_chain(test_dir):
 
         # Shut them down, and clean up cache directories:
         stop_nodes(rpcs)
-        wait_litecoinzds()
+        wait_bitcoinds()
+        disable_mocktime()
         for i in range(4):
             os.remove(log_filename("cache", i, "debug.log"))
             os.remove(log_filename("cache", i, "db.log"))
@@ -186,7 +209,7 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
     if binary is None:
         binary = os.getenv("LITECOINZD", "litecoinzd")
     # RPC tests still depend on free transactions
-    args = [ binary, "-datadir="+datadir, "-keypool=1", "-discover=0", "-rest", "-blockprioritysize=50000" ]
+    args = [ binary, "-datadir="+datadir, "-server", "-keypool=1", "-discover=0", "-rest", "-blockprioritysize=50000", "-mocktime="+str(get_mocktime()) ]
     if extra_args is not None: args.extend(extra_args)
     litecoinzd_processes[i] = subprocess.Popen(args)
     devnull = open("/dev/null", "w+")
@@ -235,7 +258,7 @@ def set_node_times(nodes, t):
     for node in nodes:
         node.setmocktime(t)
 
-def wait_litecoinzds():
+def wait_bitcoinds():
     # Wait for all litecoinzds to cleanly exit
     for litecoinzd in litecoinzd_processes.values():
         litecoinzd.wait()

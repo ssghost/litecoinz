@@ -66,6 +66,7 @@ static const ServiceFlags nRelevantServices = NODE_NETWORK;
 bool fDiscover = true;
 bool fListen = true;
 ServiceFlags nLocalServices = NODE_NETWORK;
+bool fRelayTxes = true;
 CCriticalSection cs_mapLocalHost;
 map<CNetAddr, LocalServiceInfo> mapLocalHost;
 static bool vfLimited[NET_MAX] = {};
@@ -439,7 +440,7 @@ void CNode::PushVersion()
         LogPrint(BCLog::NET, "send version message: version %d, blocks=%d, us=%s, peer=%d\n", PROTOCOL_VERSION, nBestHeight, addrMe.ToString(), id);
     }
     PushMessage(NetMsgType::VERSION, PROTOCOL_VERSION, (uint64_t)nLocalServices, nTime, addrYou, addrMe,
-                nLocalHostNonce, strSubVersion, nBestHeight, true);
+                nLocalHostNonce, strSubVersion, nBestHeight, fRelayTxes);
 }
 
 
