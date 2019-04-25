@@ -296,6 +296,8 @@ void PruneAndFlush();
 bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransaction &tx, bool fLimitFree,
                         bool* pfMissingInputs, bool fRejectAbsurdFee=false);
 
+/** Convert CValidationState to a human-readable message for logging */
+std::string FormatStateMessage(const CValidationState &state);
 
 struct CNodeStateStats {
     int nMisbehavior;
@@ -581,6 +583,9 @@ extern CBlockTreeDB *pblocktree;
  * This is also true for mempool checks.
  */
 int GetSpendHeight(const CCoinsViewCache& inputs);
+
+/** local "reject" message codes for RPC which can not be triggered by p2p trasactions */
+static const unsigned int REJECT_HIGHFEE = 0x100;
 
 uint64_t CalculateCurrentUsage();
 
