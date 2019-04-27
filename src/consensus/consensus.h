@@ -32,13 +32,13 @@ static const int COINBASE_MATURITY = 100;
 /** The minimum value which is invalid for expiry height, used by CTransaction and CMutableTransaction */
 static constexpr uint32_t TX_EXPIRY_HEIGHT_THRESHOLD = 500000000;
 
-/** Flags for LockTime() */
+/** Flags for nSequence and nLockTime locks */
 enum {
+    /* Interpret sequence numbers as relative lock-time constraints. */
+    LOCKTIME_VERIFY_SEQUENCE = (1 << 0),
+
     /* Use GetMedianTimePast() instead of nTime for end point timestamp. */
     LOCKTIME_MEDIAN_TIME_PAST = (1 << 1),
 };
-
-/** Used as the flags parameter to CheckFinalTx() in non-consensus code */
-static const unsigned int STANDARD_LOCKTIME_VERIFY_FLAGS = LOCKTIME_MEDIAN_TIME_PAST;
 
 #endif // BITCOIN_CONSENSUS_CONSENSUS_H

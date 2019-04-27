@@ -136,6 +136,20 @@ struct {
     {"00000000000000000000000000000000000000000000000000000000000022de", "007f388bed6b91756ea3e0866716ef6e9485fae6160195c7cda5c1e43f96ee359e105bcf4e8c293690420939124f04a0196363910421187811575929db40500b0bfdd1e8964aa334b801e3339a336d585a30852f1dc294a2d3d36f9ecc747458f3d41b4572415496df2a9fb1f882156cdabf9f65e681f38019865d6d47482277e24c9b8973eb34a41254faae4c5e2caa9dde5925ec118f3d8fa767ae00f434645957154367afe72000c59c79182c8faddd24424b9ebbb09ccd651b00540c96b9c7eec648a28a1d72c2e575d0f2250078511a011598db8e0788edf0ddc15ae24b62f63d6f93f71a2743a3c43ece55471a9802a76f31561a6f365c3647029bfa736395883afc0632bc25d4a8661b25d5aa0310f3c3fd3a183e75d359d6de3e5910b5dfbb74b7660af906917dc42b12e3e484aae1dbd20eaee037ef301572b7fc24d85b4aff9c82b27dcd421cee1639230d0188fec59f0dd4c0ced69c1ad07abd23692b1bd30735af942df597dcf6f403a36371bc416cf3e29a58570f586b05c357dc49515689788ad9581b8887dd913a41dc35e1ac9c9f9f4ea534eb6b36cc8af0299b6d3905750425da0366bdc59a7824477d7946b6f35c4ec90b8e61790fa74a4fa92396ea856661027828d40abb11dbe36bba516fe8ec8913106677285a4790d8034d1d1bf9fd87990889ddffc369b954a3d1c172be7e1812226c2b100cbe82c42bf4423456b6cb2bac3b4828135cb54f7a933a01f7f4a2057ad92136ba8e19fec313b412d43c089a71f06fd1625329b78d49ac92c59e4080932ddb1645910fd874dfb1f358e214231f62041acc41fd2c4e7b7127b3042459e1457f6b307fce9825aa4d2b942277f52665f2a77dd107b4f16cb3280f20c7551ff6cd855f97a6144131f69bab5648fb4b81261eefbf629094e8bcc4e36077f46d51a647da51fc01dca9a9ac12e2f7e2e2b1c9229dae099e95370177143d3b38ab661f19758494a01b32f0c27155b45a872a867dc50f9d76473695e9e2c4f9357f5ba6bb6c455d985f4e2c21486fde6576c6a8ceda6e010a7dc2b504130f429ac33376781ee4af5bbe8d768005bc4cb5092b15c4f296a8bd8c54a298eecd790a5161755a8605cc46bf890b8ff93d508501842b78c7261e5deeb1096891c528a300e57bf2f0aa9e8af2623cdf16bba20427704120484b6af8be26e4983d2685c783ce85d0174f84598719c6beefcc3603a94d4aa62750725df50671d7f9903ec255f779643ebd2fd8122fae3319e61928dcdaa44880d6a483140de63d2d7d7dc9dd449e0ee00d908e0f2164fc054198641e8fb0d74279c9b4117884b9335028a9f50c7223d3c03675ecf73329e52603f77f20cffba99356e51a365b75825f7db56d77542784f3c2663c493a2e564d73f753e9d6ebb0c2f2027a2330a7117c67a20507474fc47282a02cb572de17bbc7a335959316f74a05e3687cfb5227bc5b1b7f084f50902760e77740d420df9a495521c09b911e5f199a8343918b8386fc74f22552a76524a22c8c70ff06084e7fefe9b3ab98e004fadf35eb5f60483f287851712d90ebdd6b512877170d3b7fb34f16813917ae3b5ed54ede6081bdd7cc646fb336658121fd8fbafc52959b48d13375dfa4ce8616c157533a05ee1dc1120f215c348b54357d68adb4da7f5f48d55c005b3e7a23d05746e44d968f7601d4dbdff702861030d6e3a4140e6e1a29978be541f713f8e2cc9aa1ac32fecc941ee4aa4c41bc7f91ea5328ff87cbf35a8de17d1d3d1ad6d4384b0df52d10b3984d62e1678e86dd150ee425490bc727ee7107fda0f5d2433ab1c5d407be9d123fad5c201355601d926d3923787be86a4aa5be0b8d5750171ad658f8e97798b5dcaed46345a9af70c441"},
 };
 
+CBlockIndex CreateBlockIndex(int nHeight)
+{
+    CBlockIndex index;
+    index.nHeight = nHeight;
+    index.pprev = chainActive.Tip();
+    return index;
+}
+
+bool TestSequenceLocks(const CTransaction &tx, int flags)
+{
+    LOCK(mempool.cs);
+    return CheckSequenceLocks(tx, flags);
+}
+
 // NOTE: These tests rely on CreateNewBlock doing its own self-validation!
 BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
 {
@@ -156,6 +170,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
 
     // We can't make transactions until we have inputs
     // Therefore, load 100 blocks :)
+    int baseheight = 0;
     std::vector<CTransaction*>txFirst;
     for (unsigned int i = 0; i < sizeof(blockinfo)/sizeof(*blockinfo); ++i)
     {
@@ -175,7 +190,9 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         txCoinbase.vin[0].scriptSig = CScript() << (chainActive.Height()+1) << OP_0;
         txCoinbase.vout[0].scriptPubKey = CScript();
         pblock->vtx[0] = CTransaction(txCoinbase);
-        if (txFirst.size() < 2)
+        if (txFirst.size() == 0)
+            baseheight = chainActive.Height();
+        if (txFirst.size() < 4)
             txFirst.push_back(new CTransaction(pblock->vtx[0]));
         pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
         pblock->nNonce = uint256S(blockinfo[i].nonce_hex);
@@ -399,49 +416,96 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
 
     // non-final txs in mempool
     SetMockTime(chainActive.Tip()->GetMedianTimePast()+1);
+    int flags = LOCKTIME_VERIFY_SEQUENCE|LOCKTIME_MEDIAN_TIME_PAST;
+    // height map
+    std::vector<int> prevheights;
 
-    // height locked
-    tx.vin[0].prevout.hash = txFirst[0]->GetHash();
+    // relative height locked
+    tx.nVersion = 2;
+    tx.vin.resize(1);
+    prevheights.resize(1);
+    tx.vin[0].prevout.hash = txFirst[0]->GetHash(); // only 1 transaction
+    tx.vin[0].prevout.n = 0;
     tx.vin[0].scriptSig = CScript() << OP_1;
-    tx.vin[0].nSequence = 0;
+    tx.vin[0].nSequence = chainActive.Tip()->nHeight + 1; // txFirst[0] is the 2nd block
+    prevheights[0] = baseheight + 1;
+    tx.vout.resize(1);
     tx.vout[0].nValue = 49000LL;
     tx.vout[0].scriptPubKey = CScript() << OP_1;
-    tx.nLockTime = chainActive.Tip()->nHeight+1;
+    tx.nLockTime = 0;
     hash = tx.GetHash();
     mempool.addUnchecked(hash, entry.Time(GetTime()).SpendsCoinbase(true).FromTx(tx));
-    BOOST_CHECK(!CheckFinalTx(tx, LOCKTIME_MEDIAN_TIME_PAST));
+    BOOST_CHECK(CheckFinalTx(tx, flags)); // Locktime passes
+    BOOST_CHECK(!TestSequenceLocks(tx, flags)); // Sequence locks fail
+    BOOST_CHECK(SequenceLocks(tx, flags, &prevheights, CreateBlockIndex(chainActive.Tip()->nHeight + 2))); // Sequence locks pass on 2nd block
 
-    // time locked
-    tx2.vin.resize(1);
-    tx2.vin[0].prevout.hash = txFirst[1]->GetHash();
-    tx2.vin[0].prevout.n = 0;
-    tx2.vin[0].scriptSig = CScript() << OP_1;
-    tx2.vin[0].nSequence = 0;
-    tx2.vout.resize(1);
-    tx2.vout[0].nValue = 79000LL;
-    tx2.vout[0].scriptPubKey = CScript() << OP_1;
-    tx2.nLockTime = chainActive.Tip()->GetMedianTimePast()+1;
-    hash = tx2.GetHash();
-    mempool.addUnchecked(hash, entry.Time(GetTime()).SpendsCoinbase(true).FromTx(tx2));
-    BOOST_CHECK(!CheckFinalTx(tx2, LOCKTIME_MEDIAN_TIME_PAST));
+    // relative time locked
+    tx.vin[0].prevout.hash = txFirst[1]->GetHash();
+    tx.vin[0].nSequence = CTxIn::SEQUENCE_LOCKTIME_TYPE_FLAG | (((chainActive.Tip()->GetMedianTimePast()+1-chainActive[1]->GetMedianTimePast()) >> CTxIn::SEQUENCE_LOCKTIME_GRANULARITY) + 1); // txFirst[1] is the 3rd block
+    prevheights[0] = baseheight + 2;
+    hash = tx.GetHash();
+    mempool.addUnchecked(hash, entry.Time(GetTime()).FromTx(tx));
+    BOOST_CHECK(CheckFinalTx(tx, flags)); // Locktime passes
+    BOOST_CHECK(!TestSequenceLocks(tx, flags)); // Sequence locks fail
+
+    for (int i = 0; i < CBlockIndex::nMedianTimeSpan; i++)
+        chainActive.Tip()->GetAncestor(chainActive.Tip()->nHeight - i)->nTime += 512; //Trick the MedianTimePast
+    BOOST_CHECK(SequenceLocks(tx, flags, &prevheights, CreateBlockIndex(chainActive.Tip()->nHeight + 1))); // Sequence locks pass 512 seconds later
+    for (int i = 0; i < CBlockIndex::nMedianTimeSpan; i++)
+        chainActive.Tip()->GetAncestor(chainActive.Tip()->nHeight - i)->nTime -= 512; //undo tricked MTP
+
+    // absolute height locked
+    tx.vin[0].prevout.hash = txFirst[2]->GetHash();
+    tx.vin[0].nSequence = CTxIn::SEQUENCE_FINAL - 1;
+    prevheights[0] = baseheight + 3;
+    tx.nLockTime = chainActive.Tip()->nHeight + 1;
+    hash = tx.GetHash();
+    mempool.addUnchecked(hash, entry.Time(GetTime()).FromTx(tx));
+    BOOST_CHECK(!CheckFinalTx(tx, flags)); // Locktime fails
+    BOOST_CHECK(TestSequenceLocks(tx, flags)); // Sequence locks pass
+    BOOST_CHECK(IsFinalTx(tx, chainActive.Tip()->nHeight + 2, chainActive.Tip()->GetMedianTimePast())); // Locktime passes on 2nd block
+
+    // absolute time locked
+    tx.vin[0].prevout.hash = txFirst[3]->GetHash();
+    tx.nLockTime = chainActive.Tip()->GetMedianTimePast();
+    prevheights.resize(1);
+    prevheights[0] = baseheight + 4;
+    hash = tx.GetHash();
+    mempool.addUnchecked(hash, entry.Time(GetTime()).FromTx(tx));
+    BOOST_CHECK(!CheckFinalTx(tx, flags)); // Locktime fails
+    BOOST_CHECK(TestSequenceLocks(tx, flags)); // Sequence locks pass
+    BOOST_CHECK(IsFinalTx(tx, chainActive.Tip()->nHeight + 2, chainActive.Tip()->GetMedianTimePast() + 1)); // Locktime passes 1 second later
+
+    // mempool-dependent transactions (not added)
+    tx.vin[0].prevout.hash = hash;
+    prevheights[0] = chainActive.Tip()->nHeight + 1;
+    tx.nLockTime = 0;
+    tx.vin[0].nSequence = 0;
+    BOOST_CHECK(CheckFinalTx(tx, flags)); // Locktime passes
+    BOOST_CHECK(TestSequenceLocks(tx, flags)); // Sequence locks pass
+    tx.vin[0].nSequence = 1;
+    BOOST_CHECK(!TestSequenceLocks(tx, flags)); // Sequence locks fail
+    tx.vin[0].nSequence = CTxIn::SEQUENCE_LOCKTIME_TYPE_FLAG;
+    BOOST_CHECK(TestSequenceLocks(tx, flags)); // Sequence locks pass
+    tx.vin[0].nSequence = CTxIn::SEQUENCE_LOCKTIME_TYPE_FLAG | 1;
+    BOOST_CHECK(!TestSequenceLocks(tx, flags)); // Sequence locks fail
 
     BOOST_CHECK(pblocktemplate = CreateNewBlock(scriptPubKey));
 
-    // Neither tx should have made it into the template.
-    BOOST_CHECK_EQUAL(pblocktemplate->block.vtx.size(), 1);
+    // None of the of the absolute height/time locked tx should have made
+    // it into the template because we still check IsFinalTx in CreateNewBlock,
+    // but relative locked txs will if inconsistently added to mempool.
+    // For now these will still generate a valid template until BIP68 soft fork
+    BOOST_CHECK_EQUAL(pblocktemplate->block.vtx.size(), 3);
     delete pblocktemplate;
-
-    // However if we advance height and time by one, both will.
+    // However if we advance height by 1 and time by 512, all of them should be mined
+    for (int i = 0; i < CBlockIndex::nMedianTimeSpan; i++)
+        chainActive.Tip()->GetAncestor(chainActive.Tip()->nHeight - i)->nTime += 512; //Trick the MedianTimePast
     chainActive.Tip()->nHeight++;
-    SetMockTime(chainActive.Tip()->GetMedianTimePast()+2);
-
-    // FIXME: we should *actually* create a new block so the following test
-    //        works; CheckFinalTx() isn't fooled by monkey-patching nHeight.
-    //BOOST_CHECK(CheckFinalTx(tx));
-    //BOOST_CHECK(CheckFinalTx(tx2));
+    SetMockTime(chainActive.Tip()->GetMedianTimePast() + 1);
 
     BOOST_CHECK(pblocktemplate = CreateNewBlock(scriptPubKey));
-    BOOST_CHECK_EQUAL(pblocktemplate->block.vtx.size(), 2);
+    BOOST_CHECK_EQUAL(pblocktemplate->block.vtx.size(), 5);
     delete pblocktemplate;
 
     chainActive.Tip()->nHeight--;
