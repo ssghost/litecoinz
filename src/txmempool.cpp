@@ -22,10 +22,11 @@ using namespace std;
 CTxMemPoolEntry::CTxMemPoolEntry(const CTransaction& _tx, const CAmount& _nFee,
                                  int64_t _nTime, double _entryPriority, unsigned int _entryHeight,
                                  bool poolHasNoInputsOf, CAmount _inChainInputValue,
-                                 bool _spendsCoinbase, uint32_t _nBranchId):
+                                 bool _spendsCoinbase, unsigned int _sigOps, LockPoints lp,
+                                 uint32_t _nBranchId):
     tx(_tx), nFee(_nFee), nTime(_nTime), entryPriority(_entryPriority), entryHeight(_entryHeight),
     hadNoDependencies(poolHasNoInputsOf), inChainInputValue(_inChainInputValue),
-    spendsCoinbase(_spendsCoinbase), nBranchId(_nBranchId)
+    spendsCoinbase(_spendsCoinbase), sigOpCount(_sigOps), lockPoints(lp), nBranchId(_nBranchId)
 {
     nTxSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
     nModSize = tx.CalculateModifiedSize(nTxSize);
@@ -59,6 +60,11 @@ void CTxMemPoolEntry::UpdateFeeDelta(int64_t newFeeDelta)
 {
     nModFeesWithDescendants += newFeeDelta - feeDelta;
     feeDelta = newFeeDelta;
+}
+
+void CTxMemPoolEntry::UpdateLockPoints(const LockPoints& lp)
+{
+    lockPoints = lp;
 }
 
 // Update the given tx for any in-mempool descendants.
@@ -372,17 +378,6 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
     indexed_transaction_set::iterator newit = mapTx.insert(entry).first;
     mapLinks.insert(make_pair(newit, TxLinks()));
 
-    // Update transaction for any feeDelta created by PrioritiseTransaction
-    // TODO: refactor so that the fee delta is calculated before inserting
-    // into mapTx.
-    std::map<uint256, std::pair<double, CAmount> >::const_iterator pos = mapDeltas.find(hash);
-    if (pos != mapDeltas.end()) {
-        const std::pair<double, CAmount> &deltas = pos->second;
-        if (deltas.second) {
-            mapTx.modify(newit, update_fee_delta(deltas.second));
-        }
-    }
-
     // Update cachedInnerUsage to include contained transaction's usage.
     // (When we update the entry for in-mempool parents, memory usage will be
     // further updated.)
@@ -417,6 +412,15 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
         }
     }
     UpdateAncestorsOf(true, newit, setAncestors);
+
+    // Update transaction's score for any feeDelta created by PrioritiseTransaction
+    std::map<uint256, std::pair<double, CAmount> >::const_iterator pos = mapDeltas.find(hash);
+    if (pos != mapDeltas.end()) {
+        const std::pair<double, CAmount> &deltas = pos->second;
+        if (deltas.second) {
+            mapTx.modify(newit, update_fee_delta(deltas.second));
+        }
+    }
 
     nTransactionsUpdated++;
     totalTxSize += entry.GetTxSize();
@@ -524,7 +528,11 @@ void CTxMemPool::removeForReorg(const CCoinsViewCache *pcoins, unsigned int nMem
     list<CTransaction> transactionsToRemove;
     for (indexed_transaction_set::const_iterator it = mapTx.begin(); it != mapTx.end(); it++) {
         const CTransaction& tx = it->GetTx();
-        if (!CheckFinalTx(tx, flags) || !CheckSequenceLocks(tx, flags)) {
+        LockPoints lp = it->GetLockPoints();
+        bool validLP =  TestLockPointValidity(&lp);
+        if (!CheckFinalTx(tx, flags) || !CheckSequenceLocks(tx, flags, &lp, validLP)) {
+            // Note if CheckSequenceLocks fails the LockPoints may still be invalid
+            // So it's critical that we remove the tx and not depend on the LockPoints.
             transactionsToRemove.push_back(tx);
         } else if (it->GetSpendsCoinbase()) {
             for (const CTxIn& txin : tx.vin) {
@@ -538,6 +546,9 @@ void CTxMemPool::removeForReorg(const CCoinsViewCache *pcoins, unsigned int nMem
                     break;
                 }
             }
+        }
+        if (!validLP) {
+            mapTx.modify(it, update_lock_points(lp));
         }
     }
     for (const CTransaction& tx : transactionsToRemove) {
