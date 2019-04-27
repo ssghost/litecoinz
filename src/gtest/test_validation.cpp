@@ -79,11 +79,12 @@ TEST(Validation, ContextualCheckInputsPassesWithCoinbase) {
     FakeCoinsViewDB fakeDB;
     CCoinsViewCache view(&fakeDB);
 
+    const auto chainParams = CreateChainParams(CBaseChainParams::MAIN);
     for (int idx = Consensus::BASE_SPROUT; idx < Consensus::MAX_NETWORK_UPGRADES; idx++) {
         auto consensusBranchId = NetworkUpgradeInfo[idx].nBranchId;
         CValidationState state;
         PrecomputedTransactionData txdata(tx);
-        EXPECT_TRUE(ContextualCheckInputs(tx, state, view, false, 0, false, false, txdata, Params(CBaseChainParams::MAIN).GetConsensus(), consensusBranchId));
+        EXPECT_TRUE(ContextualCheckInputs(tx, state, view, false, 0, false, false, txdata, chainParams->GetConsensus(), consensusBranchId));
     }
 }
 

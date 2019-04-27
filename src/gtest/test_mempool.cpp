@@ -94,8 +94,10 @@ TEST(Mempool, PriorityStatsDoNotCrash) {
     unsigned int nHeight = 92045;
     CAmount inChainInputValue;
     double dPriority = view.GetPriority(tx, nHeight, inChainInputValue);
+    unsigned int sigOpCount = 1;
+    LockPoints lp;
 
-    CTxMemPoolEntry entry(tx, nFees, nTime, dPriority, nHeight, true, tx.GetValueOut(), false, SPROUT_BRANCH_ID);
+    CTxMemPoolEntry entry(tx, nFees, nTime, dPriority, nHeight, true, tx.GetValueOut(), false, sigOpCount, lp, SPROUT_BRANCH_ID);
 
     // Check it does not crash (ie. the death test fails)
     EXPECT_NONFATAL_FAILURE(EXPECT_DEATH(testPool.addUnchecked(tx.GetHash(), entry), ""), "");

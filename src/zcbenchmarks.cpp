@@ -173,9 +173,9 @@ double benchmark_solve_equihash()
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << I;
 
-    const CChainParams& params = Params(CBaseChainParams::MAIN);
-    unsigned int n = params.EquihashN(params.EquihashForkHeight());
-    unsigned int k = params.EquihashK(params.EquihashForkHeight());
+    const auto chainParams = CreateChainParams(CBaseChainParams::MAIN);
+    unsigned int n = chainParams->EquihashN(chainParams->EquihashForkHeight());
+    unsigned int k = chainParams->EquihashK(chainParams->EquihashForkHeight());
     crypto_generichash_blake2b_state eh_state;
     EhInitialiseState(n, k, eh_state);
     crypto_generichash_blake2b_update(&eh_state, (unsigned char*)&ss[0], ss.size());
@@ -218,12 +218,12 @@ std::vector<double> benchmark_solve_equihash_threaded(int nThreads)
 
 double benchmark_verify_equihash()
 {
-    CChainParams params = Params(CBaseChainParams::MAIN);
-    CBlock genesis = Params(CBaseChainParams::MAIN).GenesisBlock();
+    const auto chainParams = CreateChainParams(CBaseChainParams::MAIN);
+    CBlock genesis = chainParams->GenesisBlock();
     CBlockHeader genesis_header = genesis.GetBlockHeader();
     struct timeval tv_start;
     timer_start(tv_start);
-    CheckEquihashSolution(&genesis_header, params);
+    CheckEquihashSolution(&genesis_header, Params());
     return timer_stop(tv_start);
 }
 

@@ -883,8 +883,7 @@ TEST(checktransaction_tests, OverwinterInvalidSoftForkVersion) {
 
 // Test CreateNewContextualCMutableTransaction sets default values based on height
 TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
-    SelectParams(CBaseChainParams::REGTEST);
-    const Consensus::Params& consensusParams = Params().GetConsensus();
+    const auto chainParams = CreateChainParams(CBaseChainParams::REGTEST);
     int activationHeight = 5;
     int saplingActivationHeight = 30;
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, activationHeight);
@@ -892,7 +891,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
 
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, activationHeight - 1);
+            chainParams->GetConsensus(), activationHeight - 1);
 
         EXPECT_EQ(mtx.nVersion, 1);
         EXPECT_EQ(mtx.fOverwintered, false);
@@ -903,7 +902,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
     // Overwinter activates
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, activationHeight );
+            chainParams->GetConsensus(), activationHeight );
 
         EXPECT_EQ(mtx.nVersion, 3);
         EXPECT_EQ(mtx.fOverwintered, true);
@@ -914,7 +913,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
     // Close to Sapling activation
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight - expiryDelta - 2);
+            chainParams->GetConsensus(), saplingActivationHeight - expiryDelta - 2);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, OVERWINTER_VERSION_GROUP_ID);
@@ -924,7 +923,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
 
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight - expiryDelta - 1);
+            chainParams->GetConsensus(), saplingActivationHeight - expiryDelta - 1);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, OVERWINTER_VERSION_GROUP_ID);
@@ -934,7 +933,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
 
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight - expiryDelta);
+            chainParams->GetConsensus(), saplingActivationHeight - expiryDelta);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, OVERWINTER_VERSION_GROUP_ID);
@@ -945,7 +944,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
     // Just before Sapling activation
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight - 1);
+            chainParams->GetConsensus(), saplingActivationHeight - 1);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, OVERWINTER_VERSION_GROUP_ID);
@@ -956,7 +955,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
     // Sapling activates
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight);
+            chainParams->GetConsensus(), saplingActivationHeight);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, SAPLING_VERSION_GROUP_ID);

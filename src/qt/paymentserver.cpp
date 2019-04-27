@@ -221,10 +221,12 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
             SendCoinsRecipient r;
             if (GUIUtil::parseBitcoinURI(arg, &r) && !r.address.isEmpty())
             {
-                if (IsValidDestinationString(r.address.toStdString(), Params(CBaseChainParams::MAIN))) {
+                auto tempChainParams = CreateChainParams(CBaseChainParams::MAIN);
+                if (IsValidDestinationString(r.address.toStdString(), *tempChainParams)) {
                     SelectParams(CBaseChainParams::MAIN);
                 } else {
-                    if (IsValidDestinationString(r.address.toStdString(), Params(CBaseChainParams::TESTNET))) {
+                    tempChainParams = CreateChainParams(CBaseChainParams::TESTNET);
+                    if (IsValidDestinationString(r.address.toStdString(), *tempChainParams)) {
                         SelectParams(CBaseChainParams::TESTNET);
                     }
                 }
