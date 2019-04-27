@@ -52,8 +52,6 @@ class PrecomputedTransactionData;
 
 struct CNodeStateStats;
 
-/** Default for accepting alerts from the P2P network. */
-static const bool DEFAULT_ALERTS = false;
 /** Minimum alert priority for enabling safe mode. */
 static const int ALERT_PRIORITY_SAFE_MODE = 4000;
 /** Maximum reorg length we will accept before we shut down and alert the user. */
@@ -194,7 +192,6 @@ extern size_t nCoinCacheUsage;
 extern CFeeRate minRelayTxFee;
 /** Absolute maximum transaction fee (in satoshis) used by wallet and mempool (rejects high fee in sendrawtransaction) */
 extern CAmount maxTxFee;
-extern bool fAlerts;
 /** If the tip is older than this (in seconds), the node is considered to be in initial block download. */
 extern int64_t nMaxTipAge;
 
@@ -620,5 +617,7 @@ uint64_t CalculateCurrentUsage();
 
 /** Return a CMutableTransaction with contextual default values based on set of consensus rules at height */
 CMutableTransaction CreateNewContextualCMutableTransaction(const Consensus::Params& consensusParams, int nHeight);
+
+void AlertNotify(const std::string& strMessage, bool fThread);
 
 #endif // BITCOIN_MAIN_H

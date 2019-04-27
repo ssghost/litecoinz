@@ -32,3 +32,7 @@ failed checks.
 
 - The new RPC `getzmqnotifications` returns information about active ZMQ
   notifications.
+
+### P2P protocol and network code
+
+The p2p alert system has been removed in #7692 and the 'alert' message is no longer supported.
