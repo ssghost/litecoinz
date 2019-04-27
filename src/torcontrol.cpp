@@ -506,7 +506,7 @@ void TorController::add_onion_cb(TorControlConnection& _conn, const TorControlRe
         }
 
         LookupNumeric(std::string(service_id+".onion").c_str(), service, GetListenPort());
-        LogPrintf("tor: Got service ID %s, advertizing service %s\n", service_id, service.ToString());
+        LogPrintf("tor: Got service ID %s, advertising service %s\n", service_id, service.ToString());
         if (WriteBinaryFile(GetPrivateKeyFile(), private_key)) {
             LogPrint(BCLog::TOR, "tor: Cached service private key to %s\n", GetPrivateKeyFile().string());
         } else {
@@ -695,7 +695,7 @@ void TorController::connected_cb(TorControlConnection& _conn)
 
 void TorController::disconnected_cb(TorControlConnection& _conn)
 {
-    // Stop advertizing service when disconnected
+    // Stop advertising service when disconnected
     if (service.IsValid())
         RemoveLocal(service);
     service = CService();
