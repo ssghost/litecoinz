@@ -82,7 +82,6 @@ testScripts=(
 testScriptsExt=(
     'getblocktemplate_longpoll.py'
     'getblocktemplate_proposals.py'
-    'pruning.py'
     'forknotify.py'
     'hardforkdetection.py'
     'invalidateblock.py'
@@ -98,6 +97,8 @@ testScriptsExt=(
     'p2p-acceptblock.py'
     'mempool_packages.py'
     'abandonconflict.py'
+    'p2p-feefilter.py'
+    'pruning.py'
 );
 
 if [ "x$ENABLE_ZMQ" = "x1" ]; then

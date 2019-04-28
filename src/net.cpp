@@ -1976,7 +1976,7 @@ CConnman::~CConnman()
 {
 }
 
-void RelayTransaction(const CTransaction& tx)
+void RelayTransaction(const CTransaction& tx, CFeeRate feerate)
 {
     CInv inv(MSG_TX, tx.GetHash());
     {
@@ -1996,6 +1996,11 @@ void RelayTransaction(const CTransaction& tx)
     {
         if(!pnode->fRelayTxes)
             continue;
+        {
+            LOCK(pnode->cs_feeFilter);
+            if (feerate.GetFeePerK() < pnode->minFeeFilter)
+                continue;
+        }
         LOCK(pnode->cs_filter);
         if (pnode->pfilter)
         {
@@ -2112,6 +2117,10 @@ CNode::CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNa
     nPingUsecTime = 0;
     fPingQueued = false;
     nMinPingUsecTime = std::numeric_limits<int64_t>::max();
+    minFeeFilter = 0;
+    lastSentFeeFilter = 0;
+    nextSendTimeFeeFilter = 0;
+
     for (const std::string &msg : getAllNetMessageTypes())
         mapRecvBytesPerMsgCmd[msg] = 0;
     mapRecvBytesPerMsgCmd[NET_MESSAGE_COMMAND_OTHER] = 0;
