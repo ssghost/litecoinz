@@ -2047,7 +2047,7 @@ static bool fLargeWorkInvalidChainFound = false;
 static CBlockIndex *pindexBestForkTip = nullptr;
 static CBlockIndex *pindexBestForkBase = nullptr;
 
-void AlertNotify(const std::string& strMessage, bool fThread)
+static void AlertNotify(const std::string& strMessage)
 {
     uiInterface.NotifyAlertChanged();
     std::string strCmd = GetArg("-alertnotify", "");
@@ -2061,10 +2061,7 @@ void AlertNotify(const std::string& strMessage, bool fThread)
     safeStatus = singleQuote+safeStatus+singleQuote;
     boost::replace_all(strCmd, "%s", safeStatus);
 
-    if (fThread)
-        boost::thread t(runCommand, strCmd); // thread runs free
-    else
-        runCommand(strCmd);
+    boost::thread t(runCommand, strCmd); // thread runs free
 }
 
 void CheckForkWarningConditions()
@@ -2086,7 +2083,7 @@ void CheckForkWarningConditions()
         {
             std::string warning = std::string("'Warning: Large-work fork detected, forking after block ") +
                 pindexBestForkBase->phashBlock->ToString() + std::string("'");
-            AlertNotify(warning, true);
+            AlertNotify(warning);
         }
         if (pindexBestForkTip && pindexBestForkBase)
         {
@@ -2099,7 +2096,7 @@ void CheckForkWarningConditions()
         {
             std::string warning = std::string("Warning: Found invalid chain at least ~6 blocks longer than our best chain.\nChain state database corruption likely.");
             LogPrintf("%s: %s\n", warning.c_str(), __func__);
-            AlertNotify(warning, true);
+            AlertNotify(warning);
             SetfLargeWorkForkFound(true);
         }
     }
@@ -3192,7 +3189,7 @@ void static UpdateTip(CBlockIndex *pindexNew) {
         {
             // strWarning is read by GetWarnings(), called by the JSON-RPC code to warn the user:
             std::string strWarning = _("Warning: This version is obsolete; upgrade required!");
-            AlertNotify(strWarning, true);
+            AlertNotify(strWarning);
             fWarned = true;
         }
     }
