@@ -478,8 +478,10 @@ bool AsyncRPCOperation_sendmany::main_impl() {
         // TODO: Use CWallet::CommitTransaction instead of sendrawtransaction
         auto signedtxn = EncodeHexTx(tx_);
         if (!testmode) {
+            UniValue params(UniValue::VARR);
+            params.push_back(signedtxn);
             JSONRPCRequest request;
-            request.params.push_back(signedtxn);
+            request.params = params;
             request.fHelp = false;
             UniValue sendResultValue = sendrawtransaction(request);
             if (sendResultValue.isNull()) {
@@ -939,8 +941,10 @@ void AsyncRPCOperation_sendmany::sign_send_raw_transaction(UniValue obj)
     }
     std::string rawtxn = rawtxnValue.get_str();
 
+    UniValue params(UniValue::VARR);
+    params.push_back(rawtxn);
     JSONRPCRequest request;
-    request.params.push_back(rawtxn);
+    request.params = params;
     request.fHelp = false;
     UniValue signResultValue = signrawtransaction(request);
     UniValue signResultObject = signResultValue.get_obj();
@@ -959,9 +963,11 @@ void AsyncRPCOperation_sendmany::sign_send_raw_transaction(UniValue obj)
 
     // Send the signed transaction
     if (!testmode) {
-        request.params.clear();
-        request.params.setArray();
-        request.params.push_back(signedtxn);
+        params.clear();
+        params.setArray();
+        params.push_back(signedtxn);
+        request.params = params;
+        request.fHelp = false;
         UniValue sendResultValue = sendrawtransaction(request);
         if (sendResultValue.isNull()) {
             throw JSONRPCError(RPC_WALLET_ERROR, "Send raw transaction did not return an error or a txid.");

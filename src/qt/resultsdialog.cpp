@@ -84,8 +84,10 @@ void ResultsDialog::updateProgressBar()
         /* Check and display the operation status */
         UniValue obj(UniValue::VARR);
         obj.push_back(strOperationId.toStdString());
+        UniValue params(UniValue::VARR);
         JSONRPCRequest request;
-        request.params.push_back(obj);
+        params.push_back(obj);
+        request.params = params;
         request.fHelp = false;
         UniValue ret = z_getoperationstatus(request);
 

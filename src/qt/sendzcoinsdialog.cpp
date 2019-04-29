@@ -180,8 +180,9 @@ void SendZCoinsDialog::on_sendButton_clicked()
     }
 
     JSONRPCRequest request;
+    UniValue params(UniValue::VARR);
     UniValue amounts(UniValue::VARR);
-    request.params.push_back(inputAddress.toStdString());
+    params.push_back(inputAddress.toStdString());
 
     // Format confirmation message
     QStringList formatted;
@@ -231,10 +232,10 @@ void SendZCoinsDialog::on_sendButton_clicked()
         }
         amounts.push_back(json);
     }
-    request.params.push_back(amounts);
+    params.push_back(amounts);
 
-    request.params.push_back(1);
-    request.params.push_back(ValueFromAmount(txFee));
+    params.push_back(1);
+    params.push_back(ValueFromAmount(txFee));
 
     QString questionString = tr("Are you sure you want to send?");
     questionString.append("<br /><br />%1");
@@ -277,6 +278,7 @@ void SendZCoinsDialog::on_sendButton_clicked()
     QString strStatus;
 
     try {
+        request.params = params;
         request.fHelp = false;
         ret = z_sendmany(request);
         QString opid = QString::fromStdString(ret.get_str());

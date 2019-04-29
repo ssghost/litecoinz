@@ -572,11 +572,15 @@ extern UniValue sendtoaddress(const JSONRPCRequest& request);
 
 double benchmark_sendtoaddress(CAmount amount)
 {
+    UniValue params(UniValue::VARR);
     JSONRPCRequest request;
+    request.params = params;
+    request.fHelp = false;
     auto addr = getnewaddress(request);
 
-    request.params.push_back(addr);
-    request.params.push_back(ValueFromAmount(amount));
+    params.push_back(addr);
+    params.push_back(ValueFromAmount(amount));
+    request.params = params;
     request.fHelp = false;
 
     struct timeval tv_start;
@@ -602,7 +606,9 @@ extern UniValue listunspent(const JSONRPCRequest& request);
 
 double benchmark_listunspent()
 {
+    UniValue params(UniValue::VARR);
     JSONRPCRequest request;
+    request.params = params;
     request.fHelp = false;
     struct timeval tv_start;
     timer_start(tv_start);
