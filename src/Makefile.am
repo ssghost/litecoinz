@@ -314,18 +314,6 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/sha512.cpp \
   crypto/sha512.h
 
-if ENABLE_MINING
-EQUIHASH_TROMP_SOURCES = \
-  pow/tromp/equi_miner.h \
-  pow/tromp/equi.h \
-  pow/tromp/osx_barrier.h
-
-crypto_libbitcoin_crypto_a_CPPFLAGS += \
-  -DEQUIHASH_TROMP_ATOMIC
-crypto_libbitcoin_crypto_a_SOURCES += \
-  ${EQUIHASH_TROMP_SOURCES}
-endif
-
 # common: shared between litecoinzd, litecoinz-qt and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)

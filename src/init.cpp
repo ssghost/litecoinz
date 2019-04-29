@@ -202,9 +202,6 @@ void Shutdown()
     if (pwalletMain)
         pwalletMain->Flush(false);
 #endif
-#ifdef ENABLE_MINING
-    GenerateBitcoins(false, 0, Params());
-#endif
     StopNode(*g_connman);
     g_connman.reset();
 
@@ -492,21 +489,6 @@ std::string HelpMessage(HelpMessageMode mode)
     if (GetBoolArg("-help-debug", false))
         strUsage += HelpMessageOpt("-blockversion=<n>", strprintf("Override block version to test forking scenarios (default: %d)", (int)CBlock::CURRENT_VERSION));
 
-#ifdef ENABLE_MINING
-    strUsage += HelpMessageGroup(_("Mining options:"));
-    strUsage += HelpMessageOpt("-gen", strprintf(_("Generate coins (default: %u)"), DEFAULT_GENERATE));
-    strUsage += HelpMessageOpt("-genproclimit=<n>", strprintf(_("Set the number of threads for coin generation if enabled (-1 = half cores, default: %d)"), 1));
-    strUsage += HelpMessageOpt("-equihashsolver=<name>", _("Specify the Equihash solver to be used if enabled (default: \"default\")"));
-    strUsage += HelpMessageOpt("-mineraddress=<addr>", _("Send mined coins to a specific single address"));
-    strUsage += HelpMessageOpt("-minetolocalwallet", strprintf(
-            _("Require that mined blocks use a coinbase address in the local wallet (default: %u)"),
- #ifdef ENABLE_WALLET
-            1
- #else
-            0
- #endif
-            ));
-#endif
     strUsage += HelpMessageOpt("-help-debug", _("Show all debugging options (usage: --help -help-debug)"));
     strUsage += HelpMessageOpt("-logips", strprintf(_("Include IP addresses in debug output (default: %u)"), DEFAULT_LOGIPS));
     strUsage += HelpMessageOpt("-logtimestamps", strprintf(_("Prepend debug output with timestamp (default: %u)"), DEFAULT_LOGTIMESTAMPS));
@@ -1203,17 +1185,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         fEnableReplacement = (std::find(vstrReplacementModes.begin(), vstrReplacementModes.end(), "fee") != vstrReplacementModes.end());
     }
 
-#ifdef ENABLE_MINING
-    if (mapArgs.count("-mineraddress")) {
-        CTxDestination addr = DecodeDestination(mapArgs["-mineraddress"]);
-        if (!IsValidDestination(addr)) {
-            return InitError(strprintf(
-                _("Invalid address for -mineraddress=<addr>: '%s' (must be a transparent address)"),
-                mapArgs["-mineraddress"]));
-        }
-    }
-#endif
-
     // Default value of 0 for mempooltxinputlimit means no limit is applied
     if (mapArgs.count("-mempooltxinputlimit")) {
         int64_t limit = GetArg("-mempooltxinputlimit", 0);
@@ -1896,48 +1867,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     LogPrintf("No wallet support compiled in!\n");
 #endif // !ENABLE_WALLET
 
-#ifdef ENABLE_MINING
- #ifndef ENABLE_WALLET
-    if (GetBoolArg("-minetolocalwallet", false)) {
-        return InitError(_("LitecoinZ was not built with wallet support. Set -minetolocalwallet=0 to use -mineraddress, or rebuild LitecoinZ with wallet support."));
-    }
-    if (GetArg("-mineraddress", "").empty() && GetBoolArg("-gen", false)) {
-        return InitError(_("LitecoinZ was not built with wallet support. Set -mineraddress, or rebuild LitecoinZ with wallet support."));
-    }
- #endif // !ENABLE_WALLET
-
-    if (mapArgs.count("-mineraddress")) {
- #ifdef ENABLE_WALLET
-        bool minerAddressInLocalWallet = false;
-        if (pwalletMain) {
-            // Address has already been validated
-            CTxDestination addr = DecodeDestination(mapArgs["-mineraddress"]);
-            CKeyID keyID = boost::get<CKeyID>(addr);
-            minerAddressInLocalWallet = pwalletMain->HaveKey(keyID);
-        }
-        if (GetBoolArg("-minetolocalwallet", true) && !minerAddressInLocalWallet) {
-            return InitError(_("-mineraddress is not in the local wallet. Either use a local address, or set -minetolocalwallet=0"));
-        }
- #endif // ENABLE_WALLET
-
-        // This is leveraging the fact that boost::signals2 executes connected
-        // handlers in-order. Further up, the wallet is connected to this signal
-        // if the wallet is enabled. The wallet's ScriptForMining handler does
-        // nothing if -mineraddress is set, and GetScriptForMinerAddress() does
-        // nothing if -mineraddress is not set (or set to an invalid address).
-        //
-        // The upshot is that when ScriptForMining(script) is called:
-        // - If -mineraddress is set (whether or not the wallet is enabled), the
-        //   CScript argument is set to -mineraddress.
-        // - If the wallet is enabled and -mineraddress is not set, the CScript
-        //   argument is set to a wallet address.
-        // - If the wallet is disabled and -mineraddress is not set, the CScript
-        //   argument is not modified; in practice this means it is empty, and
-        //   GenerateBitcoins() returns an error.
-        GetMainSignals().ScriptForMining.connect(GetScriptForMinerAddress);
-    }
-#endif // ENABLE_MINING
-
     // ********************************************************* Step 9: data directory maintenance
 
     // if pruning, unset the service bit and perform the initial blockstore prune
@@ -1998,11 +1927,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     std::string strNodeError;
     if(!StartNode(connman, threadGroup, scheduler, strNodeError))
         return InitError(strNodeError);
-
-#ifdef ENABLE_MINING
-    // Generate coins in the background
-    GenerateBitcoins(GetBoolArg("-gen", DEFAULT_GENERATE), GetArg("-genproclimit", DEFAULT_GENERATE_THREADS), chainparams);
-#endif
 
     // ********************************************************* Step 11: finished
 

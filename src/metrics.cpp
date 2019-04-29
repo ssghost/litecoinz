@@ -75,10 +75,6 @@ static CCriticalSection cs_metrics;
 static boost::synchronized_value<int64_t> nNodeStartTime;
 static boost::synchronized_value<int64_t> nNextRefresh;
 AtomicCounter transactionsValidated;
-AtomicCounter ehSolverRuns;
-AtomicCounter solutionTargetChecks;
-static AtomicCounter minedBlocks;
-AtomicTimer miningTimer;
 
 static boost::synchronized_value<std::list<uint256>> trackedBlocks;
 
@@ -88,13 +84,6 @@ static bool loaded = false;
 
 extern int64_t GetNetworkHashPS(int lookup, int height);
 
-void TrackMinedBlock(uint256 hash)
-{
-    LOCK(cs_metrics);
-    minedBlocks.increment();
-    trackedBlocks->push_back(hash);
-}
-
 void MarkStartTime()
 {
     *nNodeStartTime = GetTime();
@@ -103,11 +92,6 @@ void MarkStartTime()
 int64_t GetUptime()
 {
     return GetTime() - *nNodeStartTime;
-}
-
-double GetLocalSolPS()
-{
-    return miningTimer.rate(solutionTargetChecks);
 }
 
 int EstimateNetHeightInner(int height, int64_t tipmediantime,
@@ -200,7 +184,7 @@ void ConnectMetricsScreen()
     uiInterface.InitMessage.connect(metrics_InitMessage);
 }
 
-int printStats(bool mining)
+int printStats()
 {
     // Number of lines that are always displayed
     int lines = 4;
@@ -216,7 +200,6 @@ int printStats(bool mining)
         connections = vNodes.size();
         netsolps = GetNetworkHashPS(120, -1);
     }
-    auto localsolps = GetLocalSolPS();
 
     if (IsInitialBlockDownload()) {
         int netheight = EstimateNetHeight(height, tipmediantime, Params());
@@ -234,55 +217,12 @@ int printStats(bool mining)
     }
     std::cout << "            " << _("Connections") << " | " << ANSI_COLOR_LCYAN << connections << ANSI_COLOR_RESET << std::endl;
     std::cout << "  " << _("Network solution rate") << " | " << ANSI_COLOR_LCYAN << netsolps << ANSI_COLOR_RESET << " Sol/s" << std::endl;
-    if (mining && miningTimer.running()) {
-        std::cout << "    " << _("Local solution rate") << " | " << strprintf(ANSI_COLOR_LCYAN "%.4f " ANSI_COLOR_RESET " Sol/s", localsolps) << std::endl;
-        lines++;
-    }
     std::cout << std::endl;
 
     return lines;
 }
 
-int printMiningStatus(bool mining)
-{
-#ifdef ENABLE_MINING
-    // Number of lines that are always displayed
-    int lines = 1;
-
-    if (mining) {
-        auto nThreads = miningTimer.threadCount();
-        if (nThreads > 0) {
-            std::cout << strprintf(_("You are mining with the " ANSI_COLOR_LCYAN "%s " ANSI_COLOR_RESET " solver on " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " threads."),
-                                   GetArg("-equihashsolver", "default"), nThreads) << std::endl;
-        } else {
-            bool fvNodesEmpty;
-            {
-                LOCK(cs_vNodes);
-                fvNodesEmpty = vNodes.empty();
-            }
-            if (fvNodesEmpty) {
-                std::cout << _(ANSI_COLOR_LYELLOW "Mining is paused while waiting for connections." ANSI_COLOR_RESET) << std::endl;
-            } else if (IsInitialBlockDownload()) {
-                std::cout << _(ANSI_COLOR_LYELLOW "Mining is paused while downloading blocks." ANSI_COLOR_RESET) << std::endl;
-            } else {
-                std::cout << _(ANSI_COLOR_LYELLOW "Mining is paused (a JoinSplit may be in progress)." ANSI_COLOR_RESET) << std::endl;
-            }
-        }
-        lines++;
-    } else {
-        std::cout << ANSI_COLOR_LRED << _("You are currently not mining.") << ANSI_COLOR_RESET << std::endl;
-        std::cout << ANSI_COLOR_LYELLOW << _("To enable mining, add 'gen=1' to your litecoinz.conf and restart.") << ANSI_COLOR_RESET << std::endl;
-        lines += 2;
-    }
-    std::cout << std::endl;
-
-    return lines;
-#else // ENABLE_MINING
-    return 0;
-#endif // !ENABLE_MINING
-}
-
-int printMetrics(size_t cols, bool mining)
+int printMetrics(size_t cols)
 {
     // Number of lines that are always displayed
     int lines = 3;
@@ -316,56 +256,6 @@ int printMetrics(size_t cols, bool mining)
       std::cout << "- " << _("You have validated a transaction!") << std::endl;
     } else {
       std::cout << "- " << _(ANSI_COLOR_LYELLOW "You have validated no transactions." ANSI_COLOR_RESET) << std::endl;
-    }
-
-    if (mining && loaded) {
-        std::cout << "- " << strprintf(_("You have completed " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " Equihash solver runs."), ehSolverRuns.get()) << std::endl;
-        lines++;
-
-        int mined = 0;
-        int orphaned = 0;
-        CAmount immature {0};
-        CAmount mature {0};
-        {
-            LOCK2(cs_main, cs_metrics);
-            boost::strict_lock_ptr<std::list<uint256>> u = trackedBlocks.synchronize();
-            auto consensusParams = Params().GetConsensus();
-            auto tipHeight = chainActive.Height();
-
-            // Update orphans and calculate subsidies
-            std::list<uint256>::iterator it = u->begin();
-            while (it != u->end()) {
-                auto hash = *it;
-                if (mapBlockIndex.count(hash) > 0 &&
-                        chainActive.Contains(mapBlockIndex[hash])) {
-                    int height = mapBlockIndex[hash]->nHeight;
-                    CAmount subsidy = GetBlockSubsidy(height, consensusParams);
-                    if (std::max(0, COINBASE_MATURITY - (tipHeight - height)) > 0) {
-                        immature += subsidy;
-                    } else {
-                        mature += subsidy;
-                    }
-                    it++;
-                } else {
-                    it = u->erase(it);
-                }
-            }
-
-            mined = minedBlocks.get();
-            orphaned = mined - u->size();
-        }
-
-        if (mined > 0) {
-            std::string units = Params().CurrencyUnits();
-            std::cout << "- " << strprintf(_(ANSI_COLOR_LGREEN "You have mined %d blocks!" ANSI_COLOR_RESET), mined) << std::endl;
-            std::cout << "  "
-                      << strprintf(_("Orphaned: " ANSI_COLOR_LRED "%d" ANSI_COLOR_RESET " blocks, Immature: " ANSI_COLOR_LYELLOW "%u" ANSI_COLOR_RESET " %s, Mature: " ANSI_COLOR_LGREEN "%u" ANSI_COLOR_RESET " %s"),
-                                     orphaned,
-                                     FormatMoney(immature), units,
-                                     FormatMoney(mature), units)
-                      << std::endl;
-            lines += 2;
-        }
     }
     std::cout << std::endl;
 
@@ -495,18 +385,11 @@ void ThreadShowMetricsScreen()
             std::cout << "\e[J";
         }
 
-        // Miner status
-#ifdef ENABLE_MINING
-        bool mining = GetBoolArg("-gen", false);
-#else
-        bool mining = false;
-#endif
-
+        // Status
         if (loaded) {
-            lines += printStats(mining);
-            lines += printMiningStatus(mining);
+            lines += printStats();
         }
-        lines += printMetrics(cols, mining);
+        lines += printMetrics(cols);
         lines += printMessageBox(cols);
         lines += printInitMessage();
 

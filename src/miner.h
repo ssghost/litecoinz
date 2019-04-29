@@ -17,9 +17,6 @@ class CChainParams;
 class CScript;
 namespace Consensus { struct Params; };
 
-static const bool DEFAULT_GENERATE = false;
-static const int DEFAULT_GENERATE_THREADS = 1;
-
 static const bool DEFAULT_PRINTPRIORITY = false;
 
 struct CBlockTemplate
@@ -32,14 +29,8 @@ struct CBlockTemplate
 /** Generate a new block, without valid proof-of-work */
 CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const CScript& scriptPubKeyIn);
 
-#ifdef ENABLE_MINING
-/** Get script for -mineraddress */
-void GetScriptForMinerAddress(boost::shared_ptr<CReserveScript> &script);
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
-/** Run the miner threads */
-void GenerateBitcoins(bool fGenerate, int nThreads, const CChainParams& chainparams);
-#endif
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
 

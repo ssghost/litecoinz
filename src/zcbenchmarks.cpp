@@ -44,9 +44,6 @@ void pre_wallet_load()
 
     if (pwalletMain)
         pwalletMain->Flush(false);
-#ifdef ENABLE_MINING
-    GenerateBitcoins(false, 0, Params());
-#endif
     UnregisterNodeSignals(GetNodeSignals());
     if (pwalletMain)
         pwalletMain->Flush(true);
@@ -61,11 +58,6 @@ void pre_wallet_load()
 
 void post_wallet_load(){
     RegisterValidationInterface(pwalletMain);
-#ifdef ENABLE_MINING
-    // Generate coins in the background
-    if (pwalletMain || !GetArg("-mineraddress", "").empty())
-        GenerateBitcoins(GetBoolArg("-gen", false), GetArg("-genproclimit", 1), Params());
-#endif
 }
 
 

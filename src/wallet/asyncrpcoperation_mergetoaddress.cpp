@@ -137,10 +137,6 @@ void AsyncRPCOperation_mergetoaddress::main()
 
     bool success = false;
 
-#ifdef ENABLE_MINING
-    GenerateBitcoins(false, 0, Params());
-#endif
-
     try {
         success = main_impl();
     } catch (const UniValue& objError) {
@@ -161,10 +157,6 @@ void AsyncRPCOperation_mergetoaddress::main()
         set_error_code(-2);
         set_error_message("unknown error");
     }
-
-#ifdef ENABLE_MINING
-    GenerateBitcoins(GetBoolArg("-gen", false), GetArg("-genproclimit", 1), Params());
-#endif
 
     stop_execution_clock();
 

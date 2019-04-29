@@ -57,14 +57,8 @@ public:
 };
 
 extern AtomicCounter transactionsValidated;
-extern AtomicCounter ehSolverRuns;
-extern AtomicCounter solutionTargetChecks;
-extern AtomicTimer miningTimer;
-
-void TrackMinedBlock(uint256 hash);
 
 void MarkStartTime();
-double GetLocalSolPS();
 int EstimateNetHeightInner(int height, int64_t tipmediantime,
                            int heightLastCheckpoint, int64_t timeLastCheckpoint,
                            int64_t genesisTime, int64_t targetSpacing);
