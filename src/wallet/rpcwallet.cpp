@@ -20,7 +20,6 @@
 #include <wallet/wallet.h>
 #include <wallet/walletdb.h>
 #include <primitives/transaction.h>
-#include <zcbenchmarks.h>
 #include <script/interpreter.h>
 #include <zcash/zip32.h>
 
@@ -2833,138 +2832,6 @@ UniValue zc_sample_joinsplit(const JSONRPCRequest& request)
     return HexStr(ss.begin(), ss.end());
 }
 
-UniValue zc_benchmark(const JSONRPCRequest& request)
-{
-    if (!EnsureWalletIsAvailable(request.fHelp)) {
-        return NullUniValue;
-    }
-
-    if (request.fHelp || request.params.size() < 2) {
-        throw runtime_error(
-            "zcbenchmark benchmarktype samplecount\n"
-            "\n"
-            "Runs a benchmark of the selected type samplecount times,\n"
-            "returning the running times of each sample.\n"
-            "\n"
-            "Output: [\n"
-            "  {\n"
-            "    \"runningtime\": runningtime\n"
-            "  },\n"
-            "  {\n"
-            "    \"runningtime\": runningtime\n"
-            "  }\n"
-            "  ...\n"
-            "]\n"
-            );
-    }
-
-    LOCK(cs_main);
-
-    std::string benchmarktype = request.params[0].get_str();
-    int samplecount = request.params[1].get_int();
-
-    if (samplecount <= 0) {
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid samplecount");
-    }
-
-    std::vector<double> sample_times;
-
-    JSDescription samplejoinsplit;
-
-    if (benchmarktype == "verifyjoinsplit") {
-        CDataStream ss(ParseHexV(request.params[2].get_str(), "js"), SER_NETWORK, SAPLING_TX_VERSION | (1 << 31));
-        ss >> samplejoinsplit;
-    }
-
-    for (int i = 0; i < samplecount; i++) {
-        if (benchmarktype == "sleep") {
-            sample_times.push_back(benchmark_sleep());
-        } else if (benchmarktype == "parameterloading") {
-            sample_times.push_back(benchmark_parameter_loading());
-        } else if (benchmarktype == "createjoinsplit") {
-            if (request.params.size() < 3) {
-                sample_times.push_back(benchmark_create_joinsplit());
-            } else {
-                int nThreads = request.params[2].get_int();
-                std::vector<double> vals = benchmark_create_joinsplit_threaded(nThreads);
-                // Divide by nThreads^2 to get average seconds per JoinSplit because
-                // we are running one JoinSplit per thread.
-                sample_times.push_back(std::accumulate(vals.begin(), vals.end(), 0.0) / (nThreads*nThreads));
-            }
-        } else if (benchmarktype == "verifyjoinsplit") {
-            sample_times.push_back(benchmark_verify_joinsplit(samplejoinsplit));
-#ifdef ENABLE_MINING
-        } else if (benchmarktype == "solveequihash") {
-            if (request.params.size() < 3) {
-                sample_times.push_back(benchmark_solve_equihash());
-            } else {
-                int nThreads = request.params[2].get_int();
-                std::vector<double> vals = benchmark_solve_equihash_threaded(nThreads);
-                sample_times.insert(sample_times.end(), vals.begin(), vals.end());
-            }
-#endif
-        } else if (benchmarktype == "verifyequihash") {
-            sample_times.push_back(benchmark_verify_equihash());
-        } else if (benchmarktype == "validatelargetx") {
-            // Number of inputs in the spending transaction that we will simulate
-            int nInputs = 11130;
-            if (request.params.size() >= 3) {
-                nInputs = request.params[2].get_int();
-            }
-            sample_times.push_back(benchmark_large_tx(nInputs));
-        } else if (benchmarktype == "trydecryptnotes") {
-            int nKeys = request.params[2].get_int();
-            sample_times.push_back(benchmark_try_decrypt_sprout_notes(nKeys));
-        } else if (benchmarktype == "trydecryptsaplingnotes") {
-            int nKeys = request.params[2].get_int();
-            sample_times.push_back(benchmark_try_decrypt_sapling_notes(nKeys));
-        } else if (benchmarktype == "incnotewitnesses") {
-            int nTxs = request.params[2].get_int();
-            sample_times.push_back(benchmark_increment_sprout_note_witnesses(nTxs));
-        } else if (benchmarktype == "incsaplingnotewitnesses") {
-            int nTxs = request.params[2].get_int();
-            sample_times.push_back(benchmark_increment_sapling_note_witnesses(nTxs));
-        } else if (benchmarktype == "connectblockslow") {
-            if (Params().NetworkIDString() != "regtest") {
-                throw JSONRPCError(RPC_TYPE_ERROR, "Benchmark must be run in regtest mode");
-            }
-            sample_times.push_back(benchmark_connectblock_slow());
-        } else if (benchmarktype == "sendtoaddress") {
-            if (Params().NetworkIDString() != "regtest") {
-                throw JSONRPCError(RPC_TYPE_ERROR, "Benchmark must be run in regtest mode");
-            }
-            auto amount = AmountFromValue(request.params[2]);
-            sample_times.push_back(benchmark_sendtoaddress(amount));
-        } else if (benchmarktype == "loadwallet") {
-            if (Params().NetworkIDString() != "regtest") {
-                throw JSONRPCError(RPC_TYPE_ERROR, "Benchmark must be run in regtest mode");
-            }
-            sample_times.push_back(benchmark_loadwallet());
-        } else if (benchmarktype == "listunspent") {
-            sample_times.push_back(benchmark_listunspent());
-        } else if (benchmarktype == "createsaplingspend") {
-            sample_times.push_back(benchmark_create_sapling_spend());
-        } else if (benchmarktype == "createsaplingoutput") {
-            sample_times.push_back(benchmark_create_sapling_output());
-        } else if (benchmarktype == "verifysaplingspend") {
-            sample_times.push_back(benchmark_verify_sapling_spend());
-        } else if (benchmarktype == "verifysaplingoutput") {
-            sample_times.push_back(benchmark_verify_sapling_output());
-        } else {
-            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid benchmarktype");
-        }
-    }
-
-    UniValue results(UniValue::VARR);
-    for (auto time : sample_times) {
-        UniValue result(UniValue::VOBJ);
-        result.push_back(Pair("runningtime", time));
-        results.push_back(result);
-    }
-
-    return results;
-}
-
 UniValue zc_raw_receive(const JSONRPCRequest& request)
 {
     if (!EnsureWalletIsAvailable(request.fHelp)) {
@@ -4797,7 +4664,6 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletlock",               &walletlock,               true  },
     { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   true  },
     { "wallet",             "walletpassphrase",         &walletpassphrase,         true  },
-    { "wallet",             "zcbenchmark",              &zc_benchmark,             true  },
     { "wallet",             "zcrawkeygen",              &zc_raw_keygen,            true  },
     { "wallet",             "zcrawjoinsplit",           &zc_raw_joinsplit,         true  },
     { "wallet",             "zcrawreceive",             &zc_raw_receive,           true  },

@@ -103,8 +103,6 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "zcrawjoinsplit", 2 },
     { "zcrawjoinsplit", 3 },
     { "zcrawjoinsplit", 4 },
-    { "zcbenchmark", 1 },
-    { "zcbenchmark", 2 },
     { "getblocksubsidy", 0},
     { "z_listaddresses", 0},
     { "z_listreceivedbyaddress", 1},
