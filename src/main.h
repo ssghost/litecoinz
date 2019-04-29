@@ -658,6 +658,6 @@ uint64_t CalculateCurrentUsage();
 /** Return a CMutableTransaction with contextual default values based on set of consensus rules at height */
 CMutableTransaction CreateNewContextualCMutableTransaction(const Consensus::Params& consensusParams, int nHeight);
 
-void AlertNotify(const std::string& strMessage, bool fThread);
+void AlertNotify(const std::string& strMessage);
 
 #endif // BITCOIN_MAIN_H

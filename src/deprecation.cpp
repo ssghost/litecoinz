@@ -32,7 +32,7 @@ void EnforceNodeDeprecation(int nHeight, bool forceLogging, bool fThread) {
                                  DEPRECATION_HEIGHT) + " " +
                        _("You should upgrade to the latest version of LitecoinZ.");
             LogPrintf("*** %s\n", msg);
-            AlertNotify(msg, fThread);
+            AlertNotify(msg);
             uiInterface.ThreadSafeMessageBox(msg, "", CClientUIInterface::MSG_ERROR);
         }
         StartShutdown();
@@ -42,7 +42,7 @@ void EnforceNodeDeprecation(int nHeight, bool forceLogging, bool fThread) {
                             DEPRECATION_HEIGHT) + " " +
                   _("You should upgrade to the latest version of LitecoinZ.");
         LogPrintf("*** %s\n", msg);
-        AlertNotify(msg, fThread);
+        AlertNotify(msg);
         uiInterface.ThreadSafeMessageBox(msg, "", CClientUIInterface::MSG_WARNING);
     }
 }
