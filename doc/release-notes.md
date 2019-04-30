@@ -24,6 +24,23 @@ sanity check. Since 2.0.2, these are no longer stored. When loading a
 2.0.2 wallet into an older version, it will automatically rescan to avoid
 failed checks.
 
+Asm script outputs replacements for OP_NOP2 and OP_NOP3
+-------------------------------------------------------
+
+OP_NOP2 has been renamed to OP_CHECKLOCKTIMEVERIFY by [BIP 
+65](https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki)
+
+OP_NOP3 has been renamed to OP_CHECKSEQUENCEVERIFY by [BIP 
+112](https://github.com/bitcoin/bips/blob/master/bip-0112.mediawiki)
+
+The following outputs are affected by this change:
+- RPC `getrawtransaction` (in verbose mode)
+- RPC `decoderawtransaction`
+- RPC `decodescript`
+- REST `/rest/tx/` (JSON format)
+- REST `/rest/block/` (JSON format when including extended tx details)
+- `litecoinz-tx -json`
+
 ### Logging
 
 - The log timestamp format is now ISO 8601 (e.g. "2018-02-28T12:34:56Z").
