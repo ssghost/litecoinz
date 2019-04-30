@@ -93,7 +93,6 @@ LIBZCASH_H = \
 BITCOIN_CORE_H = \
   addrdb.h \
   addrman.h \
-  addressindex.h \
   amount.h \
   ansicolor.h \
   arith_uint256.h \

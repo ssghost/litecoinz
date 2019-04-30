@@ -198,8 +198,6 @@ public:
             hashBestSaplingAnchor_ = hashSaplingAnchor;
         return true;
     }
-
-    bool GetStats(CCoinsStats& stats) const { return false; }
 };
 
 class CCoinsViewCacheTest : public CCoinsViewCache

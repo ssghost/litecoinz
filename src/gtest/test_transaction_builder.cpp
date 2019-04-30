@@ -67,10 +67,6 @@ public:
                     CNullifiersMap saplingNullifiersMap) {
         return false;
     }
-
-    bool GetStats(CCoinsStats &stats) const {
-        return false;
-    }
 };
 
 TEST(TransactionBuilder, TransparentToSapling)

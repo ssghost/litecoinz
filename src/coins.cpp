@@ -57,7 +57,7 @@ bool CCoinsView::BatchWrite(CCoinsMap &mapCoins,
                             CAnchorsSaplingMap &mapSaplingAnchors,
                             CNullifiersMap &mapSproutNullifiers,
                             CNullifiersMap &mapSaplingNullifiers) { return false; }
-bool CCoinsView::GetStats(CCoinsStats &stats) const { return false; }
+CCoinsViewCursor *CCoinsView::Cursor() const { return 0; }
 
 
 CCoinsViewBacked::CCoinsViewBacked(CCoinsView *viewIn) : base(viewIn) { }
@@ -78,7 +78,7 @@ bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins,
                                   CAnchorsSaplingMap &mapSaplingAnchors,
                                   CNullifiersMap &mapSproutNullifiers,
                                   CNullifiersMap &mapSaplingNullifiers) { return base->BatchWrite(mapCoins, hashBlock, hashSproutAnchor, hashSaplingAnchor, mapSproutAnchors, mapSaplingAnchors, mapSproutNullifiers, mapSaplingNullifiers); }
-bool CCoinsViewBacked::GetStats(CCoinsStats &stats) const { return base->GetStats(stats); }
+CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
 
 SaltedTxidHasher::SaltedTxidHasher()
 {
@@ -697,4 +697,8 @@ CCoinsModifier::~CCoinsModifier()
         // If the coin still exists after the modification, add the new usage
         cache.cachedCoinsUsage += it->second.coins.DynamicMemoryUsage();
     }
+}
+
+CCoinsViewCursor::~CCoinsViewCursor()
+{
 }

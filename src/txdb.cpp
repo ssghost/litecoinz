@@ -8,7 +8,6 @@
 
 #include <chainparams.h>
 #include <hash.h>
-#include <main.h>
 #include <pow.h>
 #include <uint256.h>
 
@@ -35,10 +34,6 @@ static const char DB_BEST_SAPLING_ANCHOR = 'z';
 static const char DB_FLAG = 'F';
 static const char DB_REINDEX_FLAG = 'R';
 static const char DB_LAST_BLOCK = 'l';
-
-// insightexplorer
-static const char DB_ADDRESSINDEX = 'd';
-static const char DB_ADDRESSUNSPENTINDEX = 'u';
 
 
 CCoinsViewDB::CCoinsViewDB(std::string dbName, size_t nCacheSize, bool fMemory, bool fWipe) : db(GetDataDir() / dbName, nCacheSize, fMemory, fWipe) {
@@ -221,50 +216,52 @@ bool CBlockTreeDB::ReadLastBlockFile(int &nFile) {
     return Read(DB_LAST_BLOCK, nFile);
 }
 
-bool CCoinsViewDB::GetStats(CCoinsStats &stats) const {
+CCoinsViewCursor *CCoinsViewDB::Cursor() const
+{
+    CCoinsViewDBCursor *i = new CCoinsViewDBCursor(const_cast<CDBWrapper*>(&db)->NewIterator(), GetBestBlock());
     /* It seems that there are no "const iterators" for LevelDB.  Since we
        only need read operations on it, use a const-cast to get around
        that restriction.  */
-    boost::scoped_ptr<CDBIterator> pcursor(const_cast<CDBWrapper*>(&db)->NewIterator());
-    pcursor->Seek(DB_COINS);
+    i->pcursor->Seek(DB_COINS);
+    // Cache key of first record
+    i->pcursor->GetKey(i->keyTmp);
+    return i;
+}
 
-    CHashWriter ss(SER_GETHASH, PROTOCOL_VERSION);
-    stats.hashBlock = GetBestBlock();
-    ss << stats.hashBlock;
-    CAmount nTotalAmount = 0;
-    while (pcursor->Valid()) {
-        boost::this_thread::interruption_point();
-        std::pair<char, uint256> key;
-        CCoins coins;
-        if (pcursor->GetKey(key) && key.first == DB_COINS) {
-            if (pcursor->GetValue(coins)) {
-                stats.nTransactions++;
-                for (unsigned int i=0; i<coins.vout.size(); i++) {
-                    const CTxOut &out = coins.vout[i];
-                    if (!out.IsNull()) {
-                        stats.nTransactionOutputs++;
-                        ss << VARINT(i+1);
-                        ss << out;
-                        nTotalAmount += out.nValue;
-                    }
-                }
-                stats.nSerializedSize += 32 + pcursor->GetValueSize();
-                ss << VARINT(0);
-            } else {
-                return error("CCoinsViewDB::GetStats() : unable to read value");
-            }
-        } else {
-            break;
-        }
-        pcursor->Next();
+bool CCoinsViewDBCursor::GetKey(uint256 &key) const
+{
+    // Return cached key
+    if (keyTmp.first == DB_COINS) {
+        key = keyTmp.second;
+        return true;
     }
-    {
-        LOCK(cs_main);
-        stats.nHeight = mapBlockIndex.find(stats.hashBlock)->second->nHeight;
+    return false;
+}
+
+bool CCoinsViewDBCursor::GetValue(CCoins &coins) const
+{
+    return pcursor->GetValue(coins);
+}
+
+unsigned int CCoinsViewDBCursor::GetValueSize() const
+{
+    return pcursor->GetValueSize();
+}
+
+bool CCoinsViewDBCursor::Valid() const
+{
+    return keyTmp.first == DB_COINS;
+}
+
+void CCoinsViewDBCursor::Next()
+{
+    pcursor->Next();
+    if (pcursor->Valid()) {
+        bool ok = pcursor->GetKey(keyTmp);
+        assert(ok); // If GetKey fails here something must be wrong with underlying database, we cannot handle that here
+    } else {
+        keyTmp.first = 0; // Invalidate cached key after last record so that Valid() and GetKey() return false
     }
-    stats.hashSerialized = ss.GetHash();
-    stats.nTotalAmount = nTotalAmount;
-    return true;
 }
 
 bool CBlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockFileInfo*> >& fileInfo, int nLastFile, const std::vector<const CBlockIndex*>& blockinfo) {
@@ -298,85 +295,6 @@ bool CBlockTreeDB::WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos>
     return WriteBatch(batch);
 }
 
-// START insightexplorer
-// https://github.com/bitpay/bitcoin/commit/017f548ea6d89423ef568117447e61dd5707ec42#diff-81e4f16a1b5d5b7ca25351a63d07cb80R183
-bool CBlockTreeDB::UpdateAddressUnspentIndex(const std::vector<CAddressUnspentDbEntry> &vect)
-{
-    CDBBatch batch(*this);
-    for (std::vector<CAddressUnspentDbEntry>::const_iterator it=vect.begin(); it!=vect.end(); it++) {
-        if (it->second.IsNull()) {
-            batch.Erase(make_pair(DB_ADDRESSUNSPENTINDEX, it->first));
-        } else {
-            batch.Write(make_pair(DB_ADDRESSUNSPENTINDEX, it->first), it->second);
-        }
-    }
-    return WriteBatch(batch);
-}
-
-bool CBlockTreeDB::ReadAddressUnspentIndex(uint160 addressHash, int type, std::vector<CAddressUnspentDbEntry> &unspentOutputs)
-{
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
-
-    pcursor->Seek(make_pair(DB_ADDRESSUNSPENTINDEX, CAddressIndexIteratorKey(type, addressHash)));
-
-    while (pcursor->Valid()) {
-        boost::this_thread::interruption_point();
-        std::pair<char,CAddressUnspentKey> key;
-        if (!(pcursor->GetKey(key) && key.first == DB_ADDRESSUNSPENTINDEX && key.second.hashBytes == addressHash))
-            break;
-        CAddressUnspentValue nValue;
-        if (pcursor->GetValue(nValue))
-            return error("failed to get address unspent value");
-        unspentOutputs.push_back(make_pair(key.second, nValue));
-        pcursor->Next();
-    }
-    return true;
-}
-
-bool CBlockTreeDB::WriteAddressIndex(const std::vector<CAddressIndexDbEntry> &vect) {
-    CDBBatch batch(*this);
-    for (std::vector<CAddressIndexDbEntry>::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Write(make_pair(DB_ADDRESSINDEX, it->first), it->second);
-    return WriteBatch(batch);
-}
-
-bool CBlockTreeDB::EraseAddressIndex(const std::vector<CAddressIndexDbEntry> &vect) {
-    CDBBatch batch(*this);
-    for (std::vector<CAddressIndexDbEntry>::const_iterator it=vect.begin(); it!=vect.end(); it++)
-        batch.Erase(make_pair(DB_ADDRESSINDEX, it->first));
-    return WriteBatch(batch);
-}
-
-bool CBlockTreeDB::ReadAddressIndex(
-        uint160 addressHash, int type,
-        std::vector<CAddressIndexDbEntry> &addressIndex,
-        int start, int end)
-{
-    boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
-
-    if (start > 0 && end > 0) {
-        pcursor->Seek(make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorHeightKey(type, addressHash, start)));
-    } else {
-        pcursor->Seek(make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorKey(type, addressHash)));
-    }
-
-    while (pcursor->Valid()) {
-        boost::this_thread::interruption_point();
-        std::pair<char,CAddressIndexKey> key;
-        if (!(pcursor->GetKey(key) && key.first == DB_ADDRESSINDEX && key.second.hashBytes == addressHash))
-            break;
-        if (end > 0 && key.second.blockHeight > end)
-            break;
-        CAmount nValue;
-        if (!pcursor->GetValue(nValue))
-            return error("failed to get address index value");
-        addressIndex.push_back(make_pair(key.second, nValue));
-        pcursor->Next();
-    }
-    return true;
-}
-// END insightexplorer
-
 bool CBlockTreeDB::WriteFlag(const std::string &name, bool fValue) {
     return Write(std::make_pair(DB_FLAG, name), fValue ? '1' : '0');
 }
@@ -389,7 +307,7 @@ bool CBlockTreeDB::ReadFlag(const std::string &name, bool &fValue) {
     return true;
 }
 
-bool CBlockTreeDB::LoadBlockIndexGuts()
+bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256&)> insertBlockIndex)
 {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
@@ -403,8 +321,8 @@ bool CBlockTreeDB::LoadBlockIndexGuts()
             CDiskBlockIndex diskindex;
             if (pcursor->GetValue(diskindex)) {
                 // Construct block index object
-                CBlockIndex* pindexNew = InsertBlockIndex(diskindex.GetBlockHash());
-                pindexNew->pprev          = InsertBlockIndex(diskindex.hashPrev);
+                CBlockIndex* pindexNew = insertBlockIndex(diskindex.GetBlockHash());
+                pindexNew->pprev          = insertBlockIndex(diskindex.hashPrev);
                 pindexNew->nHeight        = diskindex.nHeight;
                 pindexNew->nFile          = diskindex.nFile;
                 pindexNew->nDataPos       = diskindex.nDataPos;
