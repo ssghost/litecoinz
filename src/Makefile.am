@@ -102,6 +102,7 @@ BITCOIN_CORE_H = \
   base58.h \
   bech32.h \
   bloom.h \
+  blockencodings.h \
   chain.h \
   chainparams.h \
   chainparamsbase.h \
@@ -226,6 +227,7 @@ libbitcoin_server_a_SOURCES = \
   asyncrpcoperation.cpp \
   asyncrpcqueue.cpp \
   bloom.cpp \
+  blockencodings.cpp \
   chain.cpp \
   checkpoints.cpp \
   deprecation.cpp \

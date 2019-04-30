@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         pblock->hashFinalSaplingRoot = uint256();
 
         CValidationState state;
-        BOOST_CHECK(ProcessNewBlock(state, chainparams, nullptr, pblock, true, nullptr));
+        BOOST_CHECK(ProcessNewBlock(state, chainparams, nullptr, pblock, true, nullptr, false));
         BOOST_CHECK_MESSAGE(state.IsValid(), state.GetRejectReason());
         pblock->hashPrevBlock = pblock->GetHash();
 

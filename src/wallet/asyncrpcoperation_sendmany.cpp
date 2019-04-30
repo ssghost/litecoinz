@@ -667,7 +667,7 @@ bool AsyncRPCOperation_sendmany::main_impl() {
     }
 
     // Keep track of treestate within this transaction
-    boost::unordered_map<uint256, SproutMerkleTree, CCoinsKeyHasher> intermediates;
+    boost::unordered_map<uint256, SproutMerkleTree, SaltedTxidHasher> intermediates;
     std::vector<uint256> previousCommitments;
 
     while (!vpubNewProcessed) {

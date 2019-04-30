@@ -80,9 +80,6 @@ std::string strSubVersion;
 
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
-map<uint256, CTransaction> mapRelay;
-deque<pair<int64_t, uint256> > vRelayExpiration;
-CCriticalSection cs_mapRelay;
 limitedmap<uint256, int64_t> mapAlreadyAskedFor(MAX_INV_SZ);
 
 static deque<string> vOneShots;
@@ -353,6 +350,16 @@ CNode* FindNode(const CService& addr)
         if ((CService)pnode->addr == addr)
             return (pnode);
     return nullptr;
+}
+
+//TODO: This is used in only one place in main, and should be removed
+CNode* FindNode(const NodeId nodeid)
+{
+    LOCK(cs_vNodes);
+    BOOST_FOREACH(CNode* pnode, vNodes)
+        if (pnode->GetId() == nodeid)
+            return (pnode);
+    return NULL;
 }
 
 CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool fCountFailure)
@@ -1986,21 +1993,9 @@ CConnman::~CConnman()
 {
 }
 
-void RelayTransaction(const CTransaction& tx, CFeeRate feerate)
+void RelayTransaction(const CTransaction& tx)
 {
     CInv inv(MSG_TX, tx.GetHash());
-    {
-        LOCK(cs_mapRelay);
-        // Expire old relay messages
-        while (!vRelayExpiration.empty() && vRelayExpiration.front().first < GetTime())
-        {
-            mapRelay.erase(vRelayExpiration.front().second);
-            vRelayExpiration.pop_front();
-        }
-
-        mapRelay.insert(std::make_pair(inv.hash, tx));
-        vRelayExpiration.push_back(std::make_pair(GetTime() + 15 * 60, inv.hash));
-    }
     LOCK(cs_vNodes);
     for (CNode* pnode : vNodes)
     {
@@ -2110,6 +2105,7 @@ CNode::CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNa
     fRelayTxes = false;
     fSentAddr = false;
     pfilter = new CBloomFilter();
+    timeLastMempoolReq = 0;
     nPingNonceSent = 0;
     nPingUsecStart = 0;
     nPingUsecTime = 0;

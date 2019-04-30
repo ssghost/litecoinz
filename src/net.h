@@ -22,6 +22,7 @@
 #include <uint256.h>
 #include <utilstrencodings.h>
 
+#include <atomic>
 #include <deque>
 #include <stdint.h>
 #include <memory>
@@ -79,12 +80,15 @@ static const unsigned int DEFAULT_MISBEHAVING_BANTIME = 60 * 60 * 24;  // Defaul
 unsigned int ReceiveFloodSize();
 unsigned int SendBufferSize();
 
+typedef int NodeId;
+
 void AddOneShot(const std::string& strDest);
 void AddressCurrentlyConnected(const CService& addr);
 CNode* FindNode(const CNetAddr& ip);
 CNode* FindNode(const CSubNet& subNet);
 CNode* FindNode(const std::string& addrName);
 CNode* FindNode(const CService& ip);
+CNode* FindNode(const NodeId id); //TODO: Remove this
 CNode* ConnectNode(CAddress addrConnect, const char *pszDest = nullptr);
 bool OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = nullptr, const char *strDest = nullptr, bool fOneShot = false);
 
@@ -117,8 +121,6 @@ bool BindListenPort(const CService &bindAddr, std::string& strError, bool fWhite
 bool StartNode(CConnman& connman, boost::thread_group& threadGroup, CScheduler& scheduler, std::string& strNodeError);
 bool StopNode(CConnman& connman);
 void SocketSendData(CNode *pnode);
-
-typedef int NodeId;
 
 struct CombinerAll
 {
@@ -187,9 +189,6 @@ extern int nMaxConnections;
 
 extern std::vector<CNode*> vNodes;
 extern CCriticalSection cs_vNodes;
-extern std::map<uint256, CTransaction> mapRelay;
-extern std::deque<std::pair<int64_t, uint256> > vRelayExpiration;
-extern CCriticalSection cs_mapRelay;
 extern limitedmap<uint256, int64_t> mapAlreadyAskedFor;
 
 extern std::vector<std::string> vAddedNodes;
@@ -381,6 +380,8 @@ public:
     // Used for BIP35 mempool sending, also protected by cs_inventory
     bool fSendMempool;
 
+    // Last time a "MEMPOOL" request was serviced.
+    std::atomic<int64_t> timeLastMempoolReq;
     // Ping time measurement:
     // The pong reply we're expecting, or 0 if no pong expected.
     uint64_t nPingNonceSent;
@@ -723,7 +724,7 @@ public:
 
 
 class CTransaction;
-void RelayTransaction(const CTransaction& tx, CFeeRate feerate);
+void RelayTransaction(const CTransaction& tx);
 
 void DumpBanlist();
 

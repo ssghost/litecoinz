@@ -8,6 +8,7 @@
 #define BITCOIN_TXMEMPOOL_H
 
 #include <list>
+#include <memory>
 #include <set>
 
 #include <amount.h>
@@ -18,6 +19,7 @@
 #undef foreach
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
+#include "boost/multi_index/hashed_index.hpp"
 
 class CAutoFile;
 class CBlockIndex;
@@ -74,7 +76,7 @@ class CTxMemPool;
 class CTxMemPoolEntry
 {
 private:
-    CTransaction tx;
+    std::shared_ptr<const CTransaction> tx;
     CAmount nFee; //! Cached to avoid expensive parent-transaction lookups
     size_t nTxSize; //! ... and avoid recomputing tx size
     size_t nModSize; //! ... and modified size for priority
@@ -113,7 +115,8 @@ public:
                     unsigned int nSigOps, LockPoints lp, uint32_t _nBranchId);
     CTxMemPoolEntry(const CTxMemPoolEntry& other);
 
-    const CTransaction& GetTx() const { return this->tx; }
+    const CTransaction& GetTx() const { return *this->tx; }
+    std::shared_ptr<const CTransaction> GetSharedTx() const { return this->tx; }
     /**
      * Fast calculation of lower bound of current priority as update
      * from entry priority. Only inputs that were originally in-chain will age.
@@ -151,6 +154,8 @@ public:
     uint64_t GetSizeWithAncestors() const { return nSizeWithAncestors; }
     CAmount GetModFeesWithAncestors() const { return nModFeesWithAncestors; }
     unsigned int GetSigOpCountWithAncestors() const { return nSigOpCountWithAncestors; }
+
+    mutable size_t vTxHashesIdx; //!< Index in mempool's vTxHashes
 };
 
 // Helpers for modifying CTxMemPool::mapTx, which is a boost multi_index.
@@ -310,6 +315,21 @@ struct ancestor_score {};
 
 class CBlockPolicyEstimator;
 
+/**
+ * Information about a mempool transaction.
+ */
+struct TxMempoolInfo
+{
+    /** The transaction itself */
+    std::shared_ptr<const CTransaction> tx;
+
+    /** Time the transaction entered the mempool. */
+    int64_t nTime;
+
+    /** Feerate of the transaction. */
+    CFeeRate feeRate;
+};
+
 /** An inpoint - a combination of a transaction and an index n into its vin */
 class CInPoint
 {
@@ -430,7 +450,7 @@ public:
         CTxMemPoolEntry,
         boost::multi_index::indexed_by<
             // sorted by txid
-            boost::multi_index::ordered_unique<mempoolentry_txid>,
+            boost::multi_index::hashed_unique<mempoolentry_txid, SaltedTxidHasher>,
             // sorted by fee rate
             boost::multi_index::ordered_non_unique<
                 boost::multi_index::tag<descendant_score>,
@@ -460,7 +480,10 @@ public:
 
     mutable CCriticalSection cs;
     indexed_transaction_set mapTx;
+
     typedef indexed_transaction_set::nth_index<0>::type::iterator txiter;
+    std::vector<std::pair<uint256, txiter> > vTxHashes; //!< All tx hashes/entries in mapTx, in random order
+
     struct CompareIteratorByHash {
         bool operator()(const txiter &a, const txiter &b) const {
             return a->GetTx().GetHash() < b->GetTx().GetHash();
@@ -483,6 +506,8 @@ private:
 
     void UpdateParent(txiter entry, txiter parent, bool add);
     void UpdateChild(txiter entry, txiter child, bool add);
+
+    std::vector<indexed_transaction_set::const_iterator> GetSortedDepthAndScore() const;
 
 public:
     std::map<COutPoint, CInPoint> mapNextTx;
@@ -610,8 +635,9 @@ public:
         return (mapTx.count(hash) != 0);
     }
 
-    bool lookup(uint256 hash, CTransaction& result) const;
-    bool lookupFeeRate(const uint256& hash, CFeeRate& feeRate) const;
+    std::shared_ptr<const CTransaction> get(const uint256& hash) const;
+    TxMempoolInfo info(const uint256& hash) const;
+    std::vector<TxMempoolInfo> infoAll() const;
 
     /** Estimate fee rate needed to get into the next nBlocks */
     CFeeRate estimateFee(int nBlocks) const;
