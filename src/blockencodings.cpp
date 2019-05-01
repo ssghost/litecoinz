@@ -161,7 +161,7 @@ ReadStatus PartiallyDownloadedBlock::FillBlock(CBlock& block, const std::vector<
 
     CValidationState state;
     auto verifier = libzcash::ProofVerifier::Disabled();
-    if (!CheckBlock(block, state, verifier)) {
+    if (!CheckBlock(block, state, verifier, Params().GetConsensus())) {
         // TODO: We really want to just check merkle tree manually here,
         // but that is expensive, and CheckBlock caches a block's
         // "checked-status" (in the CBlock?). CBlock should be able to
