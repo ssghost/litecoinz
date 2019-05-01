@@ -877,7 +877,7 @@ void InitLogging()
     fLogIPs = GetBoolArg("-logips", DEFAULT_LOGIPS);
 
     LogPrintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    LogPrintf("LitecoinZ version %s (%s)\n", FormatFullVersion(), CLIENT_DATE);
+    LogPrintf("LitecoinZ version %s\n", FormatFullVersion());
 }
 
 /** Initialize bitcoin.
@@ -962,9 +962,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             return InitError(_("Saving the Sprout R1CS requires -experimentalfeatures."));
         }
     }
-
-    LogPrintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    LogPrintf("LitecoinZ version %s (%s)\n", FormatFullVersion(), CLIENT_DATE);
 
     // Make sure enough file descriptors are available
     int nBind = std::max((int)mapArgs.count("-bind") + (int)mapArgs.count("-whitebind"), 1);

@@ -61,7 +61,6 @@ static const int CLIENT_VERSION =
 
 extern const std::string CLIENT_NAME;
 extern const std::string CLIENT_BUILD;
-extern const std::string CLIENT_DATE;
 
 
 std::string FormatVersion(int nVersion);
