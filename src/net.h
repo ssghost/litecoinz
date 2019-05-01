@@ -89,7 +89,6 @@ CNode* FindNode(const CSubNet& subNet);
 CNode* FindNode(const std::string& addrName);
 CNode* FindNode(const CService& ip);
 CNode* FindNode(const NodeId id); //TODO: Remove this
-CNode* ConnectNode(CAddress addrConnect, const char *pszDest = nullptr);
 bool OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = nullptr, const char *strDest = nullptr, bool fOneShot = false);
 
 struct ListenSocket {
@@ -725,8 +724,6 @@ public:
 
 class CTransaction;
 void RelayTransaction(const CTransaction& tx);
-
-void DumpBanlist();
 
 /** Return a timestamp in the future (in microseconds) for exponentially distributed events. */
 int64_t PoissonNextSend(int64_t nNow, int average_interval_seconds);
