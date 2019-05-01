@@ -108,6 +108,7 @@ BITCOIN_TESTS =\
 if ENABLE_WALLET
 BITCOIN_TESTS += \
   test/accounting_tests.cpp \
+  wallet/test/crypto_tests.cpp \
   wallet/test/wallet_tests.cpp
 endif
 
