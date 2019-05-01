@@ -319,8 +319,6 @@ UniValue getrawmempool(const JSONRPCRequest& request)
             + HelpExampleRpc("getrawmempool", "true")
         );
 
-    LOCK(cs_main);
-
     bool fVerbose = false;
     if (request.params.size() > 0)
         fVerbose = request.params[0].get_bool();
