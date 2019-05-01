@@ -11,10 +11,13 @@
 #include <functional>
 #include <stdint.h>
 
+/* Seed OpenSSL PRNG with additional entropy data */
+void RandAddSeed();
+
 /**
- * Functions to gather random data via the libsodium CSPRNG
+ * Functions to gather random data via the OpenSSL PRNG
  */
-void GetRandBytes(unsigned char* buf, size_t num);
+void GetRandBytes(unsigned char* buf, int num);
 uint64_t GetRand(uint64_t nMax);
 int GetRandInt(int nMax);
 uint256 GetRandHash();
@@ -22,7 +25,7 @@ uint256 GetRandHash();
 /**
  * Identity function for MappedShuffle, so that elements retain their original order.
  */
- int GenIdentity(int n);
+int GenIdentity(int n);
 
 /**
  * Rearranges the elements in the range [first,first+len) randomly, assuming
@@ -48,6 +51,12 @@ void MappedShuffle(RandomAccessIterator first,
         std::swap(mapFirst[i], mapFirst[r]);
     }
 }
+
+/**
+ * Function to gather random data from multiple sources, failing whenever any
+ * of those source fail to provide a result.
+ */
+void GetStrongRandBytes(unsigned char* buf, int num);
 
 /**
  * Seed insecure_rand using the random pool.

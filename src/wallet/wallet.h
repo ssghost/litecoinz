@@ -63,6 +63,9 @@ static const unsigned int DEFAULT_TX_CONFIRM_TARGET = 2;
 //! Largest (in bytes) free transaction we're willing to create
 static const unsigned int MAX_FREE_TRANSACTION_CREATE_SIZE = 1000;
 static const bool DEFAULT_WALLETBROADCAST = true;
+
+extern const char * DEFAULT_WALLET_DAT;
+
 //! Size of witness cache
 //  Should be large enough that we can expect not to reorg beyond our cache
 //  unless there is some exceptional network disruption.
@@ -1305,6 +1308,9 @@ public:
     /* Mark a transaction (and it in-wallet descendants) as abandoned so its inputs may be respent. */
     bool AbandonTransaction(const uint256& hashTx);
 
+    /* Returns the wallets help message */
+    static std::string GetWalletHelpString(bool showDebug);
+
     /* Returns true if HD is enabled for all address types, false if only for Sapling */
     bool IsHDFullyEnabled() const;
 
@@ -1344,6 +1350,9 @@ public:
                           bool ignoreSpent=true,
                           bool requireSpendingKey=true,
                           bool ignoreLocked=true);
+
+    /* initializes the wallet, returns a new CWallet instance or a null pointer in case of an error */
+    static CWallet* InitLoadWallet(bool fDisableWallet, const std::string& strWalletFile, std::string& warningString, std::string& errorString);
 };
 
 /** A key allocated from the key pool. */

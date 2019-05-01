@@ -42,6 +42,8 @@ unsigned int nTxConfirmTarget = DEFAULT_TX_CONFIRM_TARGET;
 bool bSpendZeroConfChange = DEFAULT_SPEND_ZEROCONF_CHANGE;
 bool fSendFreeTransactions = DEFAULT_SEND_FREE_TRANSACTIONS;
 
+const char * DEFAULT_WALLET_DAT = "wallet.dat";
+
 /**
  * Fees smaller than this (in satoshi) are considered zero fee (for transaction creation)
  * Override with -mintxfee
@@ -1186,12 +1188,12 @@ bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
     CKeyingMaterial vMasterKey;
 
     vMasterKey.resize(WALLET_CRYPTO_KEY_SIZE);
-    GetRandBytes(&vMasterKey[0], WALLET_CRYPTO_KEY_SIZE);
+    GetStrongRandBytes(&vMasterKey[0], WALLET_CRYPTO_KEY_SIZE);
 
     CMasterKey kMasterKey;
 
     kMasterKey.vchSalt.resize(WALLET_CRYPTO_SALT_SIZE);
-    GetRandBytes(&kMasterKey.vchSalt[0], WALLET_CRYPTO_SALT_SIZE);
+    GetStrongRandBytes(&kMasterKey.vchSalt[0], WALLET_CRYPTO_SALT_SIZE);
 
     CCrypter crypter;
     int64_t nStartTime = GetTimeMillis();
@@ -2488,12 +2490,6 @@ void CWalletTx::GetAccountAmounts(const string& strAccount, CAmount& nReceived,
     }
 }
 
-
-bool CWalletTx::WriteToDisk(CWalletDB *pwalletdb)
-{
-    return pwalletdb->WriteTx(GetHash(), *this);
-}
-
 void CWallet::WitnessNoteCommitment(std::vector<uint256> commitments,
                                     std::vector<boost::optional<SproutWitness>>& witnesses,
                                     uint256 &final_anchor)
@@ -2549,6 +2545,11 @@ void CWallet::WitnessNoteCommitment(std::vector<uint256> commitments,
             assert(final_anchor == wit->root());
         }
     }
+}
+
+bool CWalletTx::WriteToDisk(CWalletDB *pwalletdb)
+{
+    return pwalletdb->WriteTx(GetHash(), *this);
 }
 
 /**
@@ -4511,6 +4512,206 @@ bool CWallet::GetDestData(const CTxDestination &dest, const std::string &key, st
         }
     }
     return false;
+}
+
+CWallet* CWallet::InitLoadWallet(bool fDisableWallet, const std::string& strWalletFile, std::string& warningString, std::string& errorString)
+{
+    // needed to restore wallet transaction meta data after -zapwallettxes
+    std::vector<CWalletTx> vWtx;
+
+    if (GetBoolArg("-zapwallettxes", false)) {
+        uiInterface.InitMessage(_("Zapping all transactions from wallet..."));
+
+        CWallet *tempWallet = new CWallet(strWalletFile);
+        DBErrors nZapWalletRet = tempWallet->ZapWalletTx(vWtx);
+        if (nZapWalletRet != DB_LOAD_OK) {
+            errorString = _("Error loading wallet.dat: Wallet corrupted");
+            uiInterface.InitMessage(_("Error loading wallet.dat: Wallet corrupted"));
+            return NULL;
+        }
+
+        delete tempWallet;
+        tempWallet = NULL;
+    }
+
+    uiInterface.InitMessage(_("Loading wallet..."));
+
+    int64_t nStart = GetTimeMillis();
+    bool fFirstRun = true;
+    CWallet *walletInstance = new CWallet(strWalletFile);
+    DBErrors nLoadWalletRet = walletInstance->LoadWallet(fFirstRun);
+    if (nLoadWalletRet != DB_LOAD_OK)
+    {
+        if (nLoadWalletRet == DB_CORRUPT)
+            errorString += _("Error loading wallet.dat: Wallet corrupted") + "\n";
+        else if (nLoadWalletRet == DB_NONCRITICAL_ERROR)
+        {
+            warningString += _("Error reading wallet.dat! All keys read correctly, but transaction data"
+                          " or address book entries might be missing or incorrect.");
+        }
+        else if (nLoadWalletRet == DB_TOO_NEW)
+            errorString += strprintf(_("Error loading wallet.dat: Wallet requires newer version of %s"), _(PACKAGE_NAME)) + "\n";
+        else if (nLoadWalletRet == DB_NEED_REWRITE)
+        {
+            errorString += strprintf(_("Wallet needed to be rewritten: restart %s to complete"), _(PACKAGE_NAME)) + "\n";
+            LogPrintf("%s", errorString);
+        }
+        else
+            errorString += _("Error loading wallet.dat") + "\n";
+
+        if (!errorString.empty())
+            return NULL;
+    }
+
+    if (GetBoolArg("-upgradewallet", fFirstRun))
+    {
+        int nMaxVersion = GetArg("-upgradewallet", 0);
+        if (nMaxVersion == 0) // the -upgradewallet without argument case
+        {
+            LogPrintf("Performing wallet upgrade to %i\n", FEATURE_LATEST);
+            nMaxVersion = CLIENT_VERSION;
+            walletInstance->SetMinVersion(FEATURE_LATEST); // permanently upgrade the wallet immediately
+        }
+        else
+            LogPrintf("Allowing wallet upgrade up to %i\n", nMaxVersion);
+        if (nMaxVersion < walletInstance->GetVersion())
+        {
+            errorString += _("Cannot downgrade wallet") + "\n";
+            return NULL;
+        }
+        walletInstance->SetMaxVersion(nMaxVersion);
+    }
+
+    if (!walletInstance->HaveHDSeed())
+    {
+        // We can't set the new HD seed until the wallet is decrypted.
+        // https://github.com/zcash/zcash/issues/3607
+        if (!walletInstance->IsCrypted()) {
+            // generate a new HD seed
+            walletInstance->GenerateNewSeed();
+        }
+    }
+
+    if (fFirstRun)
+    {
+        // Create new keyUser and set as default key
+        CPubKey newDefaultKey;
+        if (walletInstance->GetKeyFromPool(newDefaultKey)) {
+            walletInstance->SetDefaultKey(newDefaultKey);
+            if (!walletInstance->SetAddressBook(walletInstance->vchDefaultKey.GetID(), "", "receive"))
+            {
+                errorString += _("Cannot write default address") += "\n";
+                return NULL;
+            }
+        }
+
+        walletInstance->SetBestChain(chainActive.GetLocator());
+    }
+
+    LogPrintf(" wallet      %15dms\n", GetTimeMillis() - nStart);
+
+    RegisterValidationInterface(walletInstance);
+
+    CBlockIndex *pindexRescan = chainActive.Tip();
+    if (GetBoolArg("-rescan", false))
+        pindexRescan = chainActive.Genesis();
+    else
+    {
+        CWalletDB walletdb(strWalletFile);
+        CBlockLocator locator;
+        if (walletdb.ReadBestBlock(locator))
+            pindexRescan = FindForkInGlobalIndex(chainActive, locator);
+        else
+            pindexRescan = chainActive.Genesis();
+    }
+    if (chainActive.Tip() && chainActive.Tip() != pindexRescan)
+    {
+        //We can't rescan beyond non-pruned blocks, stop and throw an error
+        //this might happen if a user uses a old wallet within a pruned node
+        // or if he ran -disablewallet for a longer time, then decided to re-enable
+        if (fPruneMode)
+        {
+            CBlockIndex *block = chainActive.Tip();
+            while (block && block->pprev && (block->pprev->nStatus & BLOCK_HAVE_DATA) && block->pprev->nTx > 0 && pindexRescan != block)
+                block = block->pprev;
+
+            if (pindexRescan != block)
+            {
+                errorString = _("Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)");
+                return NULL;
+            }
+        }
+
+        uiInterface.InitMessage(_("Rescanning..."));
+        LogPrintf("Rescanning last %i blocks (from block %i)...\n", chainActive.Height() - pindexRescan->nHeight, pindexRescan->nHeight);
+        nStart = GetTimeMillis();
+        walletInstance->ScanForWalletTransactions(pindexRescan, true);
+        LogPrintf(" rescan      %15dms\n", GetTimeMillis() - nStart);
+        walletInstance->SetBestChain(chainActive.GetLocator());
+        nWalletDBUpdated++;
+
+        // Restore wallet transaction metadata after -zapwallettxes=1
+        if (GetBoolArg("-zapwallettxes", false) && GetArg("-zapwallettxes", "1") != "2")
+        {
+            CWalletDB walletdb(strWalletFile);
+
+            BOOST_FOREACH(const CWalletTx& wtxOld, vWtx)
+            {
+                uint256 hash = wtxOld.GetHash();
+                std::map<uint256, CWalletTx>::iterator mi = walletInstance->mapWallet.find(hash);
+                if (mi != walletInstance->mapWallet.end())
+                {
+                    const CWalletTx* copyFrom = &wtxOld;
+                    CWalletTx* copyTo = &mi->second;
+                    copyTo->mapValue = copyFrom->mapValue;
+                    copyTo->vOrderForm = copyFrom->vOrderForm;
+                    copyTo->nTimeReceived = copyFrom->nTimeReceived;
+                    copyTo->nTimeSmart = copyFrom->nTimeSmart;
+                    copyTo->fFromMe = copyFrom->fFromMe;
+                    copyTo->strFromAccount = copyFrom->strFromAccount;
+                    copyTo->nOrderPos = copyFrom->nOrderPos;
+                    copyTo->WriteToDisk(&walletdb);
+                }
+            }
+        }
+    }
+    walletInstance->SetBroadcastTransactions(GetBoolArg("-walletbroadcast", DEFAULT_WALLETBROADCAST));
+
+    return walletInstance;
+}
+
+std::string CWallet::GetWalletHelpString(bool showDebug)
+{
+    std::string strUsage = HelpMessageGroup(_("Wallet options:"));
+    strUsage += HelpMessageOpt("-disablewallet", _("Do not load the wallet and disable wallet RPC calls"));
+    strUsage += HelpMessageOpt("-keypool=<n>", strprintf(_("Set key pool size to <n> (default: %u)"), DEFAULT_KEYPOOL_SIZE));
+    strUsage += HelpMessageOpt("-mintxfee=<amt>", strprintf(_("Fees (in %s/kB) smaller than this are considered zero fee for transaction creation (default: %s)"),
+                                                            CURRENCY_UNIT, FormatMoney(DEFAULT_TRANSACTION_MINFEE)));
+    strUsage += HelpMessageOpt("-paytxfee=<amt>", strprintf(_("Fee (in %s/kB) to add to transactions you send (default: %s)"),
+                                                            CURRENCY_UNIT, FormatMoney(payTxFee.GetFeePerK())));
+    strUsage += HelpMessageOpt("-rescan", _("Rescan the block chain for missing wallet transactions on startup"));
+    strUsage += HelpMessageOpt("-salvagewallet", _("Attempt to recover private keys from a corrupt wallet.dat on startup"));
+    strUsage += HelpMessageOpt("-sendfreetransactions", strprintf(_("Send transactions as zero-fee transactions if possible (default: %u)"), DEFAULT_SEND_FREE_TRANSACTIONS));
+    strUsage += HelpMessageOpt("-spendzeroconfchange", strprintf(_("Spend unconfirmed change when sending transactions (default: %u)"), DEFAULT_SPEND_ZEROCONF_CHANGE));
+    strUsage += HelpMessageOpt("-txconfirmtarget=<n>", strprintf(_("If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)"), DEFAULT_TX_CONFIRM_TARGET));
+    strUsage += HelpMessageOpt("-upgradewallet", _("Upgrade wallet to latest format on startup"));
+    strUsage += HelpMessageOpt("-txexpirydelta", strprintf(_("Set the number of blocks after which a transaction that has not been mined will become invalid (min: %u, default: %u)"), TX_EXPIRING_SOON_THRESHOLD + 1, DEFAULT_TX_EXPIRY_DELTA));
+    strUsage += HelpMessageOpt("-wallet=<file>", _("Specify wallet file (within data directory)") + " " + strprintf(_("(default: %s)"), DEFAULT_WALLET_DAT));
+    strUsage += HelpMessageOpt("-walletbroadcast", _("Make the wallet broadcast transactions") + " " + strprintf(_("(default: %u)"), DEFAULT_WALLETBROADCAST));
+    strUsage += HelpMessageOpt("-walletnotify=<cmd>", _("Execute command when a wallet transaction changes (%s in cmd is replaced by TxID)"));
+    strUsage += HelpMessageOpt("-zapwallettxes=<mode>", _("Delete all wallet transactions and only recover those parts of the blockchain through -rescan on startup") +
+                               " " + _("(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)"));
+
+    if (showDebug)
+    {
+        strUsage += HelpMessageGroup(_("Wallet debugging/testing options:"));
+
+        strUsage += HelpMessageOpt("-dblogsize=<n>", strprintf("Flush wallet database activity from memory to disk log every <n> megabytes (default: %u)", DEFAULT_WALLET_DBLOGSIZE));
+        strUsage += HelpMessageOpt("-flushwallet", strprintf("Run a thread to flush wallet periodically (default: %u)", DEFAULT_FLUSHWALLET));
+        strUsage += HelpMessageOpt("-privdb", strprintf("Sets the DB_PRIVATE flag in the wallet db environment (default: %u)", DEFAULT_WALLET_PRIVDB));
+    }
+
+    return strUsage;
 }
 
 CKeyPool::CKeyPool()
