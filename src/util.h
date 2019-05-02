@@ -168,9 +168,6 @@ void ShrinkDebugFile();
 void runCommand(const std::string& strCommand);
 const fs::path GetExportDir();
 
-/** Returns licensing information (for -version) */
-std::string LicenseInfo();
-
 inline bool IsSwitchChar(char c)
 {
 #ifdef WIN32
@@ -278,6 +275,6 @@ template <typename Callable> void TraceThread(const char* name,  Callable func)
     }
 }
 
-std::string CopyrightHolders();
+std::string CopyrightHolders(const std::string& strPrefix);
 
 #endif // BITCOIN_UTIL_H

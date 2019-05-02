@@ -511,6 +511,31 @@ std::string HelpMessage(HelpMessageMode mode)
     return strUsage;
 }
 
+std::string LicenseInfo()
+{
+    const std::string URL_SOURCE_CODE = "<https://github.com/litecoinz-project/litecoinz>";
+    const std::string URL_WEBSITE = "<https://litecoinz.org>";
+    // todo: remove urls from translations on next change
+    return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2017, COPYRIGHT_YEAR) + " ") + "\n" +
+           "\n" +
+           strprintf(_("Please contribute if you find %s useful. "
+                       "Visit %s for further information about the software."),
+               PACKAGE_NAME, URL_WEBSITE) +
+           "\n" +
+           strprintf(_("The source code is available from %s."),
+               URL_SOURCE_CODE) +
+           "\n" +
+           "\n" +
+           strprintf(_("Donations are Welcome! Your donations help to keep up the project")) + "\n" +
+           _("BTC: 1N2rQimKbeUQA8N2LU5vGopYQJmZsBM2d6") + "\n" +
+           "\n" +
+           _("This is experimental software.") + "\n" +
+           _("Distributed under the MIT software license, see the accompanying file COPYING or <http://www.opensource.org/licenses/mit-license.php>.") + "\n" +
+           "\n" +
+           _("This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit <https://www.openssl.org/> and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.") +
+           "\n";
+}
+
 static void BlockNotifyCallback(bool initialSync, const CBlockIndex *pBlockIndex)
 {
     if (initialSync || !pBlockIndex)
