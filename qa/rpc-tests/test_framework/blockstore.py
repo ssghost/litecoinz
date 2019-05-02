@@ -17,16 +17,27 @@ class BlockStore(object):
     def close(self):
         self.blockDB.close()
 
+    def erase(self, blockhash):
+        del self.blockDB[repr(blockhash)]
+
+    # lookup an entry and return the item as raw bytes
     def get(self, blockhash):
-        serialized_block = None
+        value = None
         try:
-            serialized_block = self.blockDB[repr(blockhash)]
+            value = self.blockDB[repr(blockhash)]
         except KeyError:
             return None
-        f = cStringIO.StringIO(serialized_block)
-        ret = CBlock()
-        ret.deserialize(f)
-        ret.calc_sha256()
+        return value
+
+    # lookup an entry and return it as a CBlock
+    def get_block(self, blockhash):
+        ret = None
+        serialized_block = self.get(blockhash)
+        if serialized_block is not None:
+            f = BytesIO(serialized_block)
+            ret = CBlock()
+            ret.deserialize(f)
+            ret.calc_sha256()
         return ret
 
     # Note: this pulls full blocks out of the database just to retrieve
@@ -65,13 +76,16 @@ class BlockStore(object):
             print "Unexpected error: ", sys.exc_info()[0], e.args
         self.currentBlock = block.sha256
 
+    # lookup the hashes in "inv", and return p2p messages for delivering
+    # blocks found.
     def get_blocks(self, inv):
         responses = []
         for i in inv:
             if (i.type == 2): # MSG_BLOCK
-                block = self.get(i.hash)
-                if block is not None:
-                    responses.append(msg_block(block))
+                data = self.get(i.hash)
+                if data is not None:
+                    # Use msg_generic to avoid re-serialization
+                    responses.append(msg_generic(b"block", data))
         return responses
 
     def get_locator(self, current_tip=None):
@@ -80,11 +94,11 @@ class BlockStore(object):
         r = []
         counter = 0
         step = 1
-        lastBlock = self.get(current_tip)
+        lastBlock = self.get_block(current_tip)
         while lastBlock is not None:
             r.append(lastBlock.hashPrevBlock)
             for i in range(step):
-                lastBlock = self.get(lastBlock.hashPrevBlock)
+                lastBlock = self.get_block(lastBlock.hashPrevBlock)
                 if lastBlock is None:
                     break
             counter += 1
@@ -101,16 +115,23 @@ class TxStore(object):
     def close(self):
         self.txDB.close()
 
+    # lookup an entry and return the item as raw bytes
     def get(self, txhash):
-        serialized_tx = None
+        value = None
         try:
-            serialized_tx = self.txDB[repr(txhash)]
+            value = self.txDB[repr(txhash)]
         except KeyError:
             return None
-        f = cStringIO.StringIO(serialized_tx)
-        ret = CTransaction()
-        ret.deserialize(f)
-        ret.calc_sha256()
+        return value
+
+    def get_transaction(self, txhash):
+        ret = None
+        serialized_tx = self.get(txhash)
+        if serialized_tx is not None:
+            f = BytesIO(serialized_tx)
+            ret = CTransaction()
+            ret.deserialize(f)
+            ret.calc_sha256()
         return ret
 
     def add_transaction(self, tx):
@@ -126,5 +147,5 @@ class TxStore(object):
             if (i.type == 1): # MSG_TX
                 tx = self.get(i.hash)
                 if tx is not None:
-                    responses.append(msg_tx(tx))
+                    responses.append(msg_generic(b"tx", tx))
         return responses
