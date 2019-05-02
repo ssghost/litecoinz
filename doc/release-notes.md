@@ -41,6 +41,10 @@ The following outputs are affected by this change:
 - REST `/rest/block/` (JSON format when including extended tx details)
 - `litecoinz-tx -json`
 
+### RPC
+
+The first boolean argument to `getaddednodeinfo` has been removed. This is an incompatible change.
+
 ### Logging
 
 - The log timestamp format is now ISO 8601 (e.g. "2018-02-28T12:34:56Z").

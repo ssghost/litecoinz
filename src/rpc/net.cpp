@@ -263,14 +263,13 @@ UniValue disconnectnode(const JSONRPCRequest& request)
 
 UniValue getaddednodeinfo(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() > 2)
+    if (request.fHelp || request.params.size() > 1)
         throw runtime_error(
-            "getaddednodeinfo dummy ( \"node\" )\n"
+            "getaddednodeinfo ( \"node\" )\n"
             "\nReturns information about the given added node, or all added nodes\n"
             "(note that onetry addnodes are not listed here)\n"
             "\nArguments:\n"
-            "1. dummy      (boolean, required) Kept for historical purposes but ignored\n"
-            "2. \"node\"   (string, optional) If provided, return information about this specific node, otherwise all nodes are returned.\n"
+            "1. \"node\"   (string, optional) If provided, return information about this specific node, otherwise all nodes are returned.\n"
             "\nResult:\n"
             "[\n"
             "  {\n"
@@ -286,17 +285,16 @@ UniValue getaddednodeinfo(const JSONRPCRequest& request)
             "  ,...\n"
             "]\n"
             "\nExamples:\n"
-            + HelpExampleCli("getaddednodeinfo", "true")
-            + HelpExampleCli("getaddednodeinfo", "true \"192.168.0.201\"")
-            + HelpExampleRpc("getaddednodeinfo", "true, \"192.168.0.201\"")
+            + HelpExampleCli("getaddednodeinfo", "\"192.168.0.201\"")
+            + HelpExampleRpc("getaddednodeinfo", "\"192.168.0.201\"")
         );
 
     std::vector<AddedNodeInfo> vInfo = GetAddedNodeInfo();
 
-    if (request.params.size() == 2) {
+    if (request.params.size() == 1) {
         bool found = false;
         for (const AddedNodeInfo& info : vInfo) {
-            if (info.strAddedNode == request.params[1].get_str()) {
+            if (info.strAddedNode == request.params[0].get_str()) {
                 vInfo.assign(1, info);
                 found = true;
                 break;

@@ -26,7 +26,6 @@ static const CRPCConvertParam vRPCConvertParams[] =
 {
     { "stop", 0 },
     { "setmocktime", 0 },
-    { "getaddednodeinfo", 0 },
     { "generate", 0 },
     { "getnetworkhashps", 0 },
     { "getnetworkhashps", 1 },
