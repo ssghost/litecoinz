@@ -825,6 +825,11 @@ struct NodeEvictionCandidate
     NodeId id;
     int64_t nTimeConnected;
     int64_t nMinPingUsecTime;
+    int64_t nLastBlockTime;
+    int64_t nLastTXTime;
+    bool fNetworkNode;
+    bool fRelayTxes;
+    bool fBloomFilter;
     CAddress addr;
     uint64_t nKeyedNetGroup;
 };
@@ -841,9 +846,26 @@ static bool ReverseCompareNodeTimeConnected(const NodeEvictionCandidate &a, cons
 
 static bool CompareNetGroupKeyed(const NodeEvictionCandidate &a, const NodeEvictionCandidate &b) {
     return a.nKeyedNetGroup < b.nKeyedNetGroup;
-};
+}
 
-static bool AttemptToEvictConnection(bool fPreferNewConnection) {
+static bool CompareNodeBlockTime(const NodeEvictionCandidate &a, const NodeEvictionCandidate &b)
+{
+    // There is a fall-through here because it is common for a node to have many peers which have not yet relayed a block.
+    if (a.nLastBlockTime != b.nLastBlockTime) return a.nLastBlockTime < b.nLastBlockTime;
+    if (a.fNetworkNode != b.fNetworkNode) return b.fNetworkNode;
+    return a.nTimeConnected > b.nTimeConnected;
+}
+
+static bool CompareNodeTXTime(const NodeEvictionCandidate &a, const NodeEvictionCandidate &b)
+{
+    // There is a fall-through here because it is common for a node to have more than a few peers that have not yet relayed txn.
+    if (a.nLastTXTime != b.nLastTXTime) return a.nLastTXTime < b.nLastTXTime;
+    if (a.fRelayTxes != b.fRelayTxes) return b.fRelayTxes;
+    if (a.fBloomFilter != b.fBloomFilter) return a.fBloomFilter;
+    return a.nTimeConnected > b.nTimeConnected;
+}
+
+static bool AttemptToEvictConnection() {
     std::vector<NodeEvictionCandidate> vEvictionCandidates;
     {
         LOCK(cs_vNodes);
@@ -855,7 +877,9 @@ static bool AttemptToEvictConnection(bool fPreferNewConnection) {
                 continue;
             if (node->fDisconnect)
                 continue;
-            NodeEvictionCandidate candidate = {node->id, node->nTimeConnected, node->nMinPingUsecTime, node->addr, node->nKeyedNetGroup};
+            NodeEvictionCandidate candidate = {node->id, node->nTimeConnected, node->nMinPingUsecTime,
+                                               node->nLastBlockTime, node->nLastTXTime, node->fNetworkNode,
+                                               node->fRelayTxes, node->pfilter != NULL, node->addr, node->nKeyedNetGroup};
             vEvictionCandidates.push_back(candidate);
         }
     }
@@ -885,7 +909,9 @@ static bool AttemptToEvictConnection(bool fPreferNewConnection) {
             // Find any nodes which don't support the protocol version for the next upgrade
             for (CNode* node : vNodes) {
                 if (node->nVersion < params.vUpgrades[idx].nProtocolVersion) {
-                    NodeEvictionCandidate candidate = {node->id, node->nTimeConnected, node->nMinPingUsecTime, node->addr, node->nKeyedNetGroup};
+                    NodeEvictionCandidate candidate = {node->id, node->nTimeConnected, node->nMinPingUsecTime,
+                                                       node->nLastBlockTime, node->nLastTXTime, node->fNetworkNode,
+                                                       node->fRelayTxes, node->pfilter != NULL, node->addr, node->nKeyedNetGroup};
                     vTmpEvictionCandidates.push_back(candidate);
                 }
             }
@@ -896,6 +922,10 @@ static bool AttemptToEvictConnection(bool fPreferNewConnection) {
             }
         }
     }
+
+    if (vEvictionCandidates.empty()) return false;
+
+    // Protect connections with certain characteristics
 
     // Deterministically select 4 peers to protect by netgroup.
     // An attacker cannot predict which netgroups will be protected
@@ -908,6 +938,20 @@ static bool AttemptToEvictConnection(bool fPreferNewConnection) {
     // An attacker cannot manipulate this metric without physically moving nodes closer to the target.
     std::sort(vEvictionCandidates.begin(), vEvictionCandidates.end(), ReverseCompareNodeMinPingTime);
     vEvictionCandidates.erase(vEvictionCandidates.end() - std::min(8, static_cast<int>(vEvictionCandidates.size())), vEvictionCandidates.end());
+
+    if (vEvictionCandidates.empty()) return false;
+
+    // Protect 4 nodes that most recently sent us transactions.
+    // An attacker cannot manipulate this metric without performing useful work.
+    std::sort(vEvictionCandidates.begin(), vEvictionCandidates.end(), CompareNodeTXTime);
+    vEvictionCandidates.erase(vEvictionCandidates.end() - std::min(4, static_cast<int>(vEvictionCandidates.size())), vEvictionCandidates.end());
+
+    if (vEvictionCandidates.empty()) return false;
+
+    // Protect 4 nodes that most recently sent us blocks.
+    // An attacker cannot manipulate this metric without performing useful work.
+    std::sort(vEvictionCandidates.begin(), vEvictionCandidates.end(), CompareNodeBlockTime);
+    vEvictionCandidates.erase(vEvictionCandidates.end() - std::min(4, static_cast<int>(vEvictionCandidates.size())), vEvictionCandidates.end());
 
     if (vEvictionCandidates.empty()) return false;
 
@@ -938,12 +982,6 @@ static bool AttemptToEvictConnection(bool fPreferNewConnection) {
 
     // Reduce to the network group with the most connections
     vEvictionCandidates = std::move(mapAddrCounts[naMostConnections]);
-
-    // Do not disconnect peers if there is only one unprotected connection from their network group.
-    if (vEvictionCandidates.size() <= 1)
-        // unless we prefer the new connection (for whitelisted peers)
-        if (!fPreferNewConnection)
-            return false;
 
     // Disconnect from the network group with the most connections
     NodeId evicted = vEvictionCandidates.front().id;
@@ -1001,7 +1039,7 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
 
     if (nInbound >= nMaxInbound)
     {
-        if (!AttemptToEvictConnection(whitelisted)) {
+        if (!AttemptToEvictConnection()) {
             // No connection to evict, disconnect the new connection
             LogPrint(BCLog::NET, "failed to find an eviction candidate - connection dropped (full)\n");
             CloseSocket(hSocket);
@@ -2088,6 +2126,8 @@ CNode::CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNa
     fSentAddr = false;
     pfilter = new CBloomFilter();
     timeLastMempoolReq = 0;
+    nLastBlockTime = 0;
+    nLastTXTime = 0;
     nPingNonceSent = 0;
     nPingUsecStart = 0;
     nPingUsecTime = 0;
