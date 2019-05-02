@@ -1174,6 +1174,8 @@ public:
     std::set< std::set<CTxDestination> > GetAddressGroupings();
     std::map<CTxDestination, CAmount> GetAddressBalances();
 
+    CAmount GetAccountBalance(const std::string& strAccount, int nMinDepth, const isminefilter& filter);
+    CAmount GetAccountBalance(CWalletDB& walletdb, const std::string& strAccount, int nMinDepth, const isminefilter& filter);
     std::set<CTxDestination> GetAccountAddresses(const std::string& strAccount) const;
 
     boost::optional<uint256> GetSproutNoteNullifier(
@@ -1352,6 +1354,8 @@ public:
 
     /* initializes the wallet, returns a new CWallet instance or a null pointer in case of an error */
     static CWallet* InitLoadWallet(bool fDisableWallet, const std::string& strWalletFile, std::string& warningString, std::string& errorString);
+
+    bool BackupWallet(const std::string& strDest);
 };
 
 /** A key allocated from the key pool. */
