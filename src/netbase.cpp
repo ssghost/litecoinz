@@ -217,6 +217,16 @@ bool LookupNumeric(const char *pszName, CService& addr, int portDefault)
     return Lookup(pszName, addr, portDefault, false);
 }
 
+CService LookupNumeric(const char *pszName, int portDefault)
+{
+    CService addr;
+    // "1.2:345" will fail to resolve the ip, but will still set the port.
+    // If the ip fails to resolve, re-init the result.
+    if(!Lookup(pszName, addr, portDefault, false))
+        addr = CService();
+    return addr;
+}
+
 struct timeval MillisToTimeval(int64_t nTimeout)
 {
     struct timeval timeout;
@@ -610,10 +620,10 @@ bool ConnectSocketByName(CService &addr, SOCKET& hSocketRet, const char *pszDest
     proxyType nameProxy;
     GetNameProxy(nameProxy);
 
-    CService addrResolved;
-    if (Lookup(strDest.c_str(), addrResolved, port, fNameLookup && !HaveNameProxy())) {
-        if (addrResolved.IsValid()) {
-            addr = addrResolved;
+    std::vector<CService> addrResolved;
+    if (Lookup(strDest.c_str(), addrResolved, port, fNameLookup && !HaveNameProxy(), 256)) {
+        if (addrResolved.size() > 0) {
+            addr = addrResolved[GetRand(addrResolved.size())];
             return ConnectSocket(addr, hSocketRet, nTimeout);
         }
     }
