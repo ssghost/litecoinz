@@ -346,7 +346,7 @@ void CTxMemPoolEntry::UpdateAncestorState(int64_t modifySize, CAmount modifyFee,
 CTxMemPool::CTxMemPool(const CFeeRate& _minReasonableRelayFee) :
     nTransactionsUpdated(0)
 {
-    clear();
+    _clear(); //lock free clear
 
     // Sanity checks off by default for performance, because otherwise
     // accepting transactions becomes O(N^2) where N is the number
@@ -396,6 +396,17 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
     indexed_transaction_set::iterator newit = mapTx.insert(entry).first;
     mapLinks.insert(make_pair(newit, TxLinks()));
 
+    // Update transaction for any feeDelta created by PrioritiseTransaction
+    // TODO: refactor so that the fee delta is calculated before inserting
+    // into mapTx.
+    std::map<uint256, std::pair<double, CAmount> >::const_iterator pos = mapDeltas.find(hash);
+    if (pos != mapDeltas.end()) {
+        const std::pair<double, CAmount> &deltas = pos->second;
+        if (deltas.second) {
+            mapTx.modify(newit, update_fee_delta(deltas.second));
+        }
+    }
+
     // Update cachedInnerUsage to include contained transaction's usage.
     // (When we update the entry for in-mempool parents, memory usage will be
     // further updated.)
@@ -432,18 +443,8 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry,
     UpdateAncestorsOf(true, newit, setAncestors);
     UpdateEntryForAncestors(newit, setAncestors);
 
-    // Update transaction's score for any feeDelta created by PrioritiseTransaction
-    std::map<uint256, std::pair<double, CAmount> >::const_iterator pos = mapDeltas.find(hash);
-    if (pos != mapDeltas.end()) {
-        const std::pair<double, CAmount> &deltas = pos->second;
-        if (deltas.second) {
-            mapTx.modify(newit, update_fee_delta(deltas.second));
-        }
-    }
-
     nTransactionsUpdated++;
     totalTxSize += entry.GetTxSize();
-    cachedInnerUsage += entry.DynamicMemoryUsage();
     minerPolicyEstimator->processTransaction(entry, fCurrentEstimate);
 
     vTxHashes.emplace_back(hash, newit);
@@ -637,6 +638,7 @@ void CTxMemPool::removeConflicts(const CTransaction &tx, std::list<CTransaction>
             if (txConflict != tx)
             {
                 removeRecursive(txConflict, removed);
+                ClearPrioritisation(txConflict.GetHash());
             }
         }
     }
@@ -647,7 +649,8 @@ void CTxMemPool::removeConflicts(const CTransaction &tx, std::list<CTransaction>
             if (it != mapSproutNullifiers.end()) {
                 const CTransaction &txConflict = *it->second;
                 if (txConflict != tx) {
-                removeRecursive(txConflict, removed);
+                    removeRecursive(txConflict, removed);
+                    ClearPrioritisation(txConflict.GetHash());
                 }
             }
         }
@@ -658,6 +661,7 @@ void CTxMemPool::removeConflicts(const CTransaction &tx, std::list<CTransaction>
             const CTransaction &txConflict = *it->second;
             if (txConflict != tx) {
                 removeRecursive(txConflict, removed);
+                ClearPrioritisation(txConflict.GetHash());
             }
         }
     }
@@ -737,9 +741,8 @@ void CTxMemPool::removeWithoutBranchId(uint32_t nMemPoolBranchId)
     }
 }
 
-void CTxMemPool::clear()
+void CTxMemPool::_clear()
 {
-    LOCK(cs);
     mapLinks.clear();
     mapTx.clear();
     mapNextTx.clear();
@@ -749,6 +752,12 @@ void CTxMemPool::clear()
     blockSinceLastRollingFeeBump = false;
     rollingMinimumFeeRate = 0;
     ++nTransactionsUpdated;
+}
+
+void CTxMemPool::clear()
+{
+    LOCK(cs);
+    _clear();
 }
 
 void CTxMemPool::check(const CCoinsViewCache *pcoins) const
