@@ -171,7 +171,7 @@ UniValue generate(const JSONRPCRequest& request)
         n = Params().EquihashN(nHeight + 1);
         k = Params().EquihashK(nHeight + 1);
 
-        std::unique_ptr<CBlockTemplate> pblocktemplate(CreateNewBlock(Params(),coinbaseScript->reserveScript));
+        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript));
         if (!pblocktemplate.get())
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
         CBlock *pblock = &pblocktemplate->block;
@@ -534,7 +534,8 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         if (!coinbaseScript->reserveScript.size())
             throw JSONRPCError(RPC_INTERNAL_ERROR, "No coinbase script available (mining requires a wallet or -mineraddress)");
 
-        pblocktemplate = CreateNewBlock(Params(), coinbaseScript->reserveScript);
+        CScript scriptDummy = CScript() << OP_TRUE;
+        pblocktemplate = BlockAssembler(Params()).CreateNewBlock(scriptDummy);
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 
