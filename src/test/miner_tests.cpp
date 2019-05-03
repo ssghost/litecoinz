@@ -525,8 +525,8 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     SetMockTime(0);
     mempool.clear();
 
-    for (CTransaction *tx : txFirst)
-        delete tx;
+    for (CTransaction *_tx : txFirst)
+        delete _tx;
 
     fCheckpointsEnabled = true;
     fCoinbaseEnforcedProtectionEnabled = true;
