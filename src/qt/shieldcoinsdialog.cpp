@@ -75,6 +75,7 @@ void ShieldCoinsDialog::on_shieldButton_clicked()
         params.push_back(ui->operationLimit->value());
 
         request.params = params;
+        request.fHelp = false;
 
         ret = z_shieldcoinbase(request);
     } catch (std::exception &e) {
