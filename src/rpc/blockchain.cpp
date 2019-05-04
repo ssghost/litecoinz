@@ -11,6 +11,7 @@
 #include <consensus/validation.h>
 #include <main.h>
 #include <metrics.h>
+#include <policy/policy.h>
 #include <primitives/transaction.h>
 #include <rpc/server.h>
 #include <streams.h>

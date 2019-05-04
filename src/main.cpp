@@ -94,6 +94,7 @@ bool fEnableReplacement = DEFAULT_ENABLE_REPLACEMENT;
 
 unsigned int expiryDelta = DEFAULT_TX_EXPIRY_DELTA;
 
+/** Fees smaller than this (in satoshi) are considered zero fee (for relaying, mining and transaction creation) */
 CFeeRate minRelayTxFee = CFeeRate(DEFAULT_MIN_RELAY_TX_FEE);
 CAmount maxTxFee = DEFAULT_TRANSACTION_MAXFEE;
 

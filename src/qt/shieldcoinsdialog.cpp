@@ -157,7 +157,7 @@ void ShieldCoinsDialog::setModel(WalletModel *model)
         // fee section
         connect(ui->customFee, SIGNAL(valueChanged()), this, SLOT(updateGlobalFeeVariables()));
 
-        ui->customFee->setSingleStep(CWallet::minTxFee.GetFeePerK());
+        ui->customFee->setSingleStep(CWallet::GetRequiredFee(1000));
         updateGlobalFeeVariables();
     }
 }
@@ -169,7 +169,7 @@ void ShieldCoinsDialog::updateDisplayUnit()
 
 void ShieldCoinsDialog::setMinimumFee()
 {
-    ui->customFee->setValue(CWallet::minTxFee.GetFeePerK());
+    ui->customFee->setValue(CWallet::GetRequiredFee(1000));
 }
 
 void ShieldCoinsDialog::updateGlobalFeeVariables()
