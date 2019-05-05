@@ -243,7 +243,7 @@ UniValue getmininginfo(const JSONRPCRequest& request)
             "  \"difficulty\": xxx.xxxxx    (numeric) The current difficulty\n"
             "  \"errors\": \"...\"          (string) Current errors\n"
             "  \"networksolps\": x          (numeric) The estimated network solution rate in Sol/s\n"
-            "  \"pooledtx\": n              (numeric) The size of the mem pool\n"
+            "  \"pooledtx\": n              (numeric) The size of the mempool\n"
             "  \"testnet\": true|false      (boolean) If using testnet or not\n"
             "  \"chain\": \"xxxx\",         (string) current network name as defined in BIP70 (main, test, regtest)\n"
             "}\n"

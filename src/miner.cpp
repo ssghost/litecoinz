@@ -155,7 +155,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
 
     nLastBlockTx = nBlockTx;
     nLastBlockSize = nBlockSize;
-    LogPrintf("CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOps);
 
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
@@ -183,6 +182,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     // Clear the top and bottom 16 bits (for local use as thread flags and counters)
     nonce <<= 32;
     nonce >>= 16;
+
+    uint64_t nSerializeSize = GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION);
+    LogPrintf("CreateNewBlock(): total size: %u block cost: %u txs: %u fees: %ld sigops %d\n", nSerializeSize, GetBlockCost(*pblock), nBlockTx, nFees, nBlockSigOps);
 
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();

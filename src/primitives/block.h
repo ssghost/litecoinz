@@ -193,4 +193,6 @@ struct CBlockLocator
     }
 };
 
+int64_t GetBlockCost(const CBlock& tx);
+
 #endif // BITCOIN_PRIMITIVES_BLOCK_H

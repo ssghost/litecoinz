@@ -32,3 +32,8 @@ std::string CBlock::ToString() const
     }
     return s.str();
 }
+
+int64_t GetBlockCost(const CBlock& block)
+{
+    return ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION);
+}
