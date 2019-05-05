@@ -123,7 +123,7 @@ public:
      * from entry priority. Only inputs that were originally in-chain will age.
      */
     double GetPriority(unsigned int currentHeight) const;
-    const CAmount GetFee() const { return nFee; }
+    const CAmount& GetFee() const { return nFee; }
     size_t GetTxSize() const { return nTxSize; }
     int64_t GetTime() const { return nTime; }
     unsigned int GetHeight() const { return entryHeight; }
@@ -591,11 +591,11 @@ public:
     void CalculateDescendants(txiter it, setEntries &setDescendants);
 
     /** The minimum fee to get into the mempool, which may itself not be enough
-        *  for larger-sized transactions.
-        *  The minReasonableRelayFee constructor arg is used to bound the time it
-     *  takes the fee rate to go back down all the way to 0. When the feerate
-     *  would otherwise be half of this, it is set to 0 instead.
-     */
+      *  for larger-sized transactions.
+      *  The minReasonableRelayFee constructor arg is used to bound the time it
+      *  takes the fee rate to go back down all the way to 0. When the feerate
+      *  would otherwise be half of this, it is set to 0 instead.
+      */
     CFeeRate GetMinFee(size_t sizelimit) const;
 
     /** Remove transactions from the mempool until its dynamic size is <= sizelimit.

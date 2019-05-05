@@ -1266,8 +1266,10 @@ CFeeRate CTxMemPool::GetMinFee(size_t sizelimit) const {
         rollingMinimumFeeRate = rollingMinimumFeeRate / pow(2.0, (time - lastRollingFeeUpdate) / halflife);
         lastRollingFeeUpdate = time;
 
-        if (rollingMinimumFeeRate < minReasonableRelayFee.GetFeePerK() / 2)
+        if (rollingMinimumFeeRate < minReasonableRelayFee.GetFeePerK() / 2) {
             rollingMinimumFeeRate = 0;
+            return CFeeRate(0);
+        }
     }
     return std::max(CFeeRate(rollingMinimumFeeRate), minReasonableRelayFee);
 }
@@ -1288,10 +1290,10 @@ void CTxMemPool::TrimToSize(size_t sizelimit, std::vector<uint256>* pvNoSpendsRe
     while (!mapTx.empty() && DynamicMemoryUsage() > sizelimit) {
         indexed_transaction_set::index<descendant_score>::type::iterator it = mapTx.get<descendant_score>().begin();
 
-        // We set the new mempool min fee to either the feerate of the removed set,
-        // or the "minimum reasonable fee rate" (ie some value under which we consider
-        // txn to have 0 fee). This way, if the mempool reaches its full size on free
-        // txn, we will simply disable free txn until there is a block, and some time.
+        // We set the new mempool min fee to the feerate of the removed set, plus the
+        // "minimum reasonable fee rate" (ie some value under which we consider txn
+        // to have 0 fee). This way, we don't allow txn to enter mempool with feerate
+        // equal to txn which were removed with no block in between.
         CFeeRate removed(it->GetModFeesWithDescendants(), it->GetSizeWithDescendants());
         removed += minReasonableRelayFee;
         trackPackageRemoved(removed);
