@@ -100,6 +100,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "prioritisetransaction", 2 },
     { "setban", 2 },
     { "setban", 3 },
+    { "getmempoolancestors", 1 },
+    { "getmempooldescendants", 1 },
     { "zcrawjoinsplit", 1 },
     { "zcrawjoinsplit", 2 },
     { "zcrawjoinsplit", 3 },

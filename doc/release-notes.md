@@ -65,3 +65,10 @@ The optional new p2p message "feefilter" is implemented and the protocol
 version is bumped to 70013. Upon receiving a feefilter message from a peer,
 a node will not send invs for any transactions which do not meet the filter
 feerate. [BIP 133](https://github.com/bitcoin/bips/blob/master/bip-0133.mediawiki)
+
+New mempool information RPC calls
+---------------------------------
+
+RPC calls have been added to output detailed statistics for individual mempool
+entries, as well as to calculate the in-mempool ancestors or descendants of a
+transaction: see `getmempoolentry`, `getmempoolancestors`, `getmempooldescendants`.
