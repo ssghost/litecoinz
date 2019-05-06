@@ -72,3 +72,21 @@ New mempool information RPC calls
 RPC calls have been added to output detailed statistics for individual mempool
 entries, as well as to calculate the in-mempool ancestors or descendants of a
 transaction: see `getmempoolentry`, `getmempoolancestors`, `getmempooldescendants`.
+
+Sprout to Sapling Migration Tool
+--------------------------------
+This release includes the addition of a tool that will enable users to migrate
+shielded funds from the Sprout pool to the Sapling pool while minimizing
+information leakage. 
+
+The migration can be enabled using the RPC `z_setmigration` or by including
+`-migration` in the `litecoinz.conf` file. Unless otherwise specified funds will be
+migrated to the wallet's default Sapling address; it is also possible to set the 
+receiving Sapling address using the `-migrationdestaddress` option in `litecoinz.conf`.
+
+See [ZIP308](https://github.com/zcash/zips/blob/master/zip-0308.rst) for full details. 
+
+64-bit ARMv8 support
+--------------------
+Added ARMv8 (AArch64) support. This enables users to build LitecoinZ on even more
+devices.
