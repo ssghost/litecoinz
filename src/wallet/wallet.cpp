@@ -4776,6 +4776,9 @@ CWallet* CWallet::InitLoadWallet(bool fDisableWallet, const std::string& strWall
         }
     }
 
+    // Set sapling migration status
+    pwalletMain->fSaplingMigrationEnabled = GetBoolArg("-migration", false);
+
     if (fFirstRun)
     {
         // Create new keyUser and set as default key
@@ -4869,6 +4872,8 @@ std::string CWallet::GetWalletHelpString(bool showDebug)
     std::string strUsage = HelpMessageGroup(_("Wallet options:"));
     strUsage += HelpMessageOpt("-disablewallet", _("Do not load the wallet and disable wallet RPC calls"));
     strUsage += HelpMessageOpt("-keypool=<n>", strprintf(_("Set key pool size to <n> (default: %u)"), DEFAULT_KEYPOOL_SIZE));
+    strUsage += HelpMessageOpt("-migration=<boolean>", _("Set to true to enable the Sprout to Sapling migration."));
+    strUsage += HelpMessageOpt("-migrationdestaddress=<zaddr>", _("Set the Sapling migration address"));
     strUsage += HelpMessageOpt("-mintxfee=<amt>", strprintf(_("Fees (in %s/kB) smaller than this are considered zero fee for transaction creation (default: %s)"),
                                                             CURRENCY_UNIT, FormatMoney(DEFAULT_TRANSACTION_MINFEE)));
     strUsage += HelpMessageOpt("-paytxfee=<amt>", strprintf(_("Fee (in %s/kB) to add to transactions you send (default: %s)"),

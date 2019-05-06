@@ -20,9 +20,6 @@
 #include <httpserver.h>
 #include <httprpc.h>
 #include <key.h>
-#ifdef ENABLE_MINING
-#include <key_io.h>
-#endif
 #include <main.h>
 #include <metrics.h>
 #include <miner.h>
@@ -41,6 +38,7 @@
 #include <utilmoneystr.h>
 #include <validationinterface.h>
 #ifdef ENABLE_WALLET
+#include <key_io.h>
 #include <wallet/wallet.h>
 #include <wallet/walletdb.h>
 #endif
@@ -1173,6 +1171,15 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     fSendFreeTransactions = GetBoolArg("-sendfreetransactions", DEFAULT_SEND_FREE_TRANSACTIONS);
 
     std::string strWalletFile = GetArg("-wallet", DEFAULT_WALLET_DAT);
+
+    // Check Sapling migration address if set and is a valid Sapling address
+    if (mapArgs.count("-migrationdestaddress")) {
+        std::string migrationDestAddress = mapArgs["-migrationdestaddress"];
+        libzcash::PaymentAddress address = DecodePaymentAddress(migrationDestAddress);
+        if (boost::get<libzcash::SaplingPaymentAddress>(&address) == nullptr) {
+            return InitError(_("-migrationdestaddress must be a valid Sapling address."));
+        }
+    }
 #endif // ENABLE_WALLET
 
     fIsBareMultisigStd = GetBoolArg("-permitbaremultisig", DEFAULT_PERMIT_BAREMULTISIG);
