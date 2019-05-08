@@ -4788,7 +4788,7 @@ CWallet* CWallet::InitLoadWallet(bool fDisableWallet, const std::string& strWall
     }
 
     // Set sapling migration status
-    pwalletMain->fSaplingMigrationEnabled = GetBoolArg("-migration", false);
+    walletInstance->fSaplingMigrationEnabled = GetBoolArg("-migration", false);
 
     if (fFirstRun)
     {
