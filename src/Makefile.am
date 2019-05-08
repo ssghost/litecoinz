@@ -94,7 +94,6 @@ BITCOIN_CORE_H = \
   addrdb.h \
   addrman.h \
   amount.h \
-  ansicolor.h \
   arith_uint256.h \
   asyncrpcoperation.h \
   asyncrpcqueue.h \

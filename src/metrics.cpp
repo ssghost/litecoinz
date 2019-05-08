@@ -1,10 +1,9 @@
 // Copyright (c) 2016 The Zcash developers
-// Copyright (c) 2017-2018 The LitecoinZ developers
+// Copyright (c) 2017-2019 The LitecoinZ developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <metrics.h>
-#include <ansicolor.h>
 
 #include <chainparams.h>
 #include <checkpoints.h>
@@ -142,13 +141,13 @@ static bool metrics_ThreadSafeMessageBox(const std::string& message,
     // Check for usage of predefined caption
     switch (style) {
     case CClientUIInterface::MSG_ERROR:
-        strCaption += _(ANSI_COLOR_LRED "Error" ANSI_COLOR_RESET);
+        strCaption += _("Error");
         break;
     case CClientUIInterface::MSG_WARNING:
-        strCaption += _(ANSI_COLOR_LYELLOW "Warning" ANSI_COLOR_RESET);
+        strCaption += _("Warning");
         break;
     case CClientUIInterface::MSG_INFORMATION:
-        strCaption += _(ANSI_COLOR_LCYAN "Information" ANSI_COLOR_RESET);
+        strCaption += _("Information");
         break;
     default:
         strCaption += caption; // Use supplied caption (can be empty)
@@ -202,21 +201,23 @@ int printStats()
     }
 
     if (IsInitialBlockDownload()) {
+        int nheaders;
+        {
+            LOCK(cs_main);
+            nheaders = mapBlockIndex.size();
+        }
+        if (--nheaders < 0) // Convert count to height
+            nheaders = 0;
         int netheight = EstimateNetHeight(height, tipmediantime, Params());
+        if (netheight < nheaders)
+            netheight = nheaders;
         int downloadPercent = height * 100 / netheight;
-        std::cout << "     " << _("Downloading blocks") << " | " << height << " / ~" << netheight << " (";
-
-        if (downloadPercent == 100)
-            std::cout << ANSI_COLOR_LCYAN;
-        else
-            std::cout << ANSI_COLOR_LYELLOW;
-
-        std::cout << downloadPercent << "%" << ANSI_COLOR_RESET << ")" << std::endl;
+        std::cout << "     " << _("Downloading blocks") << " | " << height << " (" << nheaders << " " << _("headers") << ") / ~" << netheight << " (" << downloadPercent << "%)" << std::endl;
     } else {
-        std::cout << "           " << _("Block height") << " | " << ANSI_COLOR_LCYAN << height << ANSI_COLOR_RESET << std::endl;
+        std::cout << "           " << _("Block height") << " | " << height << std::endl;
     }
-    std::cout << "            " << _("Connections") << " | " << ANSI_COLOR_LCYAN << connections << ANSI_COLOR_RESET << std::endl;
-    std::cout << "  " << _("Network solution rate") << " | " << ANSI_COLOR_LCYAN << netsolps << ANSI_COLOR_RESET << " Sol/s" << std::endl;
+    std::cout << "            " << _("Connections") << " | " << connections << std::endl;
+    std::cout << "  " << _("Network solution rate") << " | " << netsolps << " Sol/s" << std::endl;
     std::cout << std::endl;
 
     return lines;
@@ -237,13 +238,13 @@ int printMetrics(size_t cols)
     // Display uptime
     std::string duration;
     if (days > 0) {
-        duration = strprintf(_(ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " days, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " hours, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " minutes, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " seconds"), days, hours, minutes, seconds);
+        duration = strprintf(_("%d days, %d hours, %d minutes, %d seconds"), days, hours, minutes, seconds);
     } else if (hours > 0) {
-        duration = strprintf(_(ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " hours, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " minutes, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " seconds"), hours, minutes, seconds);
+        duration = strprintf(_("%d hours, %d minutes, %d seconds"), hours, minutes, seconds);
     } else if (minutes > 0) {
-        duration = strprintf(_(ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " minutes, " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " seconds"), minutes, seconds);
+        duration = strprintf(_("%d minutes, %d seconds"), minutes, seconds);
     } else {
-        duration = strprintf(_(ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " seconds"), seconds);
+        duration = strprintf(_("%d seconds"), seconds);
     }
     std::string strDuration = strprintf(_("Since starting this node %s ago:"), duration);
     std::cout << strDuration << std::endl;
@@ -251,12 +252,13 @@ int printMetrics(size_t cols)
 
     int validatedCount = transactionsValidated.get();
     if (validatedCount > 1) {
-      std::cout << "- " << strprintf(_("You have validated " ANSI_COLOR_LCYAN "%d" ANSI_COLOR_RESET " transactions!"), validatedCount) << std::endl;
+      std::cout << "- " << strprintf(_("You have validated %d transactions!"), validatedCount) << std::endl;
     } else if (validatedCount == 1) {
       std::cout << "- " << _("You have validated a transaction!") << std::endl;
     } else {
-      std::cout << "- " << _(ANSI_COLOR_LYELLOW "You have validated no transactions." ANSI_COLOR_RESET) << std::endl;
+      std::cout << "- " << _("You have validated no transactions.") << std::endl;
     }
+
     std::cout << std::endl;
 
     return lines;
@@ -300,14 +302,12 @@ int printInitMessage()
     }
 
     std::string msg = *initMessage;
-    std::cout << _("Init message:") << " ";
-    if (msg == _("Done loading")) {
-        std::cout << ANSI_COLOR_LGREEN << msg << ANSI_COLOR_RESET;
-        loaded = true;
-    } else {
-        std::cout << ANSI_COLOR_LYELLOW << msg << ANSI_COLOR_RESET;
-    }
+    std::cout << _("Init message:") << " " << msg << std::endl;
     std::cout << std::endl;
+
+    if (msg == _("Done loading")) {
+        loaded = true;
+    }
 
     return 2;
 }
@@ -354,8 +354,12 @@ void ThreadShowMetricsScreen()
         // Clear screen
         std::cout << "\e[2J";
 
+        // Print art
+        std::cout << METRICS_ART << std::endl;
+        std::cout << std::endl;
+
         // Thank you text
-        std::cout << ANSI_COLOR_LGREEN << _("Thank you for running a LitecoinZ node!") << ANSI_COLOR_RESET << std::endl;
+        std::cout << _("Thank you for running a LitecoinZ node!") << std::endl;
         std::cout << std::endl;
     }
 
@@ -385,7 +389,6 @@ void ThreadShowMetricsScreen()
             std::cout << "\e[J";
         }
 
-        // Status
         if (loaded) {
             lines += printStats();
         }
