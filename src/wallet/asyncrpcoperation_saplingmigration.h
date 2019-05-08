@@ -18,6 +18,8 @@ public:
 
     static libzcash::SaplingPaymentAddress getMigrationDestAddress(const HDSeed& seed);
 
+    virtual void cancel();
+
     virtual void main();
 
     virtual UniValue getStatus() const;
