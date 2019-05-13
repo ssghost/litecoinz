@@ -1784,6 +1784,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
 
+    // Wait for genesis block to be processed
     {
         boost::unique_lock<boost::mutex> lock(cs_GenesisWait);
         while (!fHaveGenesis) {
@@ -1813,7 +1814,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if(!StartNode(connman, threadGroup, scheduler, strNodeError))
         return InitError(strNodeError);
 
-    // ********************************************************* Step 11: finished
+    // ********************************************************* Step 12: finished
 
     SetRPCWarmupFinished();
     uiInterface.InitMessage(_("Done loading"));
