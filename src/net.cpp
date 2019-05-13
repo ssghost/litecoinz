@@ -1976,6 +1976,8 @@ bool StartNode(CConnman& connman, boost::thread_group& threadGroup, CScheduler& 
         DumpBanlist();
     }
 
+    uiInterface.InitMessage(_("Starting network threads..."));
+
     fAddressesInitialized = true;
 
     Discover(threadGroup);

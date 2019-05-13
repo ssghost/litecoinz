@@ -9,6 +9,9 @@
 
 #include <crypto/common.h>
 
+#include <chainparams.h>
+#include <consensus/consensus.h>
+#include <consensus/validation.h>
 #include <fs.h>
 #include <key.h>
 #include <main.h>
@@ -115,6 +118,11 @@ TestingSetup::TestingSetup()
         pcoinsdbview = new CCoinsViewDB(1 << 23, true);
         pcoinsTip = new CCoinsViewCache(pcoinsdbview);
         InitBlockIndex(chainparams);
+        {
+            CValidationState state;
+            bool ok = ActivateBestChain(state, chainparams);
+            BOOST_CHECK(ok);
+        }
 #ifdef ENABLE_WALLET
         bool fFirstRun;
         pwalletMain = new CWallet("wallet.dat");
